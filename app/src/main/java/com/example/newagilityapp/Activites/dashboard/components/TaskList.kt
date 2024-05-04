@@ -28,11 +28,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.newagilityapp.R
 import com.example.newagilityapp.model.Task
+import com.example.newagilityapp.utilities.Priority
 
 fun LazyListScope.taskList(
     sectionTitle: String,
     tasks:List<Task>,
-    emptyListText:String
+    emptyListText:String,
+    onTaskCardClick:(Int?) -> Unit,
+    onCheckBoxClick: (Task) -> Unit
 ){
     item {
         Text(
@@ -67,8 +70,8 @@ fun LazyListScope.taskList(
         TaskCard(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
             task = task,
-            onCheckBoxClick = { /*TODO*/ },
-            onClick = {}
+            onCheckBoxClick = { onCheckBoxClick(task) },
+            onClick = {onTaskCardClick(task.TaskId)}
         )
     }
 }
@@ -91,7 +94,7 @@ private fun TaskCard(
         ){
             TaskCheckBox(
                 isDone = task.isDone,
-                borderColor = MaterialTheme.colorScheme.primary,
+                borderColor = Priority.fromInt(task.priority).color,
                 onCheckBoxClick = onCheckBoxClick
             )
             Spacer(modifier = Modifier.width(10.dp))

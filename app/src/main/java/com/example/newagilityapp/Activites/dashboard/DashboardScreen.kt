@@ -49,11 +49,11 @@ fun DashboardScreen(){
     )
 
     val tasks = listOf(
-        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",false, TaskId = 0),
-        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",false, TaskId = 0),
-        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",true, TaskId = 0),
-        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",false, TaskId = 0),
-        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",true, TaskId = 0),
+        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",false, TaskId = 0, priority = 0),
+        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",false, TaskId = 0, priority = 1),
+        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",true, TaskId = 0, priority = 2),
+        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",false, TaskId = 0, priority = 3),
+        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",true, TaskId = 0, priority = 1),
     )
 
     Scaffold(
@@ -92,7 +92,9 @@ fun DashboardScreen(){
             taskList(
                 sectionTitle = "Trabajos por hacer",
                 emptyListText = "No tienes trabajos por hacer. \n Pulsa el botón + para crear una nueva",
-                tasks = tasks
+                tasks = tasks,
+                onCheckBoxClick = {},
+                onTaskCardClick = {}
             )
         }
     }

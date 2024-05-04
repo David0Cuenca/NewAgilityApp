@@ -7,5 +7,6 @@ data class Task(
     val taskProjectId: Int,
     val fromProject:String,
     val isDone: Boolean,
-    val TaskId: Int
+    val TaskId: Int,
+    val priority: Int
 )
