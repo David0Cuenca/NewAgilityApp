@@ -3,6 +3,7 @@ package com.example.newagilityapp.Activites.dashboard
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -28,11 +31,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.newagilityapp.Activites.dashboard.components.CountCard
+import com.example.newagilityapp.Activites.dashboard.components.ProjectCard
 import com.example.newagilityapp.R
 import com.example.newagilityapp.model.Project
 
 @Composable
 fun DashboardScreen(){
+
+    val projects = listOf(
+        Project(name = "Aldi", EndDate = "12/12/2020", colors = Project.CardColors[1]),
+        Project(name = "Consejos", EndDate = "12/12/2020", colors = Project.CardColors[1]),
+        Project(name = "Clases", EndDate = "12/12/2020", colors = Project.CardColors[1]),
+    )
+
     Scaffold(
         topBar = { DashboardScreenTopBar() }
     ) {paddingValues ->
@@ -53,7 +64,7 @@ fun DashboardScreen(){
             item {
                 ProjectsCardSection(
                     modifier = Modifier.fillMaxWidth(),
-                    projectList = emptyList()
+                    projectList = projects
                 )
             }
         }
@@ -114,7 +125,7 @@ private fun ProjectsCardSection(
         ) {
             Text(
                 text = "Proyectos",
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(start = 12.dp)
             )
             IconButton(onClick = { /*TODO*/ }) {
@@ -138,6 +149,19 @@ private fun ProjectsCardSection(
                 style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center
             )
+
+        }
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(start = 12.dp, end = 12.dp)
+        ){
+            items(projectList) { projectList ->
+                ProjectCard(
+                    projectname = projectList.name,
+                    gradientColors = projectList.colors,
+                    onClick = {}
+                )
+            }
         }
     }
 }
