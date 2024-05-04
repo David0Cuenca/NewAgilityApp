@@ -11,7 +11,8 @@ import com.example.newagilityapp.ui.theme.gradient5
 data class Project(
     val name: String,
     val EndDate:String,
-    val colors: List<Color>
+    val colors: List<Color>,
+    val projectId : Int
 ){
     companion object {
         val CardColors = listOf(gradient1, gradient2, gradient3, gradient4, gradient5)

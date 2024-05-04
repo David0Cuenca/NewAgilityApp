@@ -43,17 +43,17 @@ import com.example.newagilityapp.model.Task
 fun DashboardScreen(){
 
     val projects = listOf(
-        Project(name = "Aldi", EndDate = "12/12/2020", colors = Project.CardColors[1]),
-        Project(name = "Consejos", EndDate = "12/12/2020", colors = Project.CardColors[1]),
-        Project(name = "Clases", EndDate = "12/12/2020", colors = Project.CardColors[1]),
+        Project(name = "Aldi", EndDate = "12/12/2020", colors = Project.CardColors[1], projectId = 0),
+        Project(name = "Consejos", EndDate = "12/12/2020", colors = Project.CardColors[1], projectId = 0),
+        Project(name = "Clases", EndDate = "12/12/2020", colors = Project.CardColors[1], projectId = 0),
     )
 
     val tasks = listOf(
-        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, fromProject = "",false),
-        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, fromProject = "",false),
-        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, fromProject = "",true),
-        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, fromProject = "",false),
-        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, fromProject = "",false),
+        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",false, TaskId = 0),
+        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",false, TaskId = 0),
+        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",true, TaskId = 0),
+        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",false, TaskId = 0),
+        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",true, TaskId = 0),
     )
 
     Scaffold(
