@@ -33,6 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.newagilityapp.Activites.dashboard.components.CountCard
 import com.example.newagilityapp.Activites.dashboard.components.ProjectCard
+import com.example.newagilityapp.Activites.dashboard.components.taskList
 import com.example.newagilityapp.R
 import com.example.newagilityapp.model.Project
 
@@ -78,6 +79,11 @@ fun DashboardScreen(){
                     Text(text = "Creación de proyectos")
                 }
             }
+            taskList(
+                sectionTitle = "Trabajos por hacer",
+                emptyListText = "No tienes trabajos por hacer. \n Pulsa el botón + para crear una nueva",
+                tasks = emptyList()
+            )
         }
     }
 }
@@ -89,7 +95,7 @@ private fun DashboardScreenTopBar(){
         title = {
             Text(
                 text = "New Agility",
-                style = MaterialTheme.typography.headlineMedium
+                style = MaterialTheme.typography.headlineLarge
             )
         }
     )
@@ -136,7 +142,7 @@ private fun ProjectsCardSection(
         ) {
             Text(
                 text = "Proyectos",
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(start = 12.dp)
             )
             IconButton(onClick = { /*TODO*/ }) {
