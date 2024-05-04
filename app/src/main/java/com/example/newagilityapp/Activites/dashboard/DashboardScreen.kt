@@ -1,5 +1,6 @@
 package com.example.newagilityapp.Activites.dashboard
 
+import android.icu.text.CaseMap.Title
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -36,6 +37,7 @@ import com.example.newagilityapp.Activites.dashboard.components.ProjectCard
 import com.example.newagilityapp.Activites.dashboard.components.taskList
 import com.example.newagilityapp.R
 import com.example.newagilityapp.model.Project
+import com.example.newagilityapp.model.Task
 
 @Composable
 fun DashboardScreen(){
@@ -44,6 +46,14 @@ fun DashboardScreen(){
         Project(name = "Aldi", EndDate = "12/12/2020", colors = Project.CardColors[1]),
         Project(name = "Consejos", EndDate = "12/12/2020", colors = Project.CardColors[1]),
         Project(name = "Clases", EndDate = "12/12/2020", colors = Project.CardColors[1]),
+    )
+
+    val tasks = listOf(
+        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, fromProject = "",false),
+        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, fromProject = "",false),
+        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, fromProject = "",true),
+        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, fromProject = "",false),
+        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, fromProject = "",false),
     )
 
     Scaffold(
@@ -82,7 +92,7 @@ fun DashboardScreen(){
             taskList(
                 sectionTitle = "Trabajos por hacer",
                 emptyListText = "No tienes trabajos por hacer. \n Pulsa el botón + para crear una nueva",
-                tasks = emptyList()
+                tasks = tasks
             )
         }
     }

@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -17,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -60,15 +63,25 @@ fun LazyListScope.taskList(
                 }
         }
     }
+    items(tasks) { task ->
+        TaskCard(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+            task = task,
+            onCheckBoxClick = { /*TODO*/ },
+            onClick = {}
+        )
+    }
 }
 
 @Composable
 private fun TaskCard(
     modifier: Modifier = Modifier,
-    task: Task
+    task: Task,
+    onCheckBoxClick:() -> Unit,
+    onClick:() -> Unit
 ){
     ElevatedCard (
-        modifier = modifier.clickable{ }
+        modifier = modifier.clickable{ onClick() }
     ){
         Row (
             modifier = Modifier
@@ -76,6 +89,12 @@ private fun TaskCard(
                 .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ){
+            TaskCheckBox(
+                isDone = task.isDone,
+                borderColor = MaterialTheme.colorScheme.primary,
+                onCheckBoxClick = onCheckBoxClick
+            )
+            Spacer(modifier = Modifier.width(10.dp))
             Column {
                 Text(
                     text = task.title,
