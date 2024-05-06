@@ -34,9 +34,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.newagilityapp.Activites.dashboard.components.CountCard
 import com.example.newagilityapp.Activites.dashboard.components.ProjectCard
+import com.example.newagilityapp.Activites.dashboard.components.projectSessionsList
 import com.example.newagilityapp.Activites.dashboard.components.taskList
 import com.example.newagilityapp.R
 import com.example.newagilityapp.model.Project
+import com.example.newagilityapp.model.Session
 import com.example.newagilityapp.model.Task
 
 @Composable
@@ -54,6 +56,14 @@ fun DashboardScreen(){
         Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",true, TaskId = 0, priority = 2),
         Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",false, TaskId = 0, priority = 3),
         Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",true, TaskId = 0, priority = 1),
+    )
+
+    val sesions = listOf(
+        Session(fromProject = "Aldi", date = 0L, duration = 2, projectSessionId = 0, sessionId = 0),
+        Session(fromProject = "Cien", date = 0L, duration = 2, projectSessionId = 0, sessionId = 0),
+        Session(fromProject = "Aldi", date = 0L, duration = 2, projectSessionId = 0, sessionId = 0),
+        Session(fromProject = "Agility", date = 0L, duration = 2, projectSessionId = 0, sessionId = 0),
+        Session(fromProject = "Aldi", date = 0L, duration = 2, projectSessionId = 0, sessionId = 0),
     )
 
     Scaffold(
@@ -95,6 +105,15 @@ fun DashboardScreen(){
                 tasks = tasks,
                 onCheckBoxClick = {},
                 onTaskCardClick = {}
+            )
+            item { 
+                Spacer(modifier = Modifier.size(20.dp))
+            }
+            projectSessionsList(
+                sectionTitle = "Sessiones de Projecto",
+                emptyListText = "No tienes ninguna sesión de Proyectos.\n !Añade una ahora¡",
+                sessions = sesions,
+                onDeleteIconClick = {}
             )
         }
     }
