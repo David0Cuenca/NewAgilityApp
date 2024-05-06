@@ -26,6 +26,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,7 +38,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.newagilityapp.Activites.dashboard.components.CountCard
+import com.example.newagilityapp.Activites.dashboard.components.NewProjectDialog
 import com.example.newagilityapp.Activites.dashboard.components.ProjectCard
+
 import com.example.newagilityapp.Activites.dashboard.components.projectSessionsList
 import com.example.newagilityapp.Activites.dashboard.components.taskList
 import com.example.newagilityapp.R
@@ -66,6 +73,28 @@ fun DashboardScreen(){
         Session(fromProject = "Aldi", date = 0L, duration = 2, projectSessionId = 0, sessionId = 0),
     )
 
+    var isOpenNewProject by rememberSaveable { mutableStateOf(false) }
+
+    var projectName by remember { mutableStateOf("") }
+    var goalHours by remember { mutableStateOf("") }
+    var selectedColor by remember { mutableStateOf(Project.CardColors.random()) }
+
+    NewProjectDialog(
+        isOpen = isOpenNewProject,
+        title = "",
+        selectedColors = selectedColor,
+        projectname = projectName,
+        goalHours = goalHours,
+        onColorChange = {selectedColor = it},
+        onProjectNameChange = {projectName = it},
+        onGoalHoursChange = {goalHours = it},
+        onDismissRequest = { isOpenNewProject = false },
+        onConfirmButtonsClick = {
+            isOpenNewProject = false
+        },
+
+    )
+
     Scaffold(
         topBar = { DashboardScreenTopBar() }
     ) {paddingValues ->
@@ -86,7 +115,10 @@ fun DashboardScreen(){
             item {
                 ProjectsCardSection(
                     modifier = Modifier.fillMaxWidth(),
-                    projectList = projects
+                    projectList = projects,
+                    onAddIconClicked = {
+                        isOpenNewProject = true
+                    }
                 )
             }
             item {
@@ -163,7 +195,8 @@ private fun CountCardSection(
 private fun ProjectsCardSection(
     modifier: Modifier,
     projectList: List<Project>,
-    emptyListText:String = "No tienes ningun Proyecto.\n Pulsa el botón + para añadir un nuevo proyecto"
+    emptyListText:String = "No tienes ningun Proyecto.\n Pulsa el botón + para añadir un nuevo proyecto",
+    onAddIconClicked:() -> Unit
 ){
     Column(modifier = Modifier) {
         Row(
@@ -176,7 +209,7 @@ private fun ProjectsCardSection(
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(start = 12.dp)
             )
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = onAddIconClicked) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Añadir Proyecto"
