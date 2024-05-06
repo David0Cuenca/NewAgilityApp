@@ -20,6 +20,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -41,6 +45,23 @@ fun NewProjectDialog(
     onDismissRequest: () -> Unit,
     onConfirmButtonsClick: () -> Unit
 ){
+    var projectNameError by rememberSaveable { mutableStateOf<String?>(value = null) }
+    var goalHoursError by rememberSaveable { mutableStateOf<String?>(value = null) }
+
+    projectNameError = when {
+        projectname.isBlank() -> "Introduzca un nombre"
+        projectname.length < 2 -> "¡Nombre demasiado corto!"
+        projectname.length > 20 -> "¡Nombre demasiado largo!"
+        else -> null
+    }
+    goalHoursError = when {
+        goalHours.isBlank() -> "Introduzca una hora"
+        goalHours.toFloatOrNull() == null -> "¡Introduzca una hora valida!"
+        goalHours.toFloat() < 1f -> "Introduzca al menos una hora."
+        goalHours.toFloat() > 1000f -> "El máximo de horas son 1000."
+        else -> null
+    }
+
     if (isOpen) {
         AlertDialog(
             onDismissRequest = onDismissRequest,
@@ -65,15 +86,17 @@ fun NewProjectDialog(
                                         shape = CircleShape
                                     )
                                     .background(brush = Brush.verticalGradient(colors))
-                                    .clickable {onColorChange(colors)}
+                                    .clickable { onColorChange(colors) }
                             )
                         }
                     }
                     OutlinedTextField(
-                            value = projectname,
-                    onValueChange = onProjectNameChange,
-                    label = { Text(text = "Nombre del Proyecto")},
-                    singleLine = true
+                        value = projectname,
+                        onValueChange = onProjectNameChange,
+                        label = { Text(text = "Nombre del Proyecto")},
+                        singleLine = true,
+                        isError = projectNameError != null && projectname.isNotBlank(),
+                        supportingText = { Text(text = projectNameError.orEmpty())}
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     OutlinedTextField(
@@ -81,20 +104,25 @@ fun NewProjectDialog(
                         onValueChange = onGoalHoursChange,
                         label = { Text(text = "Cantidad de sessiones")},
                         singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        isError = goalHoursError != null && goalHours.isNotBlank(),
+                        supportingText = { Text(text = goalHoursError.orEmpty())}
                     )
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = onConfirmButtonsClick) {
-                    Text(text = "Guardar")
                 }
             },
             dismissButton = {
                 TextButton(onClick = onDismissRequest) {
                     Text(text = "Cancel")
                 }
-            }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = onConfirmButtonsClick,
+                    enabled = projectNameError == null && goalHoursError == null
+                ) {
+                    Text(text = "Guardar")
+                }
+            },
         )
     }
 }
