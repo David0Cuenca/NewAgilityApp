@@ -38,6 +38,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.newagilityapp.Activites.dashboard.components.CountCard
+import com.example.newagilityapp.Activites.dashboard.components.DeleteDialog
 import com.example.newagilityapp.Activites.dashboard.components.NewProjectDialog
 import com.example.newagilityapp.Activites.dashboard.components.ProjectCard
 
@@ -75,6 +76,8 @@ fun DashboardScreen(){
 
     var isOpenNewProject by rememberSaveable { mutableStateOf(false) }
 
+    var isOpenDelete by rememberSaveable { mutableStateOf(false) }
+
     var projectName by remember { mutableStateOf("") }
     var goalHours by remember { mutableStateOf("") }
     var selectedColor by remember { mutableStateOf(Project.CardColors.random()) }
@@ -93,6 +96,15 @@ fun DashboardScreen(){
             isOpenNewProject = false
         },
 
+    )
+
+    DeleteDialog(
+        isOpen = isOpenDelete,
+        title = "Borrar sesión",
+        text = "Vas a borrar una sessión de un proyecto \n " +
+                "¿Estas seguro de hacerlo? Recuerda que esto no se puede revertir una vez hecho",
+        onDismissRequest = { isOpenDelete = false },
+        onConfirmButtonsClick = {isOpenDelete = false}
     )
 
     Scaffold(
@@ -142,10 +154,10 @@ fun DashboardScreen(){
                 Spacer(modifier = Modifier.size(20.dp))
             }
             projectSessionsList(
-                sectionTitle = "Sessiones de Projecto",
+                sectionTitle = "Sesiones de los proyectos",
                 emptyListText = "No tienes ninguna sesión de Proyectos.\n !Añade una ahora¡",
                 sessions = sesions,
-                onDeleteIconClick = {}
+                onDeleteIconClick = {isOpenDelete = true}
             )
         }
     }
