@@ -1,6 +1,5 @@
 package com.example.newagilityapp.Activites.project
 
-import android.health.connect.datatypes.units.Percentage
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -12,44 +11,115 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.newagilityapp.Activites.dashboard.components.CountCard
+import com.example.newagilityapp.Activites.dashboard.components.DeleteDialog
+import com.example.newagilityapp.Activites.dashboard.components.NewProjectDialog
 import com.example.newagilityapp.Activites.dashboard.components.projectSessionsList
 import com.example.newagilityapp.Activites.dashboard.components.taskList
+import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.sesions
 import com.example.newagilityapp.tasks
-import javax.security.auth.Subject
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProjectScreen(){
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val listState = rememberLazyListState()
+    val isFABExpanded by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
+
+    var isOpenEditProject by rememberSaveable { mutableStateOf(false) }
+    var isOpenDeleteProject by rememberSaveable { mutableStateOf(false) }
+    var isOpenDeleteSession by rememberSaveable { mutableStateOf(false) }
+
+    var projectName by remember { mutableStateOf("") }
+    var goalHours by remember { mutableStateOf("") }
+    var selectedColor by remember { mutableStateOf(Project.CardColors.random()) }
+
+    NewProjectDialog(
+        isOpen = isOpenEditProject,
+        title = "Añadir Projecto",
+        selectedColors = selectedColor,
+        projectname = projectName,
+        goalHours = goalHours,
+        onColorChange = {selectedColor = it},
+        onProjectNameChange = {projectName = it},
+        onGoalHoursChange = {goalHours = it},
+        onDismissRequest = { isOpenEditProject = false },
+        onConfirmButtonsClick = {
+            isOpenEditProject = false
+        },
+
+        )
+
+    DeleteDialog(
+        isOpen = isOpenDeleteProject,
+        title = "¿Borrar el proyecto?",
+        text = "Vas a borrar un proyecto \n " +
+                "¿Estas seguro de hacerlo? Recuerda que esto no se puede revertir una vez hecho",
+        onDismissRequest = { isOpenDeleteProject = false },
+        onConfirmButtonsClick = {isOpenDeleteProject = false}
+    )
+
+    DeleteDialog(
+        isOpen = isOpenDeleteSession,
+        title = "¿Borrar la sesión?",
+        text = "Vas a borrar una sessión de un proyecto \n " +
+                "¿Estas seguro de hacerlo? Recuerda que esto no se puede revertir una vez hecho",
+        onDismissRequest = { isOpenDeleteSession = false },
+        onConfirmButtonsClick = {isOpenDeleteSession = false}
+    )
+
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = { ProjectScreenTopBar(
             title = "Aldi",
             onBackClick = {},
-            onDeleteClick = {},
-            onEditClick = {}
+            onDeleteClick = {isOpenDeleteProject = true},
+            onEditClick = {isOpenEditProject = true},
+            scrollBehavior = scrollBehavior
+            )
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                text = { Text(text = "Añadir Trabajo") },
+                icon = { Icon(imageVector = Icons.Default.Add, contentDescription = "Añadir")},
+                onClick = { isOpenEditProject = true },
+                expanded = isFABExpanded
             )
         }
     ) {paddingValue ->
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValue)
@@ -88,7 +158,7 @@ fun ProjectScreen(){
                 sectionTitle = "Sesiones de los proyectos",
                 emptyListText = "No tienes ninguna sesión de Proyectos.\n !Añade una ahora¡",
                 sessions = sesions,
-                onDeleteIconClick = {}
+                onDeleteIconClick = {isOpenDeleteSession = true}
             )
         }
     }
@@ -100,11 +170,13 @@ private fun ProjectScreenTopBar(
     title: String,
     onBackClick:() -> Unit,
     onDeleteClick:() -> Unit,
-    onEditClick:() -> Unit
+    onEditClick:() -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior
 ){
     LargeTopAppBar(
+        scrollBehavior = scrollBehavior,
         navigationIcon = {
-            IconButton(onClick = { onBackClick }) {
+            IconButton(onClick = { onBackClick() }) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Ir atras"
@@ -118,13 +190,13 @@ private fun ProjectScreenTopBar(
             style = MaterialTheme.typography.headlineLarge
         )},
         actions = {
-            IconButton(onClick = { onDeleteClick }) {
+            IconButton(onClick = { onDeleteClick() }) {
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Borrar Proyecto"
                 )
             }
-            IconButton(onClick = { onEditClick }) {
+            IconButton(onClick = { onEditClick() }) {
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = "Editar Proyecto"
