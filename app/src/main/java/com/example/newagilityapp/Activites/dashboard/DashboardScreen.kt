@@ -48,31 +48,14 @@ import com.example.newagilityapp.R
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Session
 import com.example.newagilityapp.model.Task
+import com.example.newagilityapp.projects
+import com.example.newagilityapp.sesions
+import com.example.newagilityapp.tasks
 
 @Composable
 fun DashboardScreen(){
 
-    val projects = listOf(
-        Project(name = "Aldi", EndDate = "12/12/2020", colors = Project.CardColors[1], projectId = 0),
-        Project(name = "Consejos", EndDate = "12/12/2020", colors = Project.CardColors[1], projectId = 0),
-        Project(name = "Clases", EndDate = "12/12/2020", colors = Project.CardColors[1], projectId = 0),
-    )
 
-    val tasks = listOf(
-        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",false, TaskId = 0, priority = 0),
-        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",false, TaskId = 0, priority = 1),
-        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",true, TaskId = 0, priority = 2),
-        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",false, TaskId = 0, priority = 3),
-        Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",true, TaskId = 0, priority = 1),
-    )
-
-    val sesions = listOf(
-        Session(fromProject = "Aldi", date = 0L, duration = 2, projectSessionId = 0, sessionId = 0),
-        Session(fromProject = "Cien", date = 0L, duration = 2, projectSessionId = 0, sessionId = 0),
-        Session(fromProject = "Aldi", date = 0L, duration = 2, projectSessionId = 0, sessionId = 0),
-        Session(fromProject = "Agility", date = 0L, duration = 2, projectSessionId = 0, sessionId = 0),
-        Session(fromProject = "Aldi", date = 0L, duration = 2, projectSessionId = 0, sessionId = 0),
-    )
 
     var isOpenNewProject by rememberSaveable { mutableStateOf(false) }
 
