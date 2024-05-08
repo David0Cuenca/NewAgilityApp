@@ -84,7 +84,7 @@ fun DashboardScreen(){
 
     NewProjectDialog(
         isOpen = isOpenNewProject,
-        title = "",
+        title = "Añadir Projecto",
         selectedColors = selectedColor,
         projectname = projectName,
         goalHours = goalHours,
@@ -135,9 +135,9 @@ fun DashboardScreen(){
             }
             item {
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = { isOpenNewProject = true },
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth() 
                         .padding(horizontal = 48.dp, vertical = 20.dp)
                 ) {
                     Text(text = "Creación de proyectos")

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -35,7 +36,7 @@ import com.example.newagilityapp.model.Project
 @Composable
 fun NewProjectDialog(
     isOpen:Boolean,
-    title: String = "Añadir Projecto",
+    title: String,
     selectedColors:List<Color>,
     projectname: String,
     goalHours: String,
