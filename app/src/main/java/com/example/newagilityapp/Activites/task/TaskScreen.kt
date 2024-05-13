@@ -39,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -49,10 +50,12 @@ import com.example.newagilityapp.Activites.components.DeleteDialog
 import com.example.newagilityapp.Activites.components.SubjectListBottomSheet
 import com.example.newagilityapp.Activites.components.TaskCheckBox
 import com.example.newagilityapp.Activites.components.TaskDatePicker
+import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.projects
 import com.example.newagilityapp.ui.theme.Red
 import com.example.newagilityapp.utilities.Priority
 import com.example.newagilityapp.utilities.changeMillisToDateString
+import kotlinx.coroutines.launch
 import java.time.Instant
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -65,12 +68,13 @@ fun TaskScreen(){
         initialSelectedDateMillis = Instant.now().toEpochMilli()
     )
 
+    val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState()
     var isBottomSheetOpen by remember { mutableStateOf(false) }
 
+    var selectedProject by remember { mutableStateOf<Project?>(null) }
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-
     var taskTitleError by rememberSaveable { mutableStateOf<String?>(null) }
 
     taskTitleError = when {
@@ -103,8 +107,11 @@ fun TaskScreen(){
         isOpen = isBottomSheetOpen,
         projects = projects,
         onDismissRequest = {isBottomSheetOpen = false},
-        onSubjectClicked ={
-
+        onSubjectClicked ={project ->
+            selectedProject = project
+            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                if(!sheetState.isVisible) isBottomSheetOpen=false
+            }
         }
     )
     Scaffold(
@@ -187,7 +194,7 @@ fun TaskScreen(){
             }
             Spacer(modifier = Modifier.height(30.dp))
             Text(
-                text = "Relaciona con el proyecto",
+                text = "Relacionado con el proyecto",
                 style = MaterialTheme.typography.bodyMedium
             )
             Row(
@@ -195,10 +202,10 @@ fun TaskScreen(){
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ){
-                Text(
-                    text = "Aldi",
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                    Text(
+                        text = selectedProject?.name ?:"Seleciona un projecto",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
                 IconButton(onClick = { isBottomSheetOpen = true }) {
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,

@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.newagilityapp.Activites.dashboard.DashboardScreen
 import com.example.newagilityapp.Activites.project.ProjectScreen
+import com.example.newagilityapp.Activites.session.SessionScreen
 import com.example.newagilityapp.Activites.task.TaskScreen
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Session
@@ -23,7 +24,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             NewAgilityAppTheme {
-                TaskScreen()
+                SessionScreen()
             }
         }
     }
