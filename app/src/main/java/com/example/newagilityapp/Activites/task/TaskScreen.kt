@@ -33,6 +33,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -45,8 +46,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.newagilityapp.Activites.components.DeleteDialog
+import com.example.newagilityapp.Activites.components.SubjectListBottomSheet
 import com.example.newagilityapp.Activites.components.TaskCheckBox
 import com.example.newagilityapp.Activites.components.TaskDatePicker
+import com.example.newagilityapp.projects
 import com.example.newagilityapp.ui.theme.Red
 import com.example.newagilityapp.utilities.Priority
 import com.example.newagilityapp.utilities.changeMillisToDateString
@@ -61,6 +64,9 @@ fun TaskScreen(){
     var datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = Instant.now().toEpochMilli()
     )
+
+    val sheetState = rememberModalBottomSheetState()
+    var isBottomSheetOpen by remember { mutableStateOf(false) }
 
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -92,7 +98,15 @@ fun TaskScreen(){
             isDatePickerOpen = false
         }
     )
-    
+    SubjectListBottomSheet(
+        sheetState = sheetState,
+        isOpen = isBottomSheetOpen,
+        projects = projects,
+        onDismissRequest = {isBottomSheetOpen = false},
+        onSubjectClicked ={
+
+        }
+    )
     Scaffold(
         topBar = {
             TaskScreenTopBar(
@@ -185,7 +199,7 @@ fun TaskScreen(){
                     text = "Aldi",
                     style = MaterialTheme.typography.bodyLarge
                 )
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(onClick = { isBottomSheetOpen = true }) {
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
                         contentDescription = "Selecionar Proyecto"
