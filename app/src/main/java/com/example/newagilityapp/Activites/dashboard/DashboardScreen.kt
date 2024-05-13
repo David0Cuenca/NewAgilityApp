@@ -55,8 +55,6 @@ import com.example.newagilityapp.tasks
 @Composable
 fun DashboardScreen(){
 
-
-
     var isOpenNewProject by rememberSaveable { mutableStateOf(false) }
 
     var isOpenDelete by rememberSaveable { mutableStateOf(false) }
