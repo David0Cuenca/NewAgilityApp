@@ -1,6 +1,8 @@
 package com.example.newagilityapp.Activites.task
 
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -30,8 +32,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -40,17 +44,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.newagilityapp.Activites.dashboard.components.DeleteDialog
-import com.example.newagilityapp.Activites.dashboard.components.TaskCheckBox
+import com.example.newagilityapp.Activites.components.DeleteDialog
+import com.example.newagilityapp.Activites.components.TaskCheckBox
+import com.example.newagilityapp.Activites.components.TaskDatePicker
 import com.example.newagilityapp.ui.theme.Red
 import com.example.newagilityapp.utilities.Priority
+import com.example.newagilityapp.utilities.changeMillisToDateString
+import java.time.Instant
 
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(){
     var isDeleteDialogOpen by rememberSaveable { mutableStateOf(false) }
+    var isDatePickerOpen by rememberSaveable { mutableStateOf(false) }
+    var datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = Instant.now().toEpochMilli()
+    )
+
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
+
     var taskTitleError by rememberSaveable { mutableStateOf<String?>(null) }
+
     taskTitleError = when {
         title.isBlank() -> "Por favor introduzca un titulo."
         title.length < 4 -> "Titulo muy corto."
@@ -63,8 +79,18 @@ fun TaskScreen(){
         title = "¿Borrar trabajo?",
         text = "¿Estas seguro de que quieres borrar este trabajo? " +
                 "Esta accion no se puede revertir",
-        onDismissRequest = { isDeleteDialogOpen = false },
+        onDismissRequest = { isDeleteDialogOpen = false},
         onConfirmButtonsClick = {isDeleteDialogOpen = false}
+    )
+    
+    TaskDatePicker(
+        state = datePickerState,
+        isOpen = isDatePickerOpen,
+        onDismissRequest = {
+            isDatePickerOpen = false },
+        onConfirmButtonClick = {
+            isDatePickerOpen = false
+        }
     )
     
     Scaffold(
@@ -113,10 +139,10 @@ fun TaskScreen(){
                 verticalAlignment = Alignment.CenterVertically
             ){
                 Text(
-                    text = "31 de agosto",
+                    text = datePickerState.selectedDateMillis.changeMillisToDateString(),
                     style = MaterialTheme.typography.bodyLarge
                 )
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(onClick = { isDatePickerOpen = true }) {
                     Icon(
                         imageVector = Icons.Default.DateRange,
                         contentDescription = "Seleciona fecha final"

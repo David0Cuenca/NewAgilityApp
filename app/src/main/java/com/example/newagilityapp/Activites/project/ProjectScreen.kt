@@ -41,11 +41,11 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.newagilityapp.Activites.dashboard.components.CountCard
-import com.example.newagilityapp.Activites.dashboard.components.DeleteDialog
-import com.example.newagilityapp.Activites.dashboard.components.NewProjectDialog
-import com.example.newagilityapp.Activites.dashboard.components.projectSessionsList
-import com.example.newagilityapp.Activites.dashboard.components.taskList
+import com.example.newagilityapp.Activites.components.CountCard
+import com.example.newagilityapp.Activites.components.DeleteDialog
+import com.example.newagilityapp.Activites.components.NewProjectDialog
+import com.example.newagilityapp.Activites.components.projectSessionsList
+import com.example.newagilityapp.Activites.components.taskList
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.sesions
 import com.example.newagilityapp.tasks
