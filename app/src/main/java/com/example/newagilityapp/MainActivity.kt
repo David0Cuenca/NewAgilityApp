@@ -3,28 +3,19 @@ package com.example.newagilityapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.newagilityapp.Activites.dashboard.DashboardScreen
-import com.example.newagilityapp.Activites.project.ProjectScreen
-import com.example.newagilityapp.Activites.session.SessionScreen
-import com.example.newagilityapp.Activites.task.TaskScreen
+import com.example.newagilityapp.activites.NavGraphs
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Session
 import com.example.newagilityapp.model.Task
 import com.example.newagilityapp.ui.theme.NewAgilityAppTheme
+import com.ramcosta.composedestinations.DestinationsNavHost
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             NewAgilityAppTheme {
-                SessionScreen()
+                DestinationsNavHost(navGraph = NavGraphs.root)
             }
         }
     }

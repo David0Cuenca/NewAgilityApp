@@ -1,4 +1,4 @@
-package com.example.newagilityapp.Activites.task
+package com.example.newagilityapp.activites.task
 
 
 import android.os.Build
@@ -36,7 +36,6 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -46,22 +45,40 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.newagilityapp.Activites.components.DeleteDialog
-import com.example.newagilityapp.Activites.components.SubjectListBottomSheet
-import com.example.newagilityapp.Activites.components.TaskCheckBox
-import com.example.newagilityapp.Activites.components.TaskDatePicker
+import com.example.newagilityapp.activites.components.DeleteDialog
+import com.example.newagilityapp.activites.components.SubjectListBottomSheet
+import com.example.newagilityapp.activites.components.TaskCheckBox
+import com.example.newagilityapp.activites.components.TaskDatePicker
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.projects
 import com.example.newagilityapp.ui.theme.Red
 import com.example.newagilityapp.utilities.Priority
 import com.example.newagilityapp.utilities.changeMillisToDateString
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import java.time.Instant
 
+data class TaskScreenNavArgs(
+    val taskId: Int?,
+    val projectId: Int?
+)
+@Destination(navArgsDelegate = TaskScreenNavArgs::class)
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun TaskScreenRoute(
+    navigator: DestinationsNavigator
+){
+    TaskScreen(
+        onBackButtonClick = {navigator.navigateUp()}
+    )
+}
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskScreen(){
+fun TaskScreen(
+    onBackButtonClick: () -> Unit
+){
     var isDeleteDialogOpen by rememberSaveable { mutableStateOf(false) }
     var isDatePickerOpen by rememberSaveable { mutableStateOf(false) }
     var datePickerState = rememberDatePickerState(
@@ -120,7 +137,7 @@ fun TaskScreen(){
                 isTaskExist = true,
                 isDone = false,
                 checkboxBorderColor = Red,
-                onBackButtonClick = {  },
+                onBackButtonClick = onBackButtonClick,
                 onDeleteButtonClick = { isDeleteDialogOpen = true },
                 onCheckBoxClick = {}
             )

@@ -1,4 +1,4 @@
-package com.example.newagilityapp.Activites.components
+package com.example.newagilityapp.activites.components
 
 import android.os.Build
 import androidx.annotation.RequiresApi

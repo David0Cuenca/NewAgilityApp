@@ -1,4 +1,4 @@
-package com.example.newagilityapp.Activites.components
+package com.example.newagilityapp.activites.components
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text

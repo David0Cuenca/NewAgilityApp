@@ -1,4 +1,4 @@
-package com.example.newagilityapp.Activites.dashboard
+package com.example.newagilityapp.activites.dashboard
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -35,22 +35,53 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.newagilityapp.Activites.components.CountCard
-import com.example.newagilityapp.Activites.components.DeleteDialog
-import com.example.newagilityapp.Activites.components.NewProjectDialog
-import com.example.newagilityapp.Activites.components.ProjectCard
+import com.example.newagilityapp.activites.components.CountCard
+import com.example.newagilityapp.activites.components.DeleteDialog
+import com.example.newagilityapp.activites.components.NewProjectDialog
+import com.example.newagilityapp.activites.components.ProjectCard
 
-import com.example.newagilityapp.Activites.components.projectSessionsList
-import com.example.newagilityapp.Activites.components.taskList
+import com.example.newagilityapp.activites.components.projectSessionsList
+import com.example.newagilityapp.activites.components.taskList
+import com.example.newagilityapp.activites.destinations.ProjectScreenRouteDestination
+import com.example.newagilityapp.activites.destinations.SessionScreenRouteDestination
+import com.example.newagilityapp.activites.destinations.TaskScreenRouteDestination
+import com.example.newagilityapp.activites.project.ProjectScreenNavArgs
+import com.example.newagilityapp.activites.task.TaskScreenNavArgs
 import com.example.newagilityapp.R
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.projects
 import com.example.newagilityapp.sesions
 import com.example.newagilityapp.tasks
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+
+@Destination(start = true)
+@Composable
+fun DashboardScreenRoute(
+    navigator: DestinationsNavigator
+){
+    DashboardScreen(
+        onProjectCardClick ={ projectId ->
+            projectId?.let {
+                val navArg = ProjectScreenNavArgs(projectId = projectId)
+                navigator.navigate(ProjectScreenRouteDestination(navArgs = navArg))
+            } },
+        onTaskCardClick = {taskId ->
+            val navArg = TaskScreenNavArgs(taskId = taskId,projectId = null)
+            navigator.navigate(TaskScreenRouteDestination(navArgs = navArg))
+        },
+        onStartSessionButtonClick = {
+            navigator.navigate(SessionScreenRouteDestination())
+        }
+    )
+}
 
 @Composable
-fun DashboardScreen(){
-
+fun DashboardScreen(
+    onProjectCardClick:(Int?) ->Unit,
+    onTaskCardClick: (Int?) -> Unit,
+    onStartSessionButtonClick: () -> Unit
+){
     var isOpenNewProject by rememberSaveable { mutableStateOf(false) }
 
     var isOpenDelete by rememberSaveable { mutableStateOf(false) }
@@ -107,17 +138,18 @@ fun DashboardScreen(){
                     projectList = projects,
                     onAddIconClicked = {
                         isOpenNewProject = true
-                    }
+                    },
+                    onProjectCardClick = onProjectCardClick
                 )
             }
             item {
                 Button(
-                    onClick = { isOpenNewProject = true },
+                    onClick = onStartSessionButtonClick,
                     modifier = Modifier
-                        .fillMaxWidth() 
+                        .fillMaxWidth()
                         .padding(horizontal = 48.dp, vertical = 20.dp)
                 ) {
-                    Text(text = "Creación de proyectos")
+                    Text(text = "Iniciar sesión de trabajo")
                 }
             }
             taskList(
@@ -125,7 +157,7 @@ fun DashboardScreen(){
                 emptyListText = "No tienes trabajos por hacer. \n Pulsa el botón + para crear una nueva",
                 tasks = tasks,
                 onCheckBoxClick = {},
-                onTaskCardClick = {}
+                onTaskCardClick = onTaskCardClick
             )
             item { 
                 Spacer(modifier = Modifier.size(20.dp))
@@ -185,7 +217,8 @@ private fun ProjectsCardSection(
     modifier: Modifier,
     projectList: List<Project>,
     emptyListText:String = "No tienes ningun Proyecto.\n Pulsa el botón + para añadir un nuevo proyecto",
-    onAddIconClicked:() -> Unit
+    onAddIconClicked:() -> Unit,
+    onProjectCardClick: (Int?) -> Unit
 ){
     Column(modifier = Modifier) {
         Row(
@@ -229,7 +262,7 @@ private fun ProjectsCardSection(
                 ProjectCard(
                     projectname = projectList.name,
                     gradientColors = projectList.colors,
-                    onClick = {}
+                    onClick = { onProjectCardClick(projectList.projectId) }
                 )
             }
         }

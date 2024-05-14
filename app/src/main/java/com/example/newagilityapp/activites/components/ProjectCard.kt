@@ -1,4 +1,4 @@
-package com.example.newagilityapp.Activites.components
+package com.example.newagilityapp.activites.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.newagilityapp.R
-import com.example.newagilityapp.model.Project
 
 @Composable
 fun ProjectCard(

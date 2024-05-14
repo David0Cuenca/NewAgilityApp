@@ -1,4 +1,4 @@
-package com.example.newagilityapp.Activites.components
+package com.example.newagilityapp.activites.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

@@ -1,4 +1,4 @@
-package com.example.newagilityapp.Activites.session
+package com.example.newagilityapp.activites.session
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -35,17 +35,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.newagilityapp.Activites.components.DeleteDialog
-import com.example.newagilityapp.Activites.components.SubjectListBottomSheet
-import com.example.newagilityapp.Activites.components.projectSessionsList
+import com.example.newagilityapp.activites.components.DeleteDialog
+import com.example.newagilityapp.activites.components.SubjectListBottomSheet
+import com.example.newagilityapp.activites.components.projectSessionsList
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.projects
 import com.example.newagilityapp.sesions
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
-
+@Destination
+@Composable
+fun SessionScreenRoute(
+    navigator: DestinationsNavigator
+){
+    SessionScreen(
+        onBackButtonClick = {navigator.navigateUp()}
+    )
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SessionScreen(){
+fun SessionScreen(
+    onBackButtonClick: () -> Unit
+){
 
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState()
@@ -74,7 +86,7 @@ fun SessionScreen(){
     )
     Scaffold (
         topBar={
-            SessionScreenTopBar (onBackButtonClick = {})
+            SessionScreenTopBar (onBackButtonClick)
         }
     ) { paddingValues ->
         LazyColumn(
@@ -125,7 +137,7 @@ private fun SessionScreenTopBar(
 ){
     TopAppBar(
         navigationIcon = {
-            IconButton(onClick = {}) {
+            IconButton(onClick = onBackButtonClick) {
                 Icon(imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Ir atrás"
                 )
