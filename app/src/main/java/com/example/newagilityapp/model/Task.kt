@@ -1,5 +1,9 @@
 package com.example.newagilityapp.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity
 data class Task(
     val title:String,
     val description: String,
@@ -7,6 +11,7 @@ data class Task(
     val taskProjectId: Int,
     val fromProject:String,
     val isDone: Boolean,
-    val TaskId: Int,
+    @PrimaryKey(autoGenerate = true)
+    val taskId: Int? = null,
     val priority: Int
 )
