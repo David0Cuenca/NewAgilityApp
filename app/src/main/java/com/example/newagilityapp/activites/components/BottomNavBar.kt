@@ -11,11 +11,14 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation.Navigation
 import com.example.newagilityapp.navBaritems
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 data class BottomNavegationItem(
     val title: String,
@@ -25,14 +28,15 @@ data class BottomNavegationItem(
 )
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomNavBar(){
-    var selectedItemIndex by rememberSaveable { mutableStateOf(1) }
+fun BottomNavBar(
+){
+    var selectedItemIndex by rememberSaveable { mutableIntStateOf(1) }
     NavigationBar {
         navBaritems.forEachIndexed { index, item ->
             NavigationBarItem(
                 selected = selectedItemIndex == index,
                 onClick = { selectedItemIndex = index
-                    //Todo Navegacion
+                    //Aqui iria la parte donde deberia navegar
                 },
                 label = {
                     Text(text = item.title)

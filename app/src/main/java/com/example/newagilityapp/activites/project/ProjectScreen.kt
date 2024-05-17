@@ -66,7 +66,7 @@ fun ProjectScreenRoute(
     ProjectScreen(
         onBackClick = {navigator.navigateUp()},
         onAddTaskClick = {
-            val navArg = TaskScreenNavArgs(taskId = null,projectId = -1)
+            val navArg = TaskScreenNavArgs(taskId = null, projectId = -1)
             navigator.navigate(TaskScreenRouteDestination(navArgs = navArg))
         },
         onTaskCard = {taskId ->

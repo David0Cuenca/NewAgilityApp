@@ -95,7 +95,7 @@ fun SessionScreen(
         onConfirmButtonsClick = {isDeleteDialogOpen = false}
     )
     Scaffold (
-        bottomBar = { BottomNavBar()},
+        bottomBar = { },
         topBar={
             SessionScreenTopBar (onBackButtonClick)
         }

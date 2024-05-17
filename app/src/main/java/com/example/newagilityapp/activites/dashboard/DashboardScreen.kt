@@ -52,6 +52,7 @@ import com.example.newagilityapp.activites.project.ProjectScreenNavArgs
 import com.example.newagilityapp.activites.task.TaskScreenNavArgs
 import com.example.newagilityapp.R
 import com.example.newagilityapp.activites.components.BottomNavBar
+import com.example.newagilityapp.activites.destinations.ListScreenRouteDestination
 import com.example.newagilityapp.activites.destinations.ProjectScreenRouteDestination
 import com.example.newagilityapp.activites.destinations.SessionScreenRouteDestination
 import com.example.newagilityapp.activites.destinations.TaskScreenRouteDestination
@@ -81,6 +82,9 @@ fun DashboardScreenRoute(
         },
         onStartSessionButtonClick = {
             navigator.navigate(SessionScreenRouteDestination())
+        },
+        onListClick = {
+            navigator.navigate(ListScreenRouteDestination())
         }
     )
 }
@@ -89,7 +93,8 @@ fun DashboardScreenRoute(
 fun DashboardScreen(
     onProjectCardClick:(Int?) ->Unit,
     onTaskCardClick: (Int?) -> Unit,
-    onStartSessionButtonClick: () -> Unit
+    onStartSessionButtonClick: () -> Unit,
+    onListClick: () -> Unit
 ){
     var isOpenNewProject by rememberSaveable { mutableStateOf(false) }
 
@@ -126,7 +131,7 @@ fun DashboardScreen(
 
     Scaffold(
         topBar = { DashboardScreenTopBar() },
-        bottomBar = { BottomNavBar() },
+        bottomBar = {  },
     ) {paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -160,6 +165,16 @@ fun DashboardScreen(
                         .padding(horizontal = 48.dp, vertical = 20.dp)
                 ) {
                     Text(text = "Iniciar sesión de trabajo")
+                }
+            }
+            item {
+                Button(
+                    onClick = onListClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 48.dp, vertical = 20.dp)
+                ) {
+                    Text(text = "Listas")
                 }
             }
             taskList(

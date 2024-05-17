@@ -12,6 +12,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.List
 import com.example.newagilityapp.activites.NavGraphs
 import com.example.newagilityapp.activites.components.BottomNavegationItem
+import com.example.newagilityapp.activites.listview.ListScreen
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Session
 import com.example.newagilityapp.model.Task
@@ -54,7 +55,8 @@ val navBaritems = listOf(
         title = "Calendario",
         selectedIcon = Icons.Filled.DateRange,
         notification = false,
-        unselectdIcon = Icons.Outlined.DateRange
+        unselectdIcon = Icons.Outlined.DateRange,
+
     ),
     BottomNavegationItem(
         title = "Inicio",
