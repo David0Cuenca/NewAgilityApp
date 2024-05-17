@@ -94,6 +94,7 @@ fun ProjectScreen(
     var goalHours by remember { mutableStateOf("") }
     var selectedColor by remember { mutableStateOf(Project.CardColors.random()) }
 
+
     NewProjectDialog(
         isOpen = isOpenEditProject,
         title = "Añadir Projecto",

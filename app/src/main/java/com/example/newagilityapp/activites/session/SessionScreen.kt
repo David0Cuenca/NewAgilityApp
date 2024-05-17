@@ -15,11 +15,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -35,10 +40,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.newagilityapp.activites.components.BottomNavBar
 import com.example.newagilityapp.activites.components.DeleteDialog
 import com.example.newagilityapp.activites.components.SubjectListBottomSheet
 import com.example.newagilityapp.activites.components.projectSessionsList
 import com.example.newagilityapp.model.Project
+import com.example.newagilityapp.navBaritems
 import com.example.newagilityapp.projects
 import com.example.newagilityapp.sesions
 import com.ramcosta.composedestinations.annotation.Destination
@@ -53,6 +60,7 @@ fun SessionScreenRoute(
         onBackButtonClick = {navigator.navigateUp()}
     )
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SessionScreen(
@@ -64,6 +72,8 @@ fun SessionScreen(
     var isBottomSheetOpen by remember { mutableStateOf(false) }
     var selectedProject by remember { mutableStateOf<Project?>(null) }
     var isDeleteDialogOpen by rememberSaveable { mutableStateOf(false) }
+
+
     SubjectListBottomSheet(
         sheetState = sheetState,
         isOpen = isBottomSheetOpen,
@@ -85,6 +95,7 @@ fun SessionScreen(
         onConfirmButtonsClick = {isDeleteDialogOpen = false}
     )
     Scaffold (
+        bottomBar = { BottomNavBar()},
         topBar={
             SessionScreenTopBar (onBackButtonClick)
         }
@@ -233,4 +244,3 @@ private fun ButtonsSection(
         }
     }
 }
-

@@ -57,7 +57,7 @@ dependencies {
     val destinationVersion = "1.9.52"
     implementation("io.github.raamcosta.compose-destinations:core:$destinationVersion")
     ksp("io.github.raamcosta.compose-destinations:ksp:$destinationVersion")
-    val roomVersion = "2.5.2"
+    val roomVersion = "2.6.1"
     implementation("androidx.room:room-runtime:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
