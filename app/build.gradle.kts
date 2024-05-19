@@ -31,6 +31,8 @@ android {
         }
     }
     compileOptions {
+        //
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -51,7 +53,10 @@ android {
 }
 
 dependencies {
-
+    //
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
+    implementation ("com.kizitonwose.calendar:view:2.4.1")
+    implementation ("com.kizitonwose.calendar:compose:2.4.1")
     implementation("androidx.core:core-ktx:1.13.0")
     implementation("androidx.compose.ui:ui-text-google-fonts:1.6.1")
     val roomVersion = "2.6.1"

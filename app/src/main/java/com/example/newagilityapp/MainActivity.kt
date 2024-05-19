@@ -5,6 +5,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.EaseIn
+import androidx.compose.animation.core.EaseOut
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
@@ -20,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.newagilityapp.activites.calendar.CalendarScreen
 import com.example.newagilityapp.activites.components.DrawerContent
 import com.example.newagilityapp.activites.components.MenuItem
 import com.example.newagilityapp.activites.dashboard.DashboardScreen
@@ -60,17 +72,141 @@ class MainActivity : ComponentActivity() {
                         navController = navigationController,
                         startDestination = Screens.DashboardScreen.route
                     ) {
-                        composable(Screens.DashboardScreen.route) { DashboardScreen(navigationController,drawerState) }
-                        composable(Screens.ListScreen.route){ ListScreen(navigationController,drawerState)}
-                        composable(Screens.TaskScreen.route){ TaskScreen(navigationController)}
-                        composable(Screens.ProjectScreen.route){ ProjectScreen(navigationController)}
-                        composable(Screens.SessionScreen.route){ SessionScreen(navigationController)}
+                        composable(Screens.DashboardScreen.route,
+                            enterTransition = {
+                               slideInHorizontally(
+                                    animationSpec = tween(
+                                        300, easing = LinearEasing
+                                    )
+                                ) + slideIntoContainer(
+                                    animationSpec = tween(300, easing = EaseIn),
+                                    towards = AnimatedContentTransitionScope.SlideDirection.Start
+                                )
+                            },
+                            exitTransition = {
+                               slideOutHorizontally(
+                                    animationSpec = tween(
+                                        300, easing = LinearEasing
+                                    )
+                                ) + slideOutOfContainer(
+                                    animationSpec = tween(300, easing = EaseOut),
+                                    towards = AnimatedContentTransitionScope.SlideDirection.End
+                                )
+                            }
+                        ) { DashboardScreen(navigationController,drawerState) }
+                        composable(Screens.ListScreen.route,
+                            enterTransition = {
+                               slideInHorizontally(
+                                    animationSpec = tween(
+                                        300, easing = LinearEasing
+                                    )
+                                ) + slideIntoContainer(
+                                    animationSpec = tween(300, easing = EaseIn),
+                                    towards = AnimatedContentTransitionScope.SlideDirection.Start
+                                )
+                            },
+                            exitTransition = {
+                               slideOutHorizontally(
+                                    animationSpec = tween(
+                                        300, easing = LinearEasing
+                                    )
+                                ) + slideOutOfContainer(
+                                    animationSpec = tween(300, easing = EaseOut),
+                                    towards = AnimatedContentTransitionScope.SlideDirection.End
+                                )
+                            }
+                        ){ ListScreen(navigationController,drawerState)}
+                        composable(Screens.TaskScreen.route,
+                            enterTransition = {
+                               slideInHorizontally(
+                                    animationSpec = tween(
+                                        300, easing = LinearEasing
+                                    )
+                                ) + slideIntoContainer(
+                                    animationSpec = tween(300, easing = EaseIn),
+                                    towards = AnimatedContentTransitionScope.SlideDirection.Start
+                                )
+                            },
+                            exitTransition = {
+                               slideOutHorizontally(
+                                    animationSpec = tween(
+                                        300, easing = LinearEasing
+                                    )
+                                ) + slideOutOfContainer(
+                                    animationSpec = tween(300, easing = EaseOut),
+                                    towards = AnimatedContentTransitionScope.SlideDirection.End
+                                )
+                            }){ TaskScreen(navigationController)}
+                        composable(Screens.ProjectScreen.route,
+                            enterTransition = {
+                               slideInHorizontally(
+                                    animationSpec = tween(
+                                        300, easing = LinearEasing
+                                    )
+                                ) + slideIntoContainer(
+                                    animationSpec = tween(300, easing = EaseIn),
+                                    towards = AnimatedContentTransitionScope.SlideDirection.Start
+                                )
+                            },
+                            exitTransition = {
+                               slideOutHorizontally(
+                                    animationSpec = tween(
+                                        300, easing = LinearEasing
+                                    )
+                                ) + slideOutOfContainer(
+                                    animationSpec = tween(300, easing = EaseOut),
+                                    towards = AnimatedContentTransitionScope.SlideDirection.End
+                                )
+                            }){ ProjectScreen(navigationController)}
+                        composable(Screens.SessionScreen.route,
+                            enterTransition = {
+                               slideInHorizontally(
+                                    animationSpec = tween(
+                                        300, easing = LinearEasing
+                                    )
+                                ) + slideIntoContainer(
+                                    animationSpec = tween(300, easing = EaseIn),
+                                    towards = AnimatedContentTransitionScope.SlideDirection.Start
+                                )
+                            },
+                            exitTransition = {
+                               slideOutHorizontally(
+                                    animationSpec = tween(
+                                        300, easing = LinearEasing
+                                    )
+                                ) + slideOutOfContainer(
+                                    animationSpec = tween(300, easing = EaseOut),
+                                    towards = AnimatedContentTransitionScope.SlideDirection.End
+                                )
+                            }){ SessionScreen(navigationController)}
+                        composable(Screens.CalendarScreen.route,
+                            enterTransition = {
+                               slideInHorizontally(
+                                    animationSpec = tween(
+                                        300, easing = LinearEasing
+                                    )
+                                ) + slideIntoContainer(
+                                    animationSpec = tween(300, easing = EaseIn),
+                                    towards = AnimatedContentTransitionScope.SlideDirection.Start
+                                )
+                            },
+                            exitTransition = {
+                               slideOutHorizontally(
+                                    animationSpec = tween(
+                                        300, easing = LinearEasing
+                                    )
+                                ) + slideOutOfContainer(
+                                    animationSpec = tween(300, easing = EaseOut),
+                                    towards = AnimatedContentTransitionScope.SlideDirection.End
+                                )
+                            }){ CalendarScreen(navigationController,drawerState)}
                     }
                 }
             }
         }
     }
 }
+
 
 val projects = listOf(
     Project(name = "Aldi", endDate = "12/12/2020", colors = Project.CardColors[1],1f, projectId = 0),
@@ -102,17 +238,17 @@ val navBaritems = listOf(
         destination = Screens.DashboardScreen.route
     ),
     MenuItem(
-        title = "Calendario",
-        selected = Icons.Filled.DateRange,
-        unselected = Icons.Outlined.DateRange,
-        badge = false,
-        destination = ""
-    ),
-    MenuItem(
         title = "Lista de proyectos",
         selected = Icons.Filled.List,
         badge = true,
         unselected = Icons.Outlined.List,
         destination = Screens.ListScreen.route
-    )
+    ),
+    MenuItem(
+        title = "Calendario",
+        selected = Icons.Filled.DateRange,
+        badge = false,
+        unselected= Icons.Outlined.DateRange,
+        destination = Screens.CalendarScreen.route
+),
 )

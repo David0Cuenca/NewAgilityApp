@@ -134,16 +134,6 @@ fun DashboardScreen(
                     Text(text = "Iniciar sesión de trabajo")
                 }
             }
-            item {
-                Button(
-                    onClick = {navigationController.navigate(Screens.ListScreen.route)},
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 48.dp, vertical = 20.dp)
-                ) {
-                    Text(text = "Listas")
-                }
-            }
             taskList(
                 sectionTitle = "Trabajos por hacer",
                 emptyListText = "No tienes trabajos por hacer. \n Pulsa el botón + para crear una nueva",
