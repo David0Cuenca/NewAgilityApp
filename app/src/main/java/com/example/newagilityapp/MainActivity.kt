@@ -1,8 +1,10 @@
 package com.example.newagilityapp
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
@@ -10,25 +12,66 @@ import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.List
-import com.example.newagilityapp.activites.NavGraphs
-import com.example.newagilityapp.activites.components.BottomNavegationItem
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.ui.Modifier
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.newagilityapp.activites.components.DrawerContent
+import com.example.newagilityapp.activites.components.MenuItem
+import com.example.newagilityapp.activites.dashboard.DashboardScreen
 import com.example.newagilityapp.activites.listview.ListScreen
+import com.example.newagilityapp.activites.project.ProjectScreen
+import com.example.newagilityapp.activites.session.SessionScreen
+import com.example.newagilityapp.activites.task.TaskScreen
 import com.example.newagilityapp.model.Project
+import com.example.newagilityapp.model.Screens
 import com.example.newagilityapp.model.Session
 import com.example.newagilityapp.model.Task
 import com.example.newagilityapp.ui.theme.NewAgilityAppTheme
-import com.ramcosta.composedestinations.DestinationsNavHost
+
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             NewAgilityAppTheme {
-                DestinationsNavHost(navGraph = NavGraphs.root)
+                val drawerState= rememberDrawerState(initialValue = DrawerValue.Closed)
+                val navigationController = rememberNavController()
+                ModalNavigationDrawer(
+                    drawerState = drawerState,
+                    gesturesEnabled = drawerState.isOpen,
+                    drawerContent = {
+                        ModalDrawerSheet {
+                            DrawerContent(
+                                items = navBaritems,
+                                modifier = Modifier,
+                                navigationController,
+                                drawerState
+                            )
+                        }
+                    }
+                ) {
+                    NavHost(
+                        navController = navigationController,
+                        startDestination = Screens.DashboardScreen.route
+                    ) {
+                        composable(Screens.DashboardScreen.route) { DashboardScreen(navigationController,drawerState) }
+                        composable(Screens.ListScreen.route){ ListScreen(navigationController,drawerState)}
+                        composable(Screens.TaskScreen.route){ TaskScreen(navigationController)}
+                        composable(Screens.ProjectScreen.route){ ProjectScreen(navigationController)}
+                        composable(Screens.SessionScreen.route){ SessionScreen(navigationController)}
+                    }
+                }
             }
         }
     }
 }
+
 val projects = listOf(
     Project(name = "Aldi", endDate = "12/12/2020", colors = Project.CardColors[1],1f, projectId = 0),
     Project(name = "Consejos", endDate = "12/12/2020", colors = Project.CardColors[1],2f, projectId = 0),
@@ -51,23 +94,25 @@ val sesions = listOf(
     Session(fromProject = "Aldi", date = 0L, duration = 2, projectSessionId = 0, sessionId = 0),
 )
 val navBaritems = listOf(
-    BottomNavegationItem(
-        title = "Calendario",
-        selectedIcon = Icons.Filled.DateRange,
-        notification = false,
-        unselectdIcon = Icons.Outlined.DateRange,
-
-    ),
-    BottomNavegationItem(
+    MenuItem(
         title = "Inicio",
-        selectedIcon = Icons.Filled.Home,
-        notification = false,
-        unselectdIcon = Icons.Outlined.Home
+        selected = Icons.Filled.Home,
+        badge = false,
+        unselected= Icons.Outlined.Home,
+        destination = Screens.DashboardScreen.route
     ),
-    BottomNavegationItem(
+    MenuItem(
+        title = "Calendario",
+        selected = Icons.Filled.DateRange,
+        unselected = Icons.Outlined.DateRange,
+        badge = false,
+        destination = ""
+    ),
+    MenuItem(
         title = "Lista de proyectos",
-        selectedIcon = Icons.Filled.List,
-        notification = true,
-        unselectdIcon = Icons.Outlined.List
+        selected = Icons.Filled.List,
+        badge = true,
+        unselected = Icons.Outlined.List,
+        destination = Screens.ListScreen.route
     )
 )

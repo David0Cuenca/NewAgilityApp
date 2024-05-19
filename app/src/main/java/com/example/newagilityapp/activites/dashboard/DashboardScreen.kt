@@ -16,23 +16,21 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.newagilityapp.activites.components.CountCard
 import com.example.newagilityapp.activites.components.DeleteDialog
 import com.example.newagilityapp.activites.components.NewProjectDialog
@@ -48,54 +47,23 @@ import com.example.newagilityapp.activites.components.ProjectCard
 import com.example.newagilityapp.activites.components.projectSessionsList
 import com.example.newagilityapp.activites.components.taskList
 
-import com.example.newagilityapp.activites.project.ProjectScreenNavArgs
-import com.example.newagilityapp.activites.task.TaskScreenNavArgs
 import com.example.newagilityapp.R
-import com.example.newagilityapp.activites.components.BottomNavBar
-import com.example.newagilityapp.activites.destinations.ListScreenRouteDestination
-import com.example.newagilityapp.activites.destinations.ProjectScreenRouteDestination
-import com.example.newagilityapp.activites.destinations.SessionScreenRouteDestination
-import com.example.newagilityapp.activites.destinations.TaskScreenRouteDestination
-import com.example.newagilityapp.activites.project.ProjectScreenRoute
 import com.example.newagilityapp.model.Project
-import com.example.newagilityapp.navBaritems
+import com.example.newagilityapp.model.Screens
+
 import com.example.newagilityapp.projects
 import com.example.newagilityapp.sesions
 import com.example.newagilityapp.tasks
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.launch
 
-@Destination(start = true)
-@Composable
-fun DashboardScreenRoute(
-    navigator: DestinationsNavigator
-){
-    DashboardScreen(
-        onProjectCardClick ={ projectId ->
-            projectId?.let {
-                val navArg = ProjectScreenNavArgs(projectId = projectId)
-                navigator.navigate(ProjectScreenRouteDestination(navArgs = navArg))
-            } },
-        onTaskCardClick = {taskId ->
-            val navArg = TaskScreenNavArgs(taskId = taskId, projectId = null)
-            navigator.navigate(TaskScreenRouteDestination(navArgs = navArg))
-        },
-        onStartSessionButtonClick = {
-            navigator.navigate(SessionScreenRouteDestination())
-        },
-        onListClick = {
-            navigator.navigate(ListScreenRouteDestination())
-        }
-    )
-}
 
 @Composable
 fun DashboardScreen(
-    onProjectCardClick:(Int?) ->Unit,
-    onTaskCardClick: (Int?) -> Unit,
-    onStartSessionButtonClick: () -> Unit,
-    onListClick: () -> Unit
-){
+    navigationController: NavController,
+    drawerState: DrawerState
+ ) {
+    //Hay que arreglar esto con el nuevo sistema de navegación
+    val scope = rememberCoroutineScope()
     var isOpenNewProject by rememberSaveable { mutableStateOf(false) }
 
     var isOpenDelete by rememberSaveable { mutableStateOf(false) }
@@ -117,7 +85,6 @@ fun DashboardScreen(
         onConfirmButtonsClick = {
             isOpenNewProject = false
         },
-
     )
 
     DeleteDialog(
@@ -130,9 +97,9 @@ fun DashboardScreen(
     )
 
     Scaffold(
-        topBar = { DashboardScreenTopBar() },
-        bottomBar = {  },
-    ) {paddingValues ->
+        topBar = { DashboardScreenTopBar({scope.launch { drawerState.open() }}) },
+
+    ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -154,12 +121,12 @@ fun DashboardScreen(
                     onAddIconClicked = {
                         isOpenNewProject = true
                     },
-                    onProjectCardClick = onProjectCardClick
+                    onProjectCardClick = {navigationController.navigate(Screens.ProjectScreen.route)}
                 )
             }
             item {
                 Button(
-                    onClick = onStartSessionButtonClick,
+                    onClick = {navigationController.navigate(Screens.SessionScreen.route)},
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 48.dp, vertical = 20.dp)
@@ -169,7 +136,7 @@ fun DashboardScreen(
             }
             item {
                 Button(
-                    onClick = onListClick,
+                    onClick = {navigationController.navigate(Screens.ListScreen.route)},
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 48.dp, vertical = 20.dp)
@@ -182,7 +149,7 @@ fun DashboardScreen(
                 emptyListText = "No tienes trabajos por hacer. \n Pulsa el botón + para crear una nueva",
                 tasks = tasks,
                 onCheckBoxClick = {},
-                onTaskCardClick = onTaskCardClick
+                onTaskCardClick = {navigationController.navigate(Screens.TaskScreen.route)}
             )
             item { 
                 Spacer(modifier = Modifier.size(20.dp))
@@ -195,12 +162,23 @@ fun DashboardScreen(
             )
         }
     }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DashboardScreenTopBar(){
+private fun DashboardScreenTopBar(
+    onClickDrawer:() ->Unit
+) {
     CenterAlignedTopAppBar(
+        navigationIcon = {
+            IconButton(onClick = { onClickDrawer()}) {
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "Menu"
+                )
+            }
+        },
         title = {
             Text(
                 text = "New Agility",

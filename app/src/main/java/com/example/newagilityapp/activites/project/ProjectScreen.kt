@@ -41,47 +41,27 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.newagilityapp.activites.components.CountCard
 import com.example.newagilityapp.activites.components.DeleteDialog
 import com.example.newagilityapp.activites.components.NewProjectDialog
 import com.example.newagilityapp.activites.components.projectSessionsList
 import com.example.newagilityapp.activites.components.taskList
-import com.example.newagilityapp.activites.destinations.TaskScreenRouteDestination
-import com.example.newagilityapp.activites.task.TaskScreenNavArgs
 import com.example.newagilityapp.model.Project
+import com.example.newagilityapp.model.Screens
 import com.example.newagilityapp.sesions
 import com.example.newagilityapp.tasks
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 data class ProjectScreenNavArgs(
     val projectId: Int
 )
 
-@Destination(navArgsDelegate = ProjectScreenNavArgs::class)
-@Composable
-fun ProjectScreenRoute(
-    navigator: DestinationsNavigator
-){
-    ProjectScreen(
-        onBackClick = {navigator.navigateUp()},
-        onAddTaskClick = {
-            val navArg = TaskScreenNavArgs(taskId = null, projectId = -1)
-            navigator.navigate(TaskScreenRouteDestination(navArgs = navArg))
-        },
-        onTaskCard = {taskId ->
-            val navArg = TaskScreenNavArgs(taskId = taskId,projectId = null)
-            navigator.navigate(TaskScreenRouteDestination(navArgs = navArg))
-        },
-    )
-}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProjectScreen(
-    onBackClick: () -> Unit,
-    onAddTaskClick: () -> Unit,
-    onTaskCard: (Int?) -> Unit,
-){
+fun ProjectScreen(navigationController: NavHostController) {
+    val onBackClick: () -> Unit
+    val onAddTaskClick: () -> Unit
+    val onTaskCard: (Int?) -> Unit
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val listState = rememberLazyListState()
     val isFABExpanded by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
@@ -133,7 +113,7 @@ fun ProjectScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = { ProjectScreenTopBar(
             title = "Aldi",
-            onBackClick = onBackClick,
+            navigationController = navigationController,
             onDeleteClick = {isOpenDeleteProject = true},
             onEditClick = {isOpenEditProject = true},
             scrollBehavior = scrollBehavior
@@ -143,7 +123,7 @@ fun ProjectScreen(
             ExtendedFloatingActionButton(
                 text = { Text(text = "Añadir Trabajo") },
                 icon = { Icon(imageVector = Icons.Default.Add, contentDescription = "Añadir")},
-                onClick = onAddTaskClick,
+                onClick = {navigationController.navigate(Screens.TaskScreen.route)},
                 expanded = isFABExpanded
             )
         }
@@ -169,7 +149,7 @@ fun ProjectScreen(
                 emptyListText = "No tienes trabajos por hacer. \n Pulsa el botón + para crear una nueva",
                 tasks = tasks,
                 onCheckBoxClick = {},
-                onTaskCardClick = onTaskCard
+                onTaskCardClick = {navigationController.navigate(Screens.TaskScreen.route)}
             )
             item {
                 Spacer(modifier = Modifier.height(20.dp))
@@ -179,7 +159,7 @@ fun ProjectScreen(
                 emptyListText = "No tienes trabajos completados. \n Pulsa el botón + para crear una nueva",
                 tasks = tasks,
                 onCheckBoxClick = {},
-                onTaskCardClick = onTaskCard
+                onTaskCardClick = {navigationController.navigate(Screens.TaskScreen.route)}
             )
             item {
                 Spacer(modifier = Modifier.height(20.dp))
@@ -197,8 +177,8 @@ fun ProjectScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProjectScreenTopBar(
+    navigationController: NavHostController,
     title: String,
-    onBackClick:() -> Unit,
     onDeleteClick:() -> Unit,
     onEditClick:() -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
@@ -206,7 +186,7 @@ private fun ProjectScreenTopBar(
     LargeTopAppBar(
         scrollBehavior = scrollBehavior,
         navigationIcon = {
-            IconButton(onClick = { onBackClick() }) {
+            IconButton(onClick = { navigationController.popBackStack() }) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Ir atras"
