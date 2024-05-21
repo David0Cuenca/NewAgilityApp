@@ -6,14 +6,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material.icons.Icons
@@ -36,6 +32,7 @@ import com.example.newagilityapp.activites.components.DrawerContent
 import com.example.newagilityapp.activites.components.MenuItem
 import com.example.newagilityapp.activites.dashboard.DashboardScreen
 import com.example.newagilityapp.activites.listview.ListScreen
+import com.example.newagilityapp.activites.project.NewProjectScreen
 import com.example.newagilityapp.activites.project.ProjectScreen
 import com.example.newagilityapp.activites.session.SessionScreen
 import com.example.newagilityapp.activites.task.TaskScreen
@@ -199,7 +196,8 @@ class MainActivity : ComponentActivity() {
                                     animationSpec = tween(300, easing = EaseOut),
                                     towards = AnimatedContentTransitionScope.SlideDirection.End
                                 )
-                            }){ CalendarScreen(navigationController,drawerState)}
+                            }){ CalendarScreen(navigationController,drawerState, projects)}
+                        composable(Screens.NewProjectScreen.route){ NewProjectScreen(navigationController)}
                     }
                 }
             }
@@ -209,9 +207,9 @@ class MainActivity : ComponentActivity() {
 
 
 val projects = listOf(
-    Project(name = "Aldi", endDate = "12/12/2020", colors = Project.CardColors[1],1f, projectId = 0),
-    Project(name = "Consejos", endDate = "12/12/2020", colors = Project.CardColors[1],2f, projectId = 0),
-    Project(name = "Clases", endDate = "12/12/2020", colors = Project.CardColors[1],3f, projectId = 0),
+    Project(name = "Aldi", endDate = "21/05/2024", colors = Project.CardColors[1],1f, projectId = 0),
+    Project(name = "Consejos", endDate = "12/12/2024", colors = Project.CardColors[1],2f, projectId = 0),
+    Project(name = "Clases", endDate = "12/12/2024", colors = Project.CardColors[1],3f, projectId = 0),
 )
 
 val tasks = listOf(

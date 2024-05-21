@@ -7,5 +7,6 @@ sealed class Screens (val route:String){
     object SessionScreen:Screens("session")
     object ProjectScreen:Screens("project")
     object CalendarScreen:Screens("calendar")
+    object NewProjectScreen:Screens("new_project")
 
 }

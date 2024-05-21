@@ -1,6 +1,7 @@
 package com.example.newagilityapp.activites.dashboard
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -35,6 +36,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -62,7 +64,6 @@ fun DashboardScreen(
     navigationController: NavController,
     drawerState: DrawerState
  ) {
-    //Hay que arreglar esto con el nuevo sistema de navegación
     val scope = rememberCoroutineScope()
     var isOpenNewProject by rememberSaveable { mutableStateOf(false) }
 
@@ -97,29 +98,30 @@ fun DashboardScreen(
     )
 
     Scaffold(
-        topBar = { DashboardScreenTopBar({scope.launch { drawerState.open() }}) },
+        topBar = { DashboardScreenTopBar { scope.launch { drawerState.open() } } },
 
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
+
                 .padding(paddingValues),
         ){
             item {
-                CountCardSection(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    nproyectos = 2,
-                    fproyectos = 3,
-                    hours = 12)
+                    CountCardSection(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        nproyectos = 2,
+                        fproyectos = 3,
+                        hours = 12)
             }
             item {
                 ProjectsCardSection(
                     modifier = Modifier.fillMaxWidth(),
                     projectList = projects,
                     onAddIconClicked = {
-                        isOpenNewProject = true
+                        navigationController.navigate(Screens.NewProjectScreen.route)
                     },
                     onProjectCardClick = {navigationController.navigate(Screens.ProjectScreen.route)}
                 )

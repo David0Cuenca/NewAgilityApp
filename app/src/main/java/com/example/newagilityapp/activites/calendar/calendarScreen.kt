@@ -1,5 +1,14 @@
 package com.example.newagilityapp.activites.calendar
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,10 +32,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,24 +45,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.newagilityapp.model.Project
+import com.example.newagilityapp.projects
+import com.example.newagilityapp.ui.theme.gradient1
 import com.example.newagilityapp.utilities.displayText
-import com.kizitonwose.calendar.compose.CalendarState
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.daysOfWeek
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -61,10 +74,10 @@ import java.util.Locale
 @Composable
 fun CalendarScreen(
     navigationController: NavHostController,
-    drawerState: DrawerState
- ) {
-
-    val daysOfWeek = remember {daysOfWeek() }
+    drawerState: DrawerState,
+    projects: List<Project>
+) {
+    val daysOfWeek = remember { daysOfWeek() }
     val currentMonth = remember { YearMonth.now() }
     var actualMonth by rememberSaveable { mutableStateOf(currentMonth) }
     val startMonth = remember { currentMonth.minusMonths(100) } // Adjust as needed
@@ -78,12 +91,23 @@ fun CalendarScreen(
         firstVisibleMonth = currentMonth,
         firstDayOfWeek = daysOfWeek.first()
     )
-    Scaffold(Modifier
-        .nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = { CalendarScreenTopBar(
-            title = "Calendario",
-            drawerState = drawerState,
-            scrollBehavior = scrollBehavior)
+
+    // State to hold the selected date
+    var selectedDate by rememberSaveable { mutableStateOf<LocalDate?>(null) }
+    val visibleState = remember { MutableTransitionState(false) }
+    LaunchedEffect(actualMonth) {
+        selectedDate = null
+        visibleState.targetState = false
+    }
+    Scaffold(
+        Modifier
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            CalendarScreenTopBar(
+                title = "Calendario",
+                drawerState = drawerState,
+                scrollBehavior = scrollBehavior
+            )
         }
     ) { paddingValues ->
         Column(
@@ -98,8 +122,8 @@ fun CalendarScreen(
                     scope.launch {
                         actualMonth = actualMonth.plusMonths(1)
                         state.animateScrollToMonth(actualMonth)
-                        }
-                    },
+                    }
+                },
                 goBack = {
                     scope.launch {
                         actualMonth = actualMonth.minusMonths(1)
@@ -109,11 +133,29 @@ fun CalendarScreen(
             )
             HorizontalCalendar(
                 state = state,
-                dayContent = { Day(it) }
+                dayContent = { day ->
+                    Day(day, projects.map { LocalDate.parse(it.endDate, DateTimeFormatter.ofPattern("dd/MM/yyyy")) }) {
+                        selectedDate = day.date
+                        visibleState.targetState = true
+                    }
+                },
+                userScrollEnabled = false
             )
+            AnimatedVisibility(
+                visibleState = visibleState,
+                enter = expandVertically(
+                    animationSpec = tween(durationMillis = 300)
+                ) + fadeIn(animationSpec = tween(durationMillis = 300)),
+                exit = shrinkVertically(
+                    animationSpec = tween(durationMillis = 300)
+                ) + fadeOut(animationSpec = tween(durationMillis = 300))
+            ) {
+                selectedDate?.let { date ->
+                    ProjectSummary(date, projects)
+                }
+            }
         }
     }
-
 }
 
 @Composable
@@ -148,15 +190,34 @@ fun CalendarTitle(
 
 
 @Composable
-fun Day(day: CalendarDay) {
+fun Day(day: CalendarDay, projectEndDates: List<LocalDate>, onClick: (CalendarDay) -> Unit) {
+    val isProjectEndDate = remember(day.date) { projectEndDates.contains(day.date) }
     Box(
         modifier = Modifier
-            .aspectRatio(1f), // This is important for square sizing!
+            .aspectRatio(1f)
+            .then(
+                if (isProjectEndDate) {
+                    Modifier
+                        .clip(CircleShape)
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    MaterialTheme.colorScheme.primary,
+                                    MaterialTheme.colorScheme.background
+                                )
+                            )
+                        )
+                } else {
+                    Modifier
+                }
+            )
+            .clickable { onClick(day) },
         contentAlignment = Alignment.Center
     ) {
         Text(text = day.date.dayOfMonth.toString())
     }
 }
+
 @Composable
 fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>,) {
     Row(modifier = Modifier.fillMaxWidth()) {
@@ -193,7 +254,7 @@ private fun CalendarScreenTopBar(
     title: String,
     drawerState: DrawerState,
     scrollBehavior: TopAppBarScrollBehavior
-){
+ ) {
     val scope = rememberCoroutineScope()
     CenterAlignedTopAppBar(
         scrollBehavior = scrollBehavior,
@@ -213,4 +274,22 @@ private fun CalendarScreenTopBar(
             style = MaterialTheme.typography.headlineLarge)
         },
     )
+}
+@Composable
+fun ProjectSummary(selectedDate: LocalDate, projects: List<Project>) {
+    val projectsForDate = projects.filter { LocalDate.parse(it.endDate, DateTimeFormatter.ofPattern("dd/MM/yyyy")) == selectedDate }
+    if (projectsForDate.isNotEmpty()) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+        ) {
+            Text(text = "Resumen de Proyectos", style = MaterialTheme.typography.titleMedium)
+            projectsForDate.forEach { project ->
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = project.name, style = MaterialTheme.typography.titleLarge)
+                Text(text = "Fecha final: ${project.endDate}", style = MaterialTheme.typography.bodyLarge)
+            }
+        }
+    }
 }
