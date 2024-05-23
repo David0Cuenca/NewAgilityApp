@@ -4,6 +4,7 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.EaseIn
@@ -36,6 +37,9 @@ import com.example.newagilityapp.activites.project.NewProjectScreen
 import com.example.newagilityapp.activites.project.ProjectScreen
 import com.example.newagilityapp.activites.session.SessionScreen
 import com.example.newagilityapp.activites.task.TaskScreen
+import com.example.newagilityapp.data.viewmodels.ProjectViewModel
+import com.example.newagilityapp.data.viewmodels.SessionViewModel
+import com.example.newagilityapp.data.viewmodels.TaskViewModel
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Screens
 import com.example.newagilityapp.model.Session
@@ -44,6 +48,9 @@ import com.example.newagilityapp.ui.theme.NewAgilityAppTheme
 
 
 class MainActivity : ComponentActivity() {
+    private val projectViewModel: ProjectViewModel by viewModels()
+    private val sessionViewModel: SessionViewModel by viewModels()
+    private val taskViewModel: TaskViewModel by viewModels()
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,7 +78,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable(Screens.DashboardScreen.route,
                             enterTransition = {
-                               slideInHorizontally(
+                                slideInHorizontally(
                                     animationSpec = tween(
                                         300, easing = LinearEasing
                                     )
@@ -81,7 +88,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             },
                             exitTransition = {
-                               slideOutHorizontally(
+                                slideOutHorizontally(
                                     animationSpec = tween(
                                         300, easing = LinearEasing
                                     )
@@ -90,10 +97,10 @@ class MainActivity : ComponentActivity() {
                                     towards = AnimatedContentTransitionScope.SlideDirection.End
                                 )
                             }
-                        ) { DashboardScreen(navigationController,drawerState) }
+                        ) { DashboardScreen(navigationController,drawerState, projectViewModel, sessionViewModel, taskViewModel) }
                         composable(Screens.ListScreen.route,
                             enterTransition = {
-                               slideInHorizontally(
+                                slideInHorizontally(
                                     animationSpec = tween(
                                         300, easing = LinearEasing
                                     )
@@ -103,7 +110,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             },
                             exitTransition = {
-                               slideOutHorizontally(
+                                slideOutHorizontally(
                                     animationSpec = tween(
                                         300, easing = LinearEasing
                                     )
@@ -112,10 +119,10 @@ class MainActivity : ComponentActivity() {
                                     towards = AnimatedContentTransitionScope.SlideDirection.End
                                 )
                             }
-                        ){ ListScreen(navigationController,drawerState)}
+                        ){ ListScreen(navigationController,drawerState,projectViewModel)}
                         composable(Screens.TaskScreen.route,
                             enterTransition = {
-                               slideInHorizontally(
+                                slideInHorizontally(
                                     animationSpec = tween(
                                         300, easing = LinearEasing
                                     )
@@ -125,7 +132,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             },
                             exitTransition = {
-                               slideOutHorizontally(
+                                slideOutHorizontally(
                                     animationSpec = tween(
                                         300, easing = LinearEasing
                                     )
@@ -136,7 +143,7 @@ class MainActivity : ComponentActivity() {
                             }){ TaskScreen(navigationController)}
                         composable(Screens.ProjectScreen.route,
                             enterTransition = {
-                               slideInHorizontally(
+                                slideInHorizontally(
                                     animationSpec = tween(
                                         300, easing = LinearEasing
                                     )
@@ -146,7 +153,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             },
                             exitTransition = {
-                               slideOutHorizontally(
+                                slideOutHorizontally(
                                     animationSpec = tween(
                                         300, easing = LinearEasing
                                     )
@@ -157,7 +164,7 @@ class MainActivity : ComponentActivity() {
                             }){ ProjectScreen(navigationController)}
                         composable(Screens.SessionScreen.route,
                             enterTransition = {
-                               slideInHorizontally(
+                                slideInHorizontally(
                                     animationSpec = tween(
                                         300, easing = LinearEasing
                                     )
@@ -167,7 +174,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             },
                             exitTransition = {
-                               slideOutHorizontally(
+                                slideOutHorizontally(
                                     animationSpec = tween(
                                         300, easing = LinearEasing
                                     )
@@ -178,7 +185,7 @@ class MainActivity : ComponentActivity() {
                             }){ SessionScreen(navigationController)}
                         composable(Screens.CalendarScreen.route,
                             enterTransition = {
-                               slideInHorizontally(
+                                slideInHorizontally(
                                     animationSpec = tween(
                                         300, easing = LinearEasing
                                     )
@@ -188,7 +195,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             },
                             exitTransition = {
-                               slideOutHorizontally(
+                                slideOutHorizontally(
                                     animationSpec = tween(
                                         300, easing = LinearEasing
                                     )
@@ -206,26 +213,27 @@ class MainActivity : ComponentActivity() {
 }
 
 
+
 val projects = listOf(
-    Project(name = "Aldi", endDate = "21/05/2024", colors = Project.CardColors[1],1f, projectId = 0),
-    Project(name = "Consejos", endDate = "12/12/2024", colors = Project.CardColors[1],2f, projectId = 0),
-    Project(name = "Clases", endDate = "12/12/2024", colors = Project.CardColors[1],3f, projectId = 0),
+    Project(name = "Aldi", endDate = "21/05/2024",1f, projectId = 0),
+    Project(name = "Consejos", endDate = "12/12/2024",2f, projectId = 0),
+    Project(name = "Clases", endDate = "12/12/2024", 3f, projectId = 0),
 )
 
 val tasks = listOf(
-    Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",false, taskId = 0, priority = 0),
-    Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",false, taskId = 0, priority = 1),
-    Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",true, taskId = 0, priority = 2),
-    Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",false, taskId = 0, priority = 3),
-    Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, fromProject = "",true, taskId = 0, priority = 1),
+    Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, false, taskId = 0, priority = 0),
+    Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, false, taskId = 0, priority = 1),
+    Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, true, taskId = 0, priority = 2),
+    Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, false, taskId = 0, priority = 3),
+    Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, true, taskId = 0, priority = 1),
 )
 
 val sesions = listOf(
-    Session(fromProject = "Aldi", date = 0L, duration = 2, projectSessionId = 0, sessionId = 0),
-    Session(fromProject = "Cien", date = 0L, duration = 2, projectSessionId = 0, sessionId = 0),
-    Session(fromProject = "Aldi", date = 0L, duration = 2, projectSessionId = 0, sessionId = 0),
-    Session(fromProject = "Agility", date = 0L, duration = 2, projectSessionId = 0, sessionId = 0),
-    Session(fromProject = "Aldi", date = 0L, duration = 2, projectSessionId = 0, sessionId = 0),
+    Session(fromProject = "Aldi", date = "21/05/2024", duration = 2, projectSessionId = 0, sessionId = 0),
+    Session(fromProject = "Cien", date = "21/05/2024", duration = 2, projectSessionId = 0, sessionId = 0),
+    Session(fromProject = "Aldi", date = "21/05/2024", duration = 2, projectSessionId = 0, sessionId = 0),
+    Session(fromProject = "Agility", date = "21/05/2024", duration = 2, projectSessionId = 0, sessionId = 0),
+    Session(fromProject = "Aldi", date = "21/05/2024", duration = 2, projectSessionId = 0, sessionId = 0),
 )
 val navBaritems = listOf(
     MenuItem(

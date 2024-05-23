@@ -28,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +51,12 @@ import com.example.newagilityapp.activites.components.projectSessionsList
 import com.example.newagilityapp.activites.components.taskList
 
 import com.example.newagilityapp.R
+import com.example.newagilityapp.data.repository.ProjectRepository
+import com.example.newagilityapp.data.repository.SessionRepository
+import com.example.newagilityapp.data.repository.TaskRepository
+import com.example.newagilityapp.data.viewmodels.ProjectViewModel
+import com.example.newagilityapp.data.viewmodels.SessionViewModel
+import com.example.newagilityapp.data.viewmodels.TaskViewModel
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Screens
 
@@ -62,30 +69,34 @@ import kotlinx.coroutines.launch
 @Composable
 fun DashboardScreen(
     navigationController: NavController,
-    drawerState: DrawerState
- ) {
+    drawerState: DrawerState,
+    projectViewModel: ProjectViewModel,
+    sessionViewModel: SessionViewModel,
+    taskViewModel: TaskViewModel
+) {
     val scope = rememberCoroutineScope()
     var isOpenNewProject by rememberSaveable { mutableStateOf(false) }
-
     var isOpenDelete by rememberSaveable { mutableStateOf(false) }
-
     var projectName by remember { mutableStateOf("") }
     var goalHours by remember { mutableStateOf("") }
-    var selectedColor by remember { mutableStateOf(Project.CardColors.random()) }
 
     NewProjectDialog(
         isOpen = isOpenNewProject,
         title = "Añadir Projecto",
-        selectedColors = selectedColor,
         projectname = projectName,
         goalHours = goalHours,
-        onColorChange = {selectedColor = it},
-        onProjectNameChange = {projectName = it},
-        onGoalHoursChange = {goalHours = it},
+        onProjectNameChange = { projectName = it },
+        onGoalHoursChange = { goalHours = it },
         onDismissRequest = { isOpenNewProject = false },
         onConfirmButtonsClick = {
             isOpenNewProject = false
-        },
+            val project = Project(
+                name = projectName,
+                endDate = "", // Asegúrate de manejar esta fecha adecuadamente
+                goalHours = goalHours.toFloatOrNull() ?: 0f
+            )
+            projectViewModel.addOrUpdateProject(project)
+        }
     )
 
     DeleteDialog(
@@ -94,41 +105,43 @@ fun DashboardScreen(
         text = "Vas a borrar una sessión de un proyecto \n " +
                 "¿Estas seguro de hacerlo? Recuerda que esto no se puede revertir una vez hecho",
         onDismissRequest = { isOpenDelete = false },
-        onConfirmButtonsClick = {isOpenDelete = false}
+        onConfirmButtonsClick = { isOpenDelete = false }
     )
 
     Scaffold(
         topBar = { DashboardScreenTopBar { scope.launch { drawerState.open() } } },
-
     ) { paddingValues ->
+        val allProjects by projectViewModel.getAllProjects.collectAsState(initial = emptyList())
+        val allSessions by sessionViewModel.allSessions.collectAsState(initial = emptyList())
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-
                 .padding(paddingValues),
-        ){
+        ) {
             item {
-                    CountCardSection(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
-                        nproyectos = 2,
-                        fproyectos = 3,
-                        hours = 12)
+                CountCardSection(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    nproyectos = allProjects.size,
+                    fproyectos = 3, // Aquí necesitas obtener la cantidad de proyectos finalizados
+                    hours = 12 // Aquí necesitas obtener la cantidad de horas trabajadas
+                )
             }
             item {
                 ProjectsCardSection(
                     modifier = Modifier.fillMaxWidth(),
-                    projectList = projects,
-                    onAddIconClicked = {
-                        navigationController.navigate(Screens.NewProjectScreen.route)
-                    },
-                    onProjectCardClick = {navigationController.navigate(Screens.ProjectScreen.route)}
+                    projectList = allProjects,
+                    onAddIconClicked = { isOpenNewProject = true },
+                    onProjectCardClick = { projectId ->
+                        navigationController.navigate(Screens.ProjectScreen.route + "/$projectId")
+                    }
                 )
             }
             item {
                 Button(
-                    onClick = {navigationController.navigate(Screens.SessionScreen.route)},
+                    onClick = { navigationController.navigate(Screens.SessionScreen.route) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 48.dp, vertical = 20.dp)
@@ -139,32 +152,31 @@ fun DashboardScreen(
             taskList(
                 sectionTitle = "Trabajos por hacer",
                 emptyListText = "No tienes trabajos por hacer. \n Pulsa el botón + para crear una nueva",
-                tasks = tasks,
+                tasks = emptyList(), // Aquí necesitas obtener la lista de tareas pendientes
                 onCheckBoxClick = {},
-                onTaskCardClick = {navigationController.navigate(Screens.TaskScreen.route)}
+                onTaskCardClick = { navigationController.navigate(Screens.TaskScreen.route) }
             )
-            item { 
+            item {
                 Spacer(modifier = Modifier.size(20.dp))
             }
             projectSessionsList(
                 sectionTitle = "Sesiones de los proyectos",
                 emptyListText = "No tienes ninguna sesión de Proyectos.\n !Añade una ahora¡",
-                sessions = sesions,
-                onDeleteIconClick = {isOpenDelete = true}
+                sessions = allSessions,
+                onDeleteIconClick = { isOpenDelete = true }
             )
         }
     }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DashboardScreenTopBar(
-    onClickDrawer:() ->Unit
+    onClickDrawer: () -> Unit
 ) {
     CenterAlignedTopAppBar(
         navigationIcon = {
-            IconButton(onClick = { onClickDrawer()}) {
+            IconButton(onClick = { onClickDrawer() }) {
                 Icon(
                     imageVector = Icons.Default.Menu,
                     contentDescription = "Menu"
@@ -186,7 +198,7 @@ private fun CountCardSection(
     nproyectos: Int,
     fproyectos: Int,
     hours: Int,
-){
+) {
     Row {
         CountCard(
             modifier = Modifier.weight(1f),
@@ -207,14 +219,15 @@ private fun CountCardSection(
         )
     }
 }
+
 @Composable
 private fun ProjectsCardSection(
     modifier: Modifier,
     projectList: List<Project>,
-    emptyListText:String = "No tienes ningun Proyecto.\n Pulsa el botón + para añadir un nuevo proyecto",
-    onAddIconClicked:() -> Unit,
+    emptyListText: String = "No tienes ningun Proyecto.\n Pulsa el botón + para añadir un nuevo proyecto",
+    onAddIconClicked: () -> Unit,
     onProjectCardClick: (Int?) -> Unit
-){
+) {
     Column(modifier = Modifier) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -233,7 +246,7 @@ private fun ProjectsCardSection(
                 )
             }
         }
-        if(projectList.isEmpty()){
+        if (projectList.isEmpty()) {
             Image(
                 modifier = Modifier
                     .size(120.dp)
@@ -252,12 +265,11 @@ private fun ProjectsCardSection(
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(start = 12.dp, end = 12.dp)
-        ){
-            items(projectList) { projectList ->
+        ) {
+            items(projectList) { project ->
                 ProjectCard(
-                    projectname = projectList.name,
-                    gradientColors = projectList.colors,
-                    onClick = { onProjectCardClick(projectList.projectId) }
+                    projectname = project.name,
+                    onClick = { onProjectCardClick(project.projectId) }
                 )
             }
         }

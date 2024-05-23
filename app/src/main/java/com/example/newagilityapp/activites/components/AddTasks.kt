@@ -38,15 +38,13 @@ fun AddTasks() {
     var isOpenEditProject by rememberSaveable { mutableStateOf(false) }
     var projectName by remember { mutableStateOf("") }
     var goalHours by remember { mutableStateOf("") }
-    var selectedColor by remember { mutableStateOf(Project.CardColors.random()) }
+
 
     NewProjectDialog(
         isOpen = isOpenEditProject,
         title = "Añadir Proyecto",
-        selectedColors = selectedColor,
         projectname = projectName,
         goalHours = goalHours,
-        onColorChange = { selectedColor = it },
         onProjectNameChange = { projectName = it },
         onGoalHoursChange = { goalHours = it },
         onDismissRequest = { isOpenEditProject = false },
@@ -55,7 +53,6 @@ fun AddTasks() {
                 title = projectName,
                 endate = System.currentTimeMillis(),
                 taskId = tasks.size + 1,
-                fromProject = "s",
                 isDone = false,
                 priority = 1,
                 taskProjectId = 1,

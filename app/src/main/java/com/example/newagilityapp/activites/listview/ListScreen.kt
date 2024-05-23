@@ -34,6 +34,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -49,6 +50,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.newagilityapp.R
 import com.example.newagilityapp.activites.components.CountCard
+import com.example.newagilityapp.data.viewmodels.ProjectViewModel
+import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Screens
 import com.example.newagilityapp.projects
 import kotlinx.coroutines.launch
@@ -56,11 +59,16 @@ import kotlinx.coroutines.launch
 //Todo Lista de todos los proyectos, y bottones de filtrado
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListScreen(navigationController: NavHostController, drawerState: DrawerState) {
-
+fun ListScreen(
+    navigationController: NavHostController,
+    drawerState: DrawerState,
+    projectViewModel: ProjectViewModel
+) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val listState = rememberLazyListState()
     val isFABExpanded by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
+
+    val projects by projectViewModel.getAllProjects.collectAsState(initial = emptyList())
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -86,18 +94,22 @@ fun ListScreen(navigationController: NavHostController, drawerState: DrawerState
         ){
             item {
                 ListProjects(
-                    emptyListText = "No hay ningun proyecto",
-                    onProjectCardClick = {navigationController.navigate(Screens.ProjectScreen.route)} )
+                    projects = projects,
+                    emptyListText = "No hay ningun Projecto creado",
+                    onProjectCardClick = { projectId ->
+                        navigationController.navigate("${Screens.ProjectScreen.route}/$projectId")
+                    }
+                )
             }
             item {
                 Spacer(modifier = Modifier.height(20.dp))
             }
-
         }
     }
 }
 @Composable
 private fun ListProjects(
+    projects: List<Project>,
     emptyListText: String,
     onProjectCardClick: (Int?) -> Unit
 ){
@@ -123,20 +135,19 @@ private fun ListProjects(
                 projectname = projectList.name,
                 endDate=projectList.endDate,
                 progress = 0.1f,
-                //Trabajos asociados totales
                 onClick = { onProjectCardClick(projectList.projectId) }
             )
             Spacer(modifier = Modifier.height(10.dp))
         }
     }
 }
+
 @Composable
 private fun ProjectListCard(
     projectname: String,
     endDate: String,
     progress:Float,
     onClick: () -> Unit
-    //tasks: Int
 ){
     val percentage = remember(progress){
         (progress*100).toInt().coerceIn(0,100)
@@ -149,7 +160,7 @@ private fun ProjectListCard(
             Modifier
                 .padding(10.dp)
                 .fillMaxWidth(),
-            ) {
+        ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally){
                 Text(
                     text = projectname,
@@ -160,27 +171,27 @@ private fun ProjectListCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                Text(
-                    text = "Fecha fin:",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Spacer(modifier =Modifier.height(10.dp))
-                Text(
-                    text = endDate,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
+                        Text(
+                            text = "Fecha fin:",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Spacer(modifier =Modifier.height(10.dp))
+                        Text(
+                            text = endDate,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-               Text(
-                   text = "Trabajos:",
-                   style = MaterialTheme.typography.bodyLarge
-               )
-               Spacer(modifier = Modifier.height(10.dp))
-               Text(
-                   text = "12",
-                   style = MaterialTheme.typography.bodyMedium
-               )
-           }
+                        Text(
+                            text = "Trabajos:",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = "12",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                     Box (modifier = Modifier.size(75.dp),
                         contentAlignment = Alignment.Center
                     ){
@@ -204,6 +215,7 @@ private fun ProjectListCard(
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ListScreenTopBar(
@@ -230,54 +242,4 @@ private fun ListScreenTopBar(
             style = MaterialTheme.typography.headlineLarge)
         },
     )
-}
-
-@Composable
-private fun ProjectOverviewSection(
-    modifier: Modifier,
-    hoursDone: String,
-    goalHours:String,
-    progress: Float
-){
-    val percentage = remember(progress){
-        (progress*100).toInt().coerceIn(0,100)
-    }
-
-    Row (
-        modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceAround,
-        verticalAlignment = Alignment.CenterVertically
-    ){
-        CountCard(
-            modifier = Modifier.weight(1f),
-            title = "Objetivo de Horas",
-            count = goalHours
-        )
-        Spacer(modifier = Modifier.width(10.dp))
-        CountCard(
-            modifier = Modifier.weight(1f),
-            title = "Horas Hechas",
-            count = hoursDone
-        )
-        Spacer(modifier = Modifier.width(10.dp))
-        Box (
-            modifier = Modifier.size(75.dp),
-            contentAlignment = Alignment.Center
-        ){
-            CircularProgressIndicator(
-                modifier = Modifier.fillMaxSize(),
-                progress = 1f,
-                strokeWidth = 4.dp,
-                strokeCap = StrokeCap.Round,
-                color = MaterialTheme.colorScheme.surfaceVariant
-            )
-            CircularProgressIndicator(
-                modifier = Modifier.fillMaxSize(),
-                progress = progress,
-                strokeWidth = 4.dp,
-                strokeCap = StrokeCap.Round
-            )
-            Text(text = "$percentage%")
-        }
-    }
 }

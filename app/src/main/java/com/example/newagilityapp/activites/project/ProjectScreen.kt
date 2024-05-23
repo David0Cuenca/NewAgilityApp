@@ -52,9 +52,6 @@ import com.example.newagilityapp.model.Screens
 import com.example.newagilityapp.sesions
 import com.example.newagilityapp.tasks
 
-data class ProjectScreenNavArgs(
-    val projectId: Int
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,16 +67,13 @@ fun ProjectScreen(navigationController: NavHostController) {
 
     var projectName by remember { mutableStateOf("") }
     var goalHours by remember { mutableStateOf("") }
-    var selectedColor by remember { mutableStateOf(Project.CardColors.random()) }
 
 
     NewProjectDialog(
         isOpen = isOpenEditProject,
         title = "Añadir Projecto",
-        selectedColors = selectedColor,
         projectname = projectName,
         goalHours = goalHours,
-        onColorChange = {selectedColor = it},
         onProjectNameChange = {projectName = it},
         onGoalHoursChange = {goalHours = it},
         onDismissRequest = { isOpenEditProject = false },

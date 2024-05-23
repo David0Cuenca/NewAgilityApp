@@ -22,15 +22,15 @@ import com.example.newagilityapp.R
 fun ProjectCard(
     modifier: Modifier = Modifier,
     projectname: String,
-    gradientColors:List<Color>,
     onClick:() -> Unit
 ){
+    //Todo hacer la cajeta de los proyectos distinta
     Box(
         modifier = Modifier.size(150.dp)
             .size(150.dp)
             .clickable {onClick()}
             .background(
-                brush = Brush.verticalGradient(gradientColors),
+                brush = Brush.verticalGradient(listOf(MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.scrim)),
                 shape = MaterialTheme.shapes.medium
             )
     ){

@@ -36,10 +36,8 @@ import com.example.newagilityapp.model.Project
 fun NewProjectDialog(
     isOpen:Boolean,
     title: String,
-    selectedColors:List<Color>,
     projectname: String,
     goalHours: String,
-    onColorChange: (List<Color>) -> Unit,
     onProjectNameChange:(String) -> Unit,
     onGoalHoursChange: (String) -> Unit,
     onDismissRequest: () -> Unit,
@@ -68,28 +66,6 @@ fun NewProjectDialog(
             title = { Text(text = title) },
             text = {
                 Column {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceAround
-                    ) {
-                        Project.CardColors.forEach {colors ->
-                            Box(
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .clip(CircleShape)
-                                    .border(
-                                        width = 2.dp,
-                                        color = if (colors == selectedColors) Color.Black
-                                        else Color.Transparent,
-                                        shape = CircleShape
-                                    )
-                                    .background(brush = Brush.verticalGradient(colors))
-                                    .clickable { onColorChange(colors) }
-                            )
-                        }
-                    }
                     OutlinedTextField(
                         value = projectname,
                         onValueChange = onProjectNameChange,
