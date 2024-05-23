@@ -53,7 +53,6 @@ android {
 }
 
 dependencies {
-    //
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
     implementation ("com.kizitonwose.calendar:view:2.4.1")
     implementation ("com.kizitonwose.calendar:compose:2.4.1")

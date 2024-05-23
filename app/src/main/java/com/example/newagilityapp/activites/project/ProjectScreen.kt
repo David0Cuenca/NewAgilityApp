@@ -59,9 +59,7 @@ data class ProjectScreenNavArgs(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProjectScreen(navigationController: NavHostController) {
-    val onBackClick: () -> Unit
-    val onAddTaskClick: () -> Unit
-    val onTaskCard: (Int?) -> Unit
+
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val listState = rememberLazyListState()
     val isFABExpanded by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
@@ -87,8 +85,7 @@ fun ProjectScreen(navigationController: NavHostController) {
         onDismissRequest = { isOpenEditProject = false },
         onConfirmButtonsClick = {
             isOpenEditProject = false
-        },
-
+                                },
         )
 
     DeleteDialog(

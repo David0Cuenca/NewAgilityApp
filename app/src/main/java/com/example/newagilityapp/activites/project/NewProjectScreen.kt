@@ -3,13 +3,13 @@ package com.example.newagilityapp.activites.project
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,17 +17,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,12 +33,10 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -53,28 +48,22 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.newagilityapp.activites.components.DeleteDialog
+import com.example.newagilityapp.activites.components.AddTasks
 import com.example.newagilityapp.activites.components.SubjectListBottomSheet
-import com.example.newagilityapp.activites.components.TaskCheckBox
 import com.example.newagilityapp.activites.components.TaskDatePicker
+import com.example.newagilityapp.activites.components.taskList
 import com.example.newagilityapp.model.Project
+import com.example.newagilityapp.model.Screens
 import com.example.newagilityapp.projects
-import com.example.newagilityapp.ui.theme.Red
-import com.example.newagilityapp.ui.theme.backgroundDark
+import com.example.newagilityapp.tasks
 import com.example.newagilityapp.utilities.Priority
 import com.example.newagilityapp.utilities.changeMillisToDateString
 import kotlinx.coroutines.launch
 import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -87,13 +76,10 @@ fun NewProjectScreen(navigationController: NavHostController) {
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = Instant.now().toEpochMilli()
     )
-    val scope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState()
-    var isBottomSheetOpen by remember { mutableStateOf(false) }
+
     var expanded by remember { mutableStateOf(false) }
 
-    var selectedProject by remember { mutableStateOf<Project?>(null) }
-    var selectedText by remember { mutableStateOf(Priority.LOW) }
+    var selectedText by remember { mutableStateOf(Priority.MEDIUM) }
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var taskTitleError by rememberSaveable { mutableStateOf<String?>(null) }
@@ -105,27 +91,12 @@ fun NewProjectScreen(navigationController: NavHostController) {
         else -> null
     }
 
-    // DatePickerDialog
     TaskDatePicker(
         state = datePickerState,
         isOpen = isDatePickerOpen,
         onDismissRequest = { isDatePickerOpen = false },
         onConfirmButtonClick = { isDatePickerOpen = false }
     )
-
-    SubjectListBottomSheet(
-        sheetState = sheetState,
-        isOpen = isBottomSheetOpen,
-        projects = projects,
-        onDismissRequest = { isBottomSheetOpen = false },
-        onSubjectClicked = { project ->
-            selectedProject = project
-            scope.launch { sheetState.hide() }.invokeOnCompletion {
-                if (!sheetState.isVisible) isBottomSheetOpen = false
-            }
-        }
-    )
-
     Scaffold(
         topBar = {
             NewProjectScreenTopBar(
@@ -157,7 +128,6 @@ fun NewProjectScreen(navigationController: NavHostController) {
                 label = { Text(text = "Descripción") }
             )
             Spacer(modifier = Modifier.height(20.dp))
-
             Row(
                 Modifier
                     .fillMaxWidth()
@@ -220,28 +190,7 @@ fun NewProjectScreen(navigationController: NavHostController) {
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.height(30.dp))
-            Text(
-                text = "Relacionado con el proyecto",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = selectedProject?.name ?: "Selecciona un proyecto",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                IconButton(onClick = { isBottomSheetOpen = true }) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = "Seleccionar Proyecto"
-                    )
-                }
-            }
+            AddTasks()
             Button(
                 enabled = taskTitleError == null,
                 onClick = { /*TODO*/ },
@@ -255,25 +204,40 @@ fun NewProjectScreen(navigationController: NavHostController) {
     }
 }
 
-
-
-
 @Composable
-private fun PriorityButton(
+fun OutlinedBox(
     modifier: Modifier = Modifier,
-    label:String,
-    backgroundColor: Color,
-    labelColor: Color,
-    onClick:()-> Unit
-){
+    value: String,
+    onClick: () -> Unit,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    isEnabled: Boolean = true
+) {
     Box(
         modifier = modifier
-            .background(backgroundColor)
-            .clickable { onClick() }
-            .padding(10.dp),
-        contentAlignment = Alignment.Center
-    ){
-        Text(text = label, color = labelColor)
+            .fillMaxWidth()
+            .clickable(enabled = isEnabled) { onClick() }
+            .border(
+                BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)),
+                shape = MaterialTheme.shapes.extraSmall
+            )
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(horizontal = 16.dp, vertical = 16.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (isEnabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f)
+            )
+            if (trailingIcon != null) {
+                trailingIcon()
+            }
+        }
     }
 }
 
