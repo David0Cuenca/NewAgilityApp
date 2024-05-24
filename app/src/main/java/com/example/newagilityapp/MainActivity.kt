@@ -45,8 +45,9 @@ import com.example.newagilityapp.model.Screens
 import com.example.newagilityapp.model.Session
 import com.example.newagilityapp.model.Task
 import com.example.newagilityapp.ui.theme.NewAgilityAppTheme
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val projectViewModel: ProjectViewModel by viewModels()
     private val sessionViewModel: SessionViewModel by viewModels()
