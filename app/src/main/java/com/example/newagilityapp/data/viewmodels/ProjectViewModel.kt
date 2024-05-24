@@ -4,14 +4,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.newagilityapp.data.repository.ProjectRepository
 import com.example.newagilityapp.model.Project
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ProjectViewModel(private val projectRepository: ProjectRepository) : ViewModel() {
-
+@HiltViewModel
+class ProjectViewModel @Inject constructor(
+    private val projectRepository: ProjectRepository
+) : ViewModel() {
     val totalProjectsCount: Flow<Int> = projectRepository.getTotalProjectsCount()
     val totalGoalHours: Flow<Float> = projectRepository.getTotalGoalHours()
     val getAllProjects: Flow<List<Project>> = projectRepository.getAllProjects()
+
+    fun getProjectById(projectId: Int): Flow<Project> {
+        return projectRepository.getProjectById(projectId)
+    }
 
     fun addOrUpdateProject(project: Project) {
         viewModelScope.launch {

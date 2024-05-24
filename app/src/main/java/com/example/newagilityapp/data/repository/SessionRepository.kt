@@ -3,8 +3,9 @@ package com.example.newagilityapp.data.repository
 import com.example.newagilityapp.data.local.SessionDao
 import com.example.newagilityapp.model.Session
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class SessionRepository(private val sessionDao: SessionDao) {
+class SessionRepository @Inject constructor(private val sessionDao: SessionDao) {
 
     fun getAllSessions(): Flow<List<Session>> = sessionDao.getAllSessions()
 

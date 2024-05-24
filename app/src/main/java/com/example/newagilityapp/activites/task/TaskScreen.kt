@@ -67,7 +67,6 @@ data class TaskScreenNavArgs(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(navigationController: NavHostController) {
-    val onBackButtonClick: () -> Unit
     var isDeleteDialogOpen by rememberSaveable { mutableStateOf(false) }
     var isDatePickerOpen by rememberSaveable { mutableStateOf(false) }
     var datePickerState = rememberDatePickerState(

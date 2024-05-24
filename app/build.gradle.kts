@@ -2,6 +2,8 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
+    id ("kotlin-kapt")
 }
 
 android {
@@ -53,6 +55,9 @@ android {
 }
 
 dependencies {
+    //Dagger Hilt
+    implementation("com.google.dagger:hilt-android:2.44")
+    kapt("com.google.dagger:hilt-android-compiler:2.44")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
     implementation ("com.kizitonwose.calendar:view:2.4.1")
     implementation ("com.kizitonwose.calendar:compose:2.4.1")

@@ -5,6 +5,7 @@ import com.example.newagilityapp.model.Task
 import kotlinx.coroutines.flow.Flow
 
 class TaskRepository(private val taskDao: TaskDao) {
+    fun getTaskById(taskId: Int): Flow<Task> = taskDao.getTaskById(taskId)
 
     fun getAllTasks(): Flow<List<Task>> = taskDao.getAllTasks()
 
@@ -13,6 +14,6 @@ class TaskRepository(private val taskDao: TaskDao) {
     }
 
     suspend fun deleteTask(taskId: Int) {
-        taskDao.deleteTas(taskId)
+        taskDao.deleteTask(taskId)
     }
 }
