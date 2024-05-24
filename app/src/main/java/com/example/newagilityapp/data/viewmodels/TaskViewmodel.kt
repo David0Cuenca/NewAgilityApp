@@ -16,7 +16,7 @@ class TaskViewModel @Inject constructor(
 ) : ViewModel() {
     val getAllTasks: Flow<List<Task>> = taskRepository.getAllTasks()
 
-    fun getTaskById(taskId: Int): Flow<Task> {
+    fun getTaskById(taskId: Int): Flow<Task?> {
         return taskRepository.getTaskById(taskId)
     }
 

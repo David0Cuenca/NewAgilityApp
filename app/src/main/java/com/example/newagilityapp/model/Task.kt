@@ -2,6 +2,7 @@ package com.example.newagilityapp.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
@@ -12,13 +13,17 @@ import androidx.room.PrimaryKey
             childColumns = ["taskProjectId"],
             onDelete = ForeignKey.CASCADE
         )
+    ],
+    indices = [
+        Index(value = ["taskProjectId"])
     ]
 )
 data class Task(
-    val title:String,
+    val title: String,
     val description: String,
     val endate: Long,
     val taskProjectId: Int,
+    val fromProject: String,
     val isDone: Boolean,
     @PrimaryKey(autoGenerate = true)
     val taskId: Int? = null,

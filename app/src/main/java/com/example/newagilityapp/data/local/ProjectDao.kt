@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProjectDao {
-    @Query("SELECT * FROM project WHERE id = :projectId")
-    fun getProjectById(projectId: Int): Flow<Project>
+    @Query("SELECT * FROM project WHERE projectId = :projectId")
+    fun getProjectById(projectId: Int): Flow<Project?>
 
     @Query("SELECT COUNT(*) FROM project")
     fun getTotalProjectCount(): Flow<Int>
@@ -25,6 +25,6 @@ interface ProjectDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertProject(project: Project)
 
-    @Query("DELETE FROM project WHERE id = :projectId")
+    @Query("DELETE FROM project WHERE projectId = :projectId")
     suspend fun deleteProject(projectId: Int)
 }

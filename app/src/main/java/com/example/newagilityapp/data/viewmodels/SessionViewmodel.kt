@@ -10,20 +10,18 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SessionViewModel @Inject constructor (private val sessionRepository: SessionRepository) : ViewModel() {
+class SessionViewModel @Inject constructor(
+    private val sessionRepository: SessionRepository
+) : ViewModel() {
+    val getAllSessions: Flow<List<Session>> = sessionRepository.getAllSessions()
 
-    val allSessions: Flow<List<Session>> = sessionRepository.getAllSessions()
-    val totalSessionsDuration: Flow<Long> = sessionRepository.getTotalSessionsDuration()
-
-    fun addSession(session: Session) {
-        viewModelScope.launch {
-            sessionRepository.addSession(session)
-        }
+    fun getSessionById(sessionId: Int): Flow<List<Session>> {
+        return sessionRepository.getSessionById(sessionId)
     }
 
-    fun deleteSession(session: Session) {
+    fun addOrUpdateSession(session: Session) {
         viewModelScope.launch {
-            sessionRepository.deleteSession(session)
+            sessionRepository.addOrUpdateSession(session)
         }
     }
 }

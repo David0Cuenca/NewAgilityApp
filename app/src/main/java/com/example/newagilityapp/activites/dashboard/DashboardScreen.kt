@@ -112,7 +112,7 @@ fun DashboardScreen(
         topBar = { DashboardScreenTopBar { scope.launch { drawerState.open() } } },
     ) { paddingValues ->
         val allProjects by projectViewModel.getAllProjects.collectAsState(initial = emptyList())
-        val allSessions by sessionViewModel.allSessions.collectAsState(initial = emptyList())
+        val allSessions by sessionViewModel.getAllSessions.collectAsState(initial = emptyList())
 
         LazyColumn(
             modifier = Modifier
