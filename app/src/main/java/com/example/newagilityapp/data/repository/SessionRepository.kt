@@ -9,6 +9,8 @@ class SessionRepository @Inject constructor(private val sessionDao: SessionDao) 
     fun getSessionById(sessionId: Int): Flow<List<Session>> = sessionDao.getSessionById(sessionId)
     fun getAllSessions(): Flow<List<Session>> = sessionDao.getAllSessions()
 
+    fun getSessionsByProjectId(sessionProjectId:Int): Flow<List<Session>> = sessionDao.getSessionByProjectId(sessionProjectId)
+
     fun getTotalSessionsDuration(): Flow<Long> = sessionDao.getTotalSessionsDuration()
     fun getTotalSessionsDurationByProjectId(projectId: Int): Flow<Long> = sessionDao.getTotalSessionsDurationByProjectId(projectId)
     suspend fun addOrUpdateSession(session: Session) = sessionDao.insertSession(session)

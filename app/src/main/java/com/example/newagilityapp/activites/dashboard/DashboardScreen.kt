@@ -1,7 +1,6 @@
 package com.example.newagilityapp.activites.dashboard
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,38 +30,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.newagilityapp.activites.components.CountCard
 import com.example.newagilityapp.activites.components.DeleteDialog
-import com.example.newagilityapp.activites.components.NewProjectDialog
 import com.example.newagilityapp.activites.components.ProjectCard
 
-import com.example.newagilityapp.activites.components.projectSessionsList
+
 import com.example.newagilityapp.activites.components.taskList
 
 import com.example.newagilityapp.R
-import com.example.newagilityapp.data.repository.ProjectRepository
-import com.example.newagilityapp.data.repository.SessionRepository
-import com.example.newagilityapp.data.repository.TaskRepository
+import com.example.newagilityapp.activites.components.ProjectSessionsList
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
 import com.example.newagilityapp.data.viewmodels.SessionViewModel
 import com.example.newagilityapp.data.viewmodels.TaskViewModel
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Screens
 
-import com.example.newagilityapp.projects
-import com.example.newagilityapp.sesions
-import com.example.newagilityapp.tasks
 import kotlinx.coroutines.launch
 
 
@@ -77,27 +68,6 @@ fun DashboardScreen(
     val scope = rememberCoroutineScope()
     var isOpenNewProject by rememberSaveable { mutableStateOf(false) }
     var isOpenDelete by rememberSaveable { mutableStateOf(false) }
-    var projectName by remember { mutableStateOf("") }
-    var goalHours by remember { mutableStateOf("") }
-
-    NewProjectDialog(
-        isOpen = isOpenNewProject,
-        title = "Añadir Projecto",
-        projectname = projectName,
-        goalHours = goalHours,
-        onProjectNameChange = { projectName = it },
-        onGoalHoursChange = { goalHours = it },
-        onDismissRequest = { isOpenNewProject = false },
-        onConfirmButtonsClick = {
-            isOpenNewProject = false
-            val project = Project(
-                name = projectName,
-                endDate = "", // Asegúrate de manejar esta fecha adecuadamente
-                goalHours = goalHours.toFloatOrNull() ?: 0f
-            )
-            projectViewModel.addOrUpdateProject(project)
-        }
-    )
 
     DeleteDialog(
         isOpen = isOpenDelete,
@@ -113,6 +83,7 @@ fun DashboardScreen(
     ) { paddingValues ->
         val allProjects by projectViewModel.getAllProjects.collectAsState(initial = emptyList())
         val allSessions by sessionViewModel.getAllSessions.collectAsState(initial = emptyList())
+        val allTask by taskViewModel.getAllTasks.collectAsState(initial = emptyList())
 
         LazyColumn(
             modifier = Modifier
@@ -144,7 +115,10 @@ fun DashboardScreen(
                     onClick = { navigationController.navigate(Screens.SessionScreen.route) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 48.dp, vertical = 20.dp)
+                        .padding(
+                            horizontal = 48.dp,
+                            vertical = 20.dp
+                        )
                 ) {
                     Text(text = "Iniciar sesión de trabajo")
                 }
@@ -152,14 +126,14 @@ fun DashboardScreen(
             taskList(
                 sectionTitle = "Trabajos por hacer",
                 emptyListText = "No tienes trabajos por hacer. \n Pulsa el botón + para crear una nueva",
-                tasks = emptyList(), // Aquí necesitas obtener la lista de tareas pendientes
+                tasks = allTask, // Aquí necesitas obtener la lista de tareas pendientes
                 onCheckBoxClick = {},
                 onTaskCardClick = { navigationController.navigate(Screens.TaskScreen.route) }
             )
             item {
                 Spacer(modifier = Modifier.size(20.dp))
             }
-            projectSessionsList(
+            ProjectSessionsList(
                 sectionTitle = "Sesiones de los proyectos",
                 emptyListText = "No tienes ninguna sesión de Proyectos.\n !Añade una ahora¡",
                 sessions = allSessions,

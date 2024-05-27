@@ -31,10 +31,9 @@ import androidx.compose.ui.unit.dp
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Task
 
-@Preview
+
 @Composable
-fun AddTasks() {
-    var tasks by remember { mutableStateOf<List<Task>>(emptyList()) }
+fun AddTasks(tasks:List<Task>) {
     var isOpenEditProject by rememberSaveable { mutableStateOf(false) }
     var projectName by remember { mutableStateOf("") }
     var goalHours by remember { mutableStateOf("") }
@@ -49,15 +48,16 @@ fun AddTasks() {
         onGoalHoursChange = { goalHours = it },
         onDismissRequest = { isOpenEditProject = false },
         onConfirmButtonsClick = {
-            tasks = tasks + Task(
+/*            tasks = tasks + Task(
                 title = projectName,
                 endate = System.currentTimeMillis(),
                 taskId = tasks.size + 1,
                 isDone = false,
                 priority = 1,
                 taskProjectId = 1,
-                description = ""
-            )
+                description = "",
+                fromProject = ""
+            )*/
             isOpenEditProject = false
         },
     )

@@ -27,9 +27,10 @@ import androidx.compose.ui.unit.dp
 import com.example.newagilityapp.R
 import com.example.newagilityapp.model.Session
 
-fun LazyListScope.projectSessionsList(
+
+fun LazyListScope.ProjectSessionsList(
     sectionTitle: String,
-    sessions:List<Session>,
+    sessions: List<Session>,
     emptyListText:String,
     onDeleteIconClick: (Session) -> Unit
 ){
@@ -63,7 +64,7 @@ fun LazyListScope.projectSessionsList(
         }
     }
     items(sessions) { session ->
-        sessionCard(
+        SessionCard(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
             session = session,
             onDeleteIconClick = {onDeleteIconClick(session)}
@@ -72,7 +73,7 @@ fun LazyListScope.projectSessionsList(
 }
 
 @Composable
-private fun sessionCard(
+private fun SessionCard(
     modifier: Modifier,
     session: Session,
     onDeleteIconClick:() -> Unit
@@ -95,7 +96,7 @@ private fun sessionCard(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "${session.date}",
+                    text = session.date,
                     style = MaterialTheme.typography.bodyMedium
                 )
 

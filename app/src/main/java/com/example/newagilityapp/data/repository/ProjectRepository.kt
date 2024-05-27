@@ -7,6 +7,7 @@ import javax.inject.Inject
 
 class ProjectRepository @Inject constructor(private val projectDao: ProjectDao) {
     fun getProjectById(projectId: Int): Flow<Project?> = projectDao.getProjectById(projectId)
+    fun getTotalHoursFromSessions(projectId: Int): Flow<Int> = projectDao.getTotalHoursFromSessions(projectId)
     fun getTotalProjectsCount(): Flow<Int> = projectDao.getTotalProjectCount()
     fun getTotalGoalHours(): Flow<Float> = projectDao.getTotalGoalHours()
     fun getAllProjects(): Flow<List<Project>> = projectDao.getAllProjects()

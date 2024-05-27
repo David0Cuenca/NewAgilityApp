@@ -25,9 +25,11 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.newagilityapp.activites.calendar.CalendarScreen
 import com.example.newagilityapp.activites.components.DrawerContent
 import com.example.newagilityapp.activites.components.MenuItem
@@ -142,27 +144,14 @@ class MainActivity : ComponentActivity() {
                                     towards = AnimatedContentTransitionScope.SlideDirection.End
                                 )
                             }){ TaskScreen(navigationController)}
-                        composable(Screens.ProjectScreen.route,
-                            enterTransition = {
-                                slideInHorizontally(
-                                    animationSpec = tween(
-                                        300, easing = LinearEasing
-                                    )
-                                ) + slideIntoContainer(
-                                    animationSpec = tween(300, easing = EaseIn),
-                                    towards = AnimatedContentTransitionScope.SlideDirection.Start
-                                )
-                            },
-                            exitTransition = {
-                                slideOutHorizontally(
-                                    animationSpec = tween(
-                                        300, easing = LinearEasing
-                                    )
-                                ) + slideOutOfContainer(
-                                    animationSpec = tween(300, easing = EaseOut),
-                                    towards = AnimatedContentTransitionScope.SlideDirection.End
-                                )
-                            }){ ProjectScreen(navigationController)}
+                        composable(Screens.ProjectScreen.route, arguments = listOf(navArgument("projectId") { type = NavType.IntType })) { backStackEntry ->
+                            val projectId = backStackEntry.arguments?.getInt("projectId")
+                            if (projectId != null) {
+                                ProjectScreen(navigationController,projectViewModel,taskViewModel,sessionViewModel,projectId)
+                            }else{
+                                error("No hay un Id del projecto")
+                            }
+                        }
                         composable(Screens.SessionScreen.route,
                             enterTransition = {
                                 slideInHorizontally(
@@ -205,7 +194,7 @@ class MainActivity : ComponentActivity() {
                                     towards = AnimatedContentTransitionScope.SlideDirection.End
                                 )
                             }){ CalendarScreen(navigationController,drawerState, projects)}
-                        composable(Screens.NewProjectScreen.route){ NewProjectScreen(navigationController)}
+                        composable(Screens.NewProjectScreen.route){ NewProjectScreen(navigationController,projectViewModel,taskViewModel)}
                     }
                 }
             }
@@ -220,14 +209,14 @@ val projects = listOf(
     Project(name = "Consejos", endDate = "12/12/2024",2f, projectId = 0),
     Project(name = "Clases", endDate = "12/12/2024", 3f, projectId = 0),
 )
-
+/*
 val tasks = listOf(
     Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, false, taskId = 0, priority = 0),
     Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, false, taskId = 0, priority = 1),
     Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, true, taskId = 0, priority = 2),
     Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, false, taskId = 0, priority = 3),
     Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, true, taskId = 0, priority = 1),
-)
+)*/
 
 val sesions = listOf(
     Session(fromProject = "Aldi", date = "21/05/2024", duration = 2, projectSessionId = 0, sessionId = 0),

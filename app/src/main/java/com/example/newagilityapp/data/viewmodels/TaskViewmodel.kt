@@ -15,7 +15,17 @@ class TaskViewModel @Inject constructor(
     private val taskRepository: TaskRepository
 ) : ViewModel() {
     val getAllTasks: Flow<List<Task>> = taskRepository.getAllTasks()
+    fun getTaskByProjectId(taskProjectId: Int): Flow<List<Task>> {
+        return taskRepository.getTaskByProjectId(taskProjectId)
+    }
 
+    fun getTotalTasks(projectTaskId: Int): Flow<Int> {
+        return taskRepository.getTotalTasks(projectTaskId)
+    }
+
+    fun getCompletedTasks(projectTaskId: Int): Flow<Int> {
+        return taskRepository.getCompletedTasks(projectTaskId)
+    }
     fun getTaskById(taskId: Int): Flow<Task?> {
         return taskRepository.getTaskById(taskId)
     }

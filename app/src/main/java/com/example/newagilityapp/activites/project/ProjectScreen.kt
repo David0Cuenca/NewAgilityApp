@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,20 +43,28 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.newagilityapp.activites.components.AddTasks
 import com.example.newagilityapp.activites.components.CountCard
 import com.example.newagilityapp.activites.components.DeleteDialog
-import com.example.newagilityapp.activites.components.NewProjectDialog
-import com.example.newagilityapp.activites.components.projectSessionsList
+import com.example.newagilityapp.activites.components.ProjectSessionsList
 import com.example.newagilityapp.activites.components.taskList
-import com.example.newagilityapp.model.Project
+import com.example.newagilityapp.data.viewmodels.ProjectViewModel
+import com.example.newagilityapp.data.viewmodels.SessionViewModel
+import com.example.newagilityapp.data.viewmodels.TaskViewModel
 import com.example.newagilityapp.model.Screens
-import com.example.newagilityapp.sesions
-import com.example.newagilityapp.tasks
+import com.example.newagilityapp.model.Task
+import com.example.newagilityapp.utilities.Priority
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProjectScreen(navigationController: NavHostController) {
+fun ProjectScreen(
+    navigationController: NavHostController,
+    projectViewModel: ProjectViewModel,
+    taskViewModel: TaskViewModel,
+    sessionViewModel: SessionViewModel,
+    projectId: Int
+) {
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val listState = rememberLazyListState()
@@ -64,23 +73,20 @@ fun ProjectScreen(navigationController: NavHostController) {
     var isOpenEditProject by rememberSaveable { mutableStateOf(false) }
     var isOpenDeleteProject by rememberSaveable { mutableStateOf(false) }
     var isOpenDeleteSession by rememberSaveable { mutableStateOf(false) }
+    var isOpenEditTask by rememberSaveable { mutableStateOf(false) }
 
-    var projectName by remember { mutableStateOf("") }
-    var goalHours by remember { mutableStateOf("") }
+    var taskName by remember { mutableStateOf("") }
+    var taskDescription by remember { mutableStateOf("") }
+    var taskPriority by remember { mutableStateOf("") }
 
+    val project by projectViewModel.getProjectById(projectId).collectAsState(initial = null)
+    val totalTasks by taskViewModel.getTotalTasks(projectId).collectAsState(initial = 0)
+    val completedTasks by taskViewModel.getCompletedTasks(projectId).collectAsState(initial = 0)
+    val hoursDone by projectViewModel.getTotalHoursFromSessions(projectId).collectAsState(initial = null)
+    val sessions by sessionViewModel.getSessionByProjectId(projectId).collectAsState(initial = emptyList())
+    val tasks by taskViewModel.getTaskByProjectId(projectId).collectAsState(initial = emptyList())
+    val progress = if (totalTasks > 0) completedTasks / totalTasks.toFloat() else 0f
 
-    NewProjectDialog(
-        isOpen = isOpenEditProject,
-        title = "Añadir Projecto",
-        projectname = projectName,
-        goalHours = goalHours,
-        onProjectNameChange = {projectName = it},
-        onGoalHoursChange = {goalHours = it},
-        onDismissRequest = { isOpenEditProject = false },
-        onConfirmButtonsClick = {
-            isOpenEditProject = false
-                                },
-        )
 
     DeleteDialog(
         isOpen = isOpenDeleteProject,
@@ -88,7 +94,10 @@ fun ProjectScreen(navigationController: NavHostController) {
         text = "Vas a borrar un proyecto \n " +
                 "¿Estas seguro de hacerlo? Recuerda que esto no se puede revertir una vez hecho",
         onDismissRequest = { isOpenDeleteProject = false },
-        onConfirmButtonsClick = {isOpenDeleteProject = false}
+        onConfirmButtonsClick = {
+            isOpenDeleteProject = false
+            //Borar el proyecto donde esta
+        }
     )
 
     DeleteDialog(
@@ -97,18 +106,27 @@ fun ProjectScreen(navigationController: NavHostController) {
         text = "Vas a borrar una sessión de un proyecto \n " +
                 "¿Estas seguro de hacerlo? Recuerda que esto no se puede revertir una vez hecho",
         onDismissRequest = { isOpenDeleteSession = false },
-        onConfirmButtonsClick = {isOpenDeleteSession = false}
+        onConfirmButtonsClick = {
+            isOpenDeleteSession = false
+            //Borrar la session donde a hecho click
+        }
     )
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = { ProjectScreenTopBar(
-            title = "Aldi",
-            navigationController = navigationController,
-            onDeleteClick = {isOpenDeleteProject = true},
-            onEditClick = {isOpenEditProject = true},
-            scrollBehavior = scrollBehavior
-            )
+        topBar = {
+            project?.let {
+                ProjectScreenTopBar(
+                    title = it.name,
+                    navigationController = navigationController,
+                    onDeleteClick = {isOpenDeleteProject = true},
+                    onEditClick = {
+                        isOpenEditProject = true
+                        //hay que hacer que le pasemos los valores editados, la idea es hacer que la propia ventana en la que esta, pase a modo edicion
+                                  },
+                    scrollBehavior = scrollBehavior
+                )
+            }
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
@@ -130,36 +148,37 @@ fun ProjectScreen(navigationController: NavHostController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp),
-                    hoursDone = "10",
-                    goalHours = "20",
-                    progress = 0.20f
+                    hoursDone = hoursDone.toString(),
+                    goalHours = project?.goalHours.toString(),
+                    progress = progress
                 )
             }
-            taskList(
-                sectionTitle = "Trabajos por hacer",
-                emptyListText = "No tienes trabajos por hacer. \n Pulsa el botón + para crear una nueva",
-                tasks = tasks,
-                onCheckBoxClick = {},
-                onTaskCardClick = {navigationController.navigate(Screens.TaskScreen.route)}
-            )
+            item {
+                AddTasks(
+                    tasks = tasks.filter { !it.isDone }
+                )
+            }
             item {
                 Spacer(modifier = Modifier.height(20.dp))
             }
             taskList(
                 sectionTitle = "Trabajos Completados",
                 emptyListText = "No tienes trabajos completados. \n Pulsa el botón + para crear una nueva",
-                tasks = tasks,
-                onCheckBoxClick = {},
+                tasks = tasks.filter { it.isDone },
+                onCheckBoxClick = {task -> taskViewModel.addOrUpdateTask(task.copy(isDone = false)) },
                 onTaskCardClick = {navigationController.navigate(Screens.TaskScreen.route)}
             )
             item {
                 Spacer(modifier = Modifier.height(20.dp))
             }
-            projectSessionsList(
+            ProjectSessionsList(
                 sectionTitle = "Sesiones de los proyectos",
                 emptyListText = "No tienes ninguna sesión de Proyectos.\n !Añade una ahora¡",
-                sessions = sesions,
-                onDeleteIconClick = {isOpenDeleteSession = true}
+                sessions = sessions,
+                onDeleteIconClick = {
+                    //aqui deberia hacer que de alguna manera le pasemos el id de la session para su borrado
+                    isOpenDeleteSession = true
+                }
             )
         }
     }
@@ -240,17 +259,17 @@ private fun ProjectOverviewSection(
             contentAlignment = Alignment.Center
         ){
             CircularProgressIndicator(
+                progress = { 1f },
                 modifier = Modifier.fillMaxSize(),
-                progress = 1f,
+                color = MaterialTheme.colorScheme.surfaceVariant,
                 strokeWidth = 4.dp,
                 strokeCap = StrokeCap.Round,
-                color = MaterialTheme.colorScheme.surfaceVariant
             )
             CircularProgressIndicator(
+                progress = { progress },
                 modifier = Modifier.fillMaxSize(),
-                progress = progress,
                 strokeWidth = 4.dp,
-                strokeCap = StrokeCap.Round
+                strokeCap = StrokeCap.Round,
             )
             Text(text = "$percentage%")
         }

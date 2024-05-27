@@ -16,6 +16,7 @@ class ProjectViewModel @Inject constructor(
     val totalProjectsCount: Flow<Int> = projectRepository.getTotalProjectsCount()
     val totalGoalHours: Flow<Float> = projectRepository.getTotalGoalHours()
     val getAllProjects: Flow<List<Project>> = projectRepository.getAllProjects()
+    fun getTotalHoursFromSessions(projectId: Int): Flow<Int> = projectRepository.getTotalHoursFromSessions(projectId)
 
     fun getProjectById(projectId: Int): Flow<Project?> {
         return projectRepository.getProjectById(projectId)

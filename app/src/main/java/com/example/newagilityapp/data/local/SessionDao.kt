@@ -24,6 +24,9 @@ interface SessionDao {
     @Query("SELECT SUM(duration) FROM SESSION")
     fun getTotalSessionsDuration():Flow<Long>
 
+    @Query("SELECT * FROM SESSION WHERE projectSessionId=:projectId")
+    fun getSessionByProjectId(projectId: Int): Flow<List<Session>>
+
     @Query("SELECT SUM(duration) FROM SESSION WHERE projectSessionId=:projectId")
     fun getTotalSessionsDurationByProjectId(projectId: Int):Flow<Long>
 

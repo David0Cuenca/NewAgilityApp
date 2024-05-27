@@ -13,6 +13,9 @@ interface ProjectDao {
     @Query("SELECT * FROM project WHERE projectId = :projectId")
     fun getProjectById(projectId: Int): Flow<Project?>
 
+    @Query("SELECT SUM(duration) FROM session WHERE projectSessionId = :projectId")
+    fun getTotalHoursFromSessions(projectId: Int): Flow<Int>
+
     @Query("SELECT COUNT(*) FROM project")
     fun getTotalProjectCount(): Flow<Int>
 

@@ -1,6 +1,5 @@
 package com.example.newagilityapp.activites.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -31,7 +29,7 @@ import com.example.newagilityapp.utilities.Priority
 
 fun LazyListScope.taskList(
     sectionTitle: String,
-    tasks:List<Task>,
+    tasks: List<Task>,
     emptyListText:String,
     onTaskCardClick:(Int?) -> Unit,
     onCheckBoxClick: (Task) -> Unit
@@ -65,14 +63,15 @@ fun LazyListScope.taskList(
                     )
                 }
         }
-    }
-    items(tasks) { task ->
-        TaskCard(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-            task = task,
-            onCheckBoxClick = { onCheckBoxClick(task) },
-            onClick = {onTaskCardClick(task.taskId)}
-        )
+    } else {
+        items(tasks) { task ->
+            TaskCard(
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                task = task,
+                onCheckBoxClick = { onCheckBoxClick(task) },
+                onClick = { onTaskCardClick(task.taskId) }
+            )
+        }
     }
 }
 
@@ -94,7 +93,7 @@ private fun TaskCard(
         ){
             TaskCheckBox(
                 isDone = task.isDone,
-                borderColor = Priority.fromInt(task.priority).color,
+                borderColor = task.priority.color,
                 onCheckBoxClick = onCheckBoxClick
             )
             Spacer(modifier = Modifier.width(10.dp))

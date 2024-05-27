@@ -66,7 +66,7 @@ fun ListScreen(
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val listState = rememberLazyListState()
-    val isFABExpanded by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
+
 
     val projects by projectViewModel.getAllProjects.collectAsState(initial = emptyList())
 
@@ -77,14 +77,7 @@ fun ListScreen(
             drawerState,
             scrollBehavior = scrollBehavior
         ) },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = { Text(text = "Añadir Trabajo") },
-                icon = { Icon(imageVector = Icons.Default.Add, contentDescription = "Añadir") },
-                onClick = {navigationController.navigate(Screens.ProjectScreen.route)},
-                expanded = isFABExpanded
-            )
-        }
+
     ) { paddingValue ->
         LazyColumn(
             state = listState,

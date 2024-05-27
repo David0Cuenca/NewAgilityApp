@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
@@ -48,16 +49,25 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.newagilityapp.activites.components.AddTasks
 import com.example.newagilityapp.activites.components.TaskDatePicker
+import com.example.newagilityapp.data.viewmodels.ProjectViewModel
+import com.example.newagilityapp.data.viewmodels.TaskViewModel
 import com.example.newagilityapp.utilities.Priority
 import com.example.newagilityapp.utilities.changeMillisToDateString
 import java.time.Instant
 
-
+//Todo hay que hacer que se permita usar esta ventana para editar
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewProjectScreen(navigationController: NavHostController) {
+fun NewProjectScreen(
+    navigationController: NavHostController,
+    projectViewModel: ProjectViewModel,
+    taskViewModel: TaskViewModel,
+    projectId:Int? = null
+) {
     val context = LocalContext.current
+
+    val EditMode = projectId != null
 
     var isDatePickerOpen by rememberSaveable { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState(
@@ -88,6 +98,7 @@ fun NewProjectScreen(navigationController: NavHostController) {
         topBar = {
             NewProjectScreenTopBar(
                 onBackButtonClick = { navigationController.popBackStack() },
+                EditMode
             )
         }
     ) { paddingValues ->
@@ -177,7 +188,9 @@ fun NewProjectScreen(navigationController: NavHostController) {
                     }
                 }
             }
-            AddTasks()
+            if(!EditMode){
+                AddTasks(tasks = emptyList())
+            }
             Button(
                 enabled = taskTitleError == null,
                 onClick = { /*TODO*/ },
@@ -232,19 +245,20 @@ fun OutlinedBox(
 @Composable
 private fun NewProjectScreenTopBar(
     onBackButtonClick:() -> Unit,
+    EditingMode: Boolean
 ){
     CenterAlignedTopAppBar(
         navigationIcon = {
             IconButton(onClick = onBackButtonClick) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription ="Ir atras"
                 )
             }
         },
         title = {
             Text(
-                text = "Nuevo Proyecto",
+                text = if(EditingMode){"Editar Projecto"}else{"Nuevo Proyecto"},
                 style = MaterialTheme.typography.headlineMedium
             )
         },

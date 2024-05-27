@@ -37,8 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.newagilityapp.activites.components.DeleteDialog
+import com.example.newagilityapp.activites.components.ProjectSessionsList
 import com.example.newagilityapp.activites.components.SubjectListBottomSheet
-import com.example.newagilityapp.activites.components.projectSessionsList
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.projects
 import com.example.newagilityapp.sesions
@@ -110,7 +110,7 @@ fun SessionScreen(navigationController: NavHostController) {
                     finishButtonClick = {}
                 )
             }
-            projectSessionsList(
+            ProjectSessionsList(
                 sectionTitle = "Historial de sesiones",
                 emptyListText = "No tienes ninguna sesión de Proyectos.\n !Añade una ahora¡",
                 sessions = sesions,

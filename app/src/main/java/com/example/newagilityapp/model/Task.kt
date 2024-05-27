@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.example.newagilityapp.utilities.Priority
 
 @Entity(
     foreignKeys = [
@@ -27,5 +28,5 @@ data class Task(
     val isDone: Boolean,
     @PrimaryKey(autoGenerate = true)
     val taskId: Int? = null,
-    val priority: Int
+    val priority: Priority
 )
