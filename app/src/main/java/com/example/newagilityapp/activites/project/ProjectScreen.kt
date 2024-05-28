@@ -1,5 +1,7 @@
 package com.example.newagilityapp.activites.project
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -56,6 +58,7 @@ import com.example.newagilityapp.model.Task
 import com.example.newagilityapp.utilities.Priority
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProjectScreen(
@@ -151,11 +154,6 @@ fun ProjectScreen(
                     hoursDone = hoursDone.toString(),
                     goalHours = project?.goalHours.toString(),
                     progress = progress
-                )
-            }
-            item {
-                AddTasks(
-                    tasks = tasks.filter { !it.isDone }
                 )
             }
             item {

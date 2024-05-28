@@ -24,7 +24,6 @@ data class Task(
     val description: String,
     val endate: Long,
     val taskProjectId: Int,
-    val fromProject: String,
     val isDone: Boolean,
     @PrimaryKey(autoGenerate = true)
     val taskId: Int? = null,

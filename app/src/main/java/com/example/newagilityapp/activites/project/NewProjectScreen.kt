@@ -18,10 +18,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -37,25 +37,33 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.newagilityapp.activites.components.AddTasks
 import com.example.newagilityapp.activites.components.TaskDatePicker
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
 import com.example.newagilityapp.data.viewmodels.TaskViewModel
+import com.example.newagilityapp.model.Project
+import com.example.newagilityapp.model.Task
 import com.example.newagilityapp.utilities.Priority
 import com.example.newagilityapp.utilities.changeMillisToDateString
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
 import java.time.Instant
 
-//Todo hay que hacer que se permita usar esta ventana para editar
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,9 +74,9 @@ fun NewProjectScreen(
     projectId:Int? = null
 ) {
     val context = LocalContext.current
+    val isEditing = projectId != null
 
-    val EditMode = projectId != null
-
+    val scope = rememberCoroutineScope()
     var isDatePickerOpen by rememberSaveable { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = Instant.now().toEpochMilli()
@@ -77,9 +85,26 @@ fun NewProjectScreen(
     var expanded by remember { mutableStateOf(false) }
 
     var selectedText by remember { mutableStateOf(Priority.MEDIUM) }
+    var projectName by rememberSaveable { mutableStateOf("") }
+    var goalHours by rememberSaveable { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var taskTitleError by rememberSaveable { mutableStateOf<String?>(null) }
+
+    val tasks = remember { mutableStateListOf<Task>() }
+
+    LaunchedEffect(projectId) {
+        if(isEditing){
+            projectId?.let {
+                val project = projectViewModel.getProjectById(it).firstOrNull()
+                project?.let {
+                    projectName = it.name
+                    goalHours = it.goalHours.toString()
+
+                }
+            }
+        }
+    }
 
     taskTitleError = when {
         title.isBlank() -> ""
@@ -94,11 +119,12 @@ fun NewProjectScreen(
         onDismissRequest = { isDatePickerOpen = false },
         onConfirmButtonClick = { isDatePickerOpen = false }
     )
+
     Scaffold(
         topBar = {
             NewProjectScreenTopBar(
+                title = if(isEditing){ "Editar Proyecto"} else {"Nuevo Proyecto"},
                 onBackButtonClick = { navigationController.popBackStack() },
-                EditMode
             )
         }
     ) { paddingValues ->
@@ -124,6 +150,14 @@ fun NewProjectScreen(
                 value = description,
                 onValueChange = { description = it },
                 label = { Text(text = "Descripción") }
+            )
+            //Hay que cambiar el estio de esto
+            OutlinedTextField(
+                value = goalHours,
+                onValueChange = { goalHours = it },
+                label = { Text("Objetivo de Horas") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(20.dp))
             Row(
@@ -188,12 +222,31 @@ fun NewProjectScreen(
                     }
                 }
             }
-            if(!EditMode){
-                AddTasks(tasks = emptyList())
+            if(!isEditing){
+                AddTasks(tasks = tasks, projectId = projectId ?: 0){ newTask ->
+                    tasks.add(newTask)
+                }
             }
             Button(
                 enabled = taskTitleError == null,
-                onClick = { /*TODO*/ },
+                onClick = {
+                    if (projectName.isNotBlank() && goalHours.isNotBlank()) {
+                        val project = Project(
+                            projectId = projectId ?: 0,
+                            name = projectName,
+                            endDate = datePickerState.selectedDateMillis.changeMillisToDateString(),
+                            goalHours = goalHours.toFloat(),
+                            /*description = description*/
+                        )
+                        scope.launch {
+                           /* val newProjectId = projectViewModel.addOrUpdateProject(project)
+                            tasks.forEach { task ->
+                                taskViewModel.addOrUpdateTask(task.copy(taskProjectId = newProjectId))
+                            }*/
+                            navigationController.popBackStack()
+                        }
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 20.dp)
@@ -244,8 +297,8 @@ fun OutlinedBox(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NewProjectScreenTopBar(
+    title:String,
     onBackButtonClick:() -> Unit,
-    EditingMode: Boolean
 ){
     CenterAlignedTopAppBar(
         navigationIcon = {
@@ -258,7 +311,7 @@ private fun NewProjectScreenTopBar(
         },
         title = {
             Text(
-                text = if(EditingMode){"Editar Projecto"}else{"Nuevo Proyecto"},
+                text = title,
                 style = MaterialTheme.typography.headlineMedium
             )
         },

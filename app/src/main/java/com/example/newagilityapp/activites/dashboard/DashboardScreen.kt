@@ -1,6 +1,6 @@
 package com.example.newagilityapp.activites.dashboard
 
-import androidx.compose.foundation.Image
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -39,21 +40,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.newagilityapp.R
 import com.example.newagilityapp.activites.components.CountCard
 import com.example.newagilityapp.activites.components.DeleteDialog
 import com.example.newagilityapp.activites.components.ProjectCard
-
-
-import com.example.newagilityapp.activites.components.taskList
-
-import com.example.newagilityapp.R
 import com.example.newagilityapp.activites.components.ProjectSessionsList
+import com.example.newagilityapp.activites.components.taskList
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
 import com.example.newagilityapp.data.viewmodels.SessionViewModel
 import com.example.newagilityapp.data.viewmodels.TaskViewModel
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Screens
-
 import kotlinx.coroutines.launch
 
 
@@ -66,7 +63,7 @@ fun DashboardScreen(
     taskViewModel: TaskViewModel
 ) {
     val scope = rememberCoroutineScope()
-    var isOpenNewProject by rememberSaveable { mutableStateOf(false) }
+
     var isOpenDelete by rememberSaveable { mutableStateOf(false) }
 
     DeleteDialog(
@@ -84,6 +81,8 @@ fun DashboardScreen(
         val allProjects by projectViewModel.getAllProjects.collectAsState(initial = emptyList())
         val allSessions by sessionViewModel.getAllSessions.collectAsState(initial = emptyList())
         val allTask by taskViewModel.getAllTasks.collectAsState(initial = emptyList())
+        val completedProjectsCount by projectViewModel.completedProjectsCount.observeAsState(0)
+        val totalHoursWorked by projectViewModel.totalHoursWorked.observeAsState(0)
 
         LazyColumn(
             modifier = Modifier
@@ -96,32 +95,19 @@ fun DashboardScreen(
                         .fillMaxWidth()
                         .padding(12.dp),
                     nproyectos = allProjects.size,
-                    fproyectos = 3, // Aquí necesitas obtener la cantidad de proyectos finalizados
-                    hours = 12 // Aquí necesitas obtener la cantidad de horas trabajadas
+                    fproyectos = completedProjectsCount,
+                    hours = totalHoursWorked
                 )
             }
             item {
                 ProjectsCardSection(
                     modifier = Modifier.fillMaxWidth(),
                     projectList = allProjects,
-                    onAddIconClicked = { isOpenNewProject = true },
+                    onAddIconClicked = { navigationController.navigate(Screens.NewProjectScreen.route)},
                     onProjectCardClick = { projectId ->
                         navigationController.navigate(Screens.ProjectScreen.route + "/$projectId")
                     }
                 )
-            }
-            item {
-                Button(
-                    onClick = { navigationController.navigate(Screens.SessionScreen.route) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            horizontal = 48.dp,
-                            vertical = 20.dp
-                        )
-                ) {
-                    Text(text = "Iniciar sesión de trabajo")
-                }
             }
             taskList(
                 sectionTitle = "Trabajos por hacer",
@@ -139,6 +125,19 @@ fun DashboardScreen(
                 sessions = allSessions,
                 onDeleteIconClick = { isOpenDelete = true }
             )
+            item {
+                Button(
+                    onClick = { navigationController.navigate(Screens.SessionScreen.route) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = 48.dp,
+                            vertical = 20.dp
+                        )
+                ) {
+                    Text(text = "Iniciar sesión de trabajo")
+                }
+            }
         }
     }
 }
@@ -221,11 +220,12 @@ private fun ProjectsCardSection(
             }
         }
         if (projectList.isEmpty()) {
-            Image(
+            Icon(
                 modifier = Modifier
                     .size(120.dp)
                     .align(Alignment.CenterHorizontally),
                 painter = painterResource(R.drawable.project_icon),
+                tint = MaterialTheme.colorScheme.primary,
                 contentDescription = emptyListText
             )
             Text(

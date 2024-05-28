@@ -57,6 +57,7 @@ android {
 dependencies {
     //Dagger Hilt
     implementation("com.google.dagger:hilt-android:2.51.1")
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.7")
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 

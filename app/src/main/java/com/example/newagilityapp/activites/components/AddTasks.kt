@@ -1,5 +1,7 @@
 package com.example.newagilityapp.activites.components
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -26,39 +29,52 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Task
+import com.example.newagilityapp.utilities.Priority
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AddTasks(tasks:List<Task>) {
-    var isOpenEditProject by rememberSaveable { mutableStateOf(false) }
-    var projectName by remember { mutableStateOf("") }
-    var goalHours by remember { mutableStateOf("") }
+fun AddTasks(
+    projectId:Int,
+    tasks:List<Task>,
+    onAddTask:(Task)->Unit
+) {
+    var isOpenAddTask by rememberSaveable { mutableStateOf(false) }
+    var taskName by remember { mutableStateOf("") }
+    var taskDescription by remember { mutableStateOf("") }
+    var selectedPriority by remember { mutableStateOf(Priority.MEDIUM) }
+    var selectedDateMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
-
-    NewProjectDialog(
-        isOpen = isOpenEditProject,
-        title = "Añadir Proyecto",
-        projectname = projectName,
-        goalHours = goalHours,
-        onProjectNameChange = { projectName = it },
-        onGoalHoursChange = { goalHours = it },
-        onDismissRequest = { isOpenEditProject = false },
+    NewTaskDialog(
+        isOpenAddTask,
+        title = "Añadir Tarea",
+        taskName = taskName,
+        taskDescription = taskDescription,
+        selectedPriority = selectedPriority,
+        selectedDateMillis = selectedDateMillis,
+        onTaskNameChange = { taskName = it },
+        onTaskDescriptionChange = { taskDescription = it },
+        onPriorityChange = { selectedPriority = it },
+        onDateChange = { selectedDateMillis = it },
+        onDismissRequest = { isOpenAddTask = false },
         onConfirmButtonsClick = {
-/*            tasks = tasks + Task(
-                title = projectName,
-                endate = System.currentTimeMillis(),
-                taskId = tasks.size + 1,
-                isDone = false,
-                priority = 1,
-                taskProjectId = 1,
-                description = "",
-                fromProject = ""
-            )*/
-            isOpenEditProject = false
+            if (taskName.isNotBlank()) {
+                onAddTask(
+                    Task(
+                        title = taskName,
+                        description = taskDescription,
+                        isDone = false,
+                        priority = selectedPriority,
+                        taskProjectId = projectId,
+                        endate = selectedDateMillis
+                    )
+                )
+                isOpenAddTask = false
+                taskName = ""
+                taskDescription = ""
+            }
         },
     )
 
@@ -77,7 +93,7 @@ fun AddTasks(tasks:List<Task>) {
                 text = "Tareas",
                 style = MaterialTheme.typography.headlineMedium
             )
-            IconButton(onClick = { isOpenEditProject = true }) {
+            IconButton(onClick = { isOpenAddTask = true }) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Nuevo Trabajo"
@@ -111,7 +127,7 @@ fun AddTasks(tasks:List<Task>) {
 }
 
 @Composable
-fun TaskCard(task: Task) {
+private fun TaskCard(task: Task) {
     Card(
         modifier = Modifier
             .fillMaxWidth()

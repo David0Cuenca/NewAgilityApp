@@ -9,6 +9,12 @@ class ProjectRepository @Inject constructor(private val projectDao: ProjectDao) 
     fun getProjectById(projectId: Int): Flow<Project?> = projectDao.getProjectById(projectId)
     fun getTotalHoursFromSessions(projectId: Int): Flow<Int> = projectDao.getTotalHoursFromSessions(projectId)
     fun getTotalProjectsCount(): Flow<Int> = projectDao.getTotalProjectCount()
+    fun getCompletedProjectsCount(): Flow<Int> {
+        return projectDao.getCompletedProjectsCount()
+    }
+    fun getTotalHoursWorked(): Flow<Int> {
+        return projectDao.getTotalHoursWorked()
+    }
     fun getTotalGoalHours(): Flow<Float> = projectDao.getTotalGoalHours()
     fun getAllProjects(): Flow<List<Project>> = projectDao.getAllProjects()
     suspend fun addOrUpdateProject(project: Project) = projectDao.upsertProject(project)

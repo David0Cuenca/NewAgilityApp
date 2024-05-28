@@ -80,70 +80,10 @@ class MainActivity : ComponentActivity() {
                         startDestination = Screens.DashboardScreen.route
                     ) {
                         composable(Screens.DashboardScreen.route,
-                            enterTransition = {
-                                slideInHorizontally(
-                                    animationSpec = tween(
-                                        300, easing = LinearEasing
-                                    )
-                                ) + slideIntoContainer(
-                                    animationSpec = tween(300, easing = EaseIn),
-                                    towards = AnimatedContentTransitionScope.SlideDirection.Start
-                                )
-                            },
-                            exitTransition = {
-                                slideOutHorizontally(
-                                    animationSpec = tween(
-                                        300, easing = LinearEasing
-                                    )
-                                ) + slideOutOfContainer(
-                                    animationSpec = tween(300, easing = EaseOut),
-                                    towards = AnimatedContentTransitionScope.SlideDirection.End
-                                )
-                            }
                         ) { DashboardScreen(navigationController,drawerState, projectViewModel, sessionViewModel, taskViewModel) }
                         composable(Screens.ListScreen.route,
-                            enterTransition = {
-                                slideInHorizontally(
-                                    animationSpec = tween(
-                                        300, easing = LinearEasing
-                                    )
-                                ) + slideIntoContainer(
-                                    animationSpec = tween(300, easing = EaseIn),
-                                    towards = AnimatedContentTransitionScope.SlideDirection.Start
-                                )
-                            },
-                            exitTransition = {
-                                slideOutHorizontally(
-                                    animationSpec = tween(
-                                        300, easing = LinearEasing
-                                    )
-                                ) + slideOutOfContainer(
-                                    animationSpec = tween(300, easing = EaseOut),
-                                    towards = AnimatedContentTransitionScope.SlideDirection.End
-                                )
-                            }
                         ){ ListScreen(navigationController,drawerState,projectViewModel)}
-                        composable(Screens.TaskScreen.route,
-                            enterTransition = {
-                                slideInHorizontally(
-                                    animationSpec = tween(
-                                        300, easing = LinearEasing
-                                    )
-                                ) + slideIntoContainer(
-                                    animationSpec = tween(300, easing = EaseIn),
-                                    towards = AnimatedContentTransitionScope.SlideDirection.Start
-                                )
-                            },
-                            exitTransition = {
-                                slideOutHorizontally(
-                                    animationSpec = tween(
-                                        300, easing = LinearEasing
-                                    )
-                                ) + slideOutOfContainer(
-                                    animationSpec = tween(300, easing = EaseOut),
-                                    towards = AnimatedContentTransitionScope.SlideDirection.End
-                                )
-                            }){ TaskScreen(navigationController)}
+                        composable(Screens.TaskScreen.route){ TaskScreen(navigationController)}
                         composable(Screens.ProjectScreen.route, arguments = listOf(navArgument("projectId") { type = NavType.IntType })) { backStackEntry ->
                             val projectId = backStackEntry.arguments?.getInt("projectId")
                             if (projectId != null) {
@@ -152,48 +92,8 @@ class MainActivity : ComponentActivity() {
                                 error("No hay un Id del projecto")
                             }
                         }
-                        composable(Screens.SessionScreen.route,
-                            enterTransition = {
-                                slideInHorizontally(
-                                    animationSpec = tween(
-                                        300, easing = LinearEasing
-                                    )
-                                ) + slideIntoContainer(
-                                    animationSpec = tween(300, easing = EaseIn),
-                                    towards = AnimatedContentTransitionScope.SlideDirection.Start
-                                )
-                            },
-                            exitTransition = {
-                                slideOutHorizontally(
-                                    animationSpec = tween(
-                                        300, easing = LinearEasing
-                                    )
-                                ) + slideOutOfContainer(
-                                    animationSpec = tween(300, easing = EaseOut),
-                                    towards = AnimatedContentTransitionScope.SlideDirection.End
-                                )
-                            }){ SessionScreen(navigationController)}
-                        composable(Screens.CalendarScreen.route,
-                            enterTransition = {
-                                slideInHorizontally(
-                                    animationSpec = tween(
-                                        300, easing = LinearEasing
-                                    )
-                                ) + slideIntoContainer(
-                                    animationSpec = tween(300, easing = EaseIn),
-                                    towards = AnimatedContentTransitionScope.SlideDirection.Start
-                                )
-                            },
-                            exitTransition = {
-                                slideOutHorizontally(
-                                    animationSpec = tween(
-                                        300, easing = LinearEasing
-                                    )
-                                ) + slideOutOfContainer(
-                                    animationSpec = tween(300, easing = EaseOut),
-                                    towards = AnimatedContentTransitionScope.SlideDirection.End
-                                )
-                            }){ CalendarScreen(navigationController,drawerState, projects)}
+                        composable(Screens.SessionScreen.route){ SessionScreen(navigationController)}
+                        composable(Screens.CalendarScreen.route){ CalendarScreen(navigationController,drawerState, projects)}
                         composable(Screens.NewProjectScreen.route){ NewProjectScreen(navigationController,projectViewModel,taskViewModel)}
                     }
                 }

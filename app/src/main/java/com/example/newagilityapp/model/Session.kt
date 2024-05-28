@@ -2,6 +2,7 @@ package com.example.newagilityapp.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
@@ -12,7 +13,8 @@ import androidx.room.PrimaryKey
             childColumns = ["projectSessionId"],
             onDelete = ForeignKey.CASCADE
         )
-    ]
+    ],
+    indices = [Index(value = ["projectSessionId"])]
 )
 data class Session(
     @PrimaryKey(autoGenerate = true)
