@@ -19,14 +19,13 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-    //Quitar el fallback, para que no se reehaga la base de datos en un cambio de versión
+    //Hay que cambiar el inMemoryDataBase por buid data base al final del proyecto
     @Provides
     @Singleton
     fun provideAppDatabase(@ApplicationContext appContext: Context): AppDatabase {
-        return Room.databaseBuilder(
+        return Room.inMemoryDatabaseBuilder(
             appContext,
             AppDatabase::class.java,
-            "app_database"
         ).fallbackToDestructiveMigration().build()
 
     }

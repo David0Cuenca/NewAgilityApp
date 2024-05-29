@@ -1,7 +1,6 @@
 package com.example.newagilityapp.activites.calendar
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -36,6 +35,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,7 +46,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.semantics.Role
@@ -54,9 +53,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.newagilityapp.data.viewmodels.ProjectViewModel
 import com.example.newagilityapp.model.Project
-import com.example.newagilityapp.projects
-import com.example.newagilityapp.ui.theme.gradient1
 import com.example.newagilityapp.utilities.displayText
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
@@ -75,8 +73,8 @@ import java.util.Locale
 fun CalendarScreen(
     navigationController: NavHostController,
     drawerState: DrawerState,
-    projects: List<Project>
 ) {
+
     val daysOfWeek = remember { daysOfWeek() }
     val currentMonth = remember { YearMonth.now() }
     var actualMonth by rememberSaveable { mutableStateOf(currentMonth) }
@@ -91,6 +89,7 @@ fun CalendarScreen(
         firstVisibleMonth = currentMonth,
         firstDayOfWeek = daysOfWeek.first()
     )
+    val projects = emptyList<Project>()//project.getAllProjects.collectAsState(initial = emptyList())
 
     // State to hold the selected date
     var selectedDate by rememberSaveable { mutableStateOf<LocalDate?>(null) }

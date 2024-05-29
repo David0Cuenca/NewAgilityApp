@@ -44,18 +44,17 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.example.newagilityapp.activites.components.AddTasks
 import com.example.newagilityapp.activites.components.CountCard
 import com.example.newagilityapp.activites.components.DeleteDialog
-import com.example.newagilityapp.activites.components.ProjectSessionsList
+import com.example.newagilityapp.activites.components.ProjectSessions
 import com.example.newagilityapp.activites.components.taskList
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
 import com.example.newagilityapp.data.viewmodels.SessionViewModel
 import com.example.newagilityapp.data.viewmodels.TaskViewModel
 import com.example.newagilityapp.model.Screens
-import com.example.newagilityapp.model.Task
-import com.example.newagilityapp.utilities.Priority
+import com.example.newagilityapp.model.Session
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -63,11 +62,12 @@ import com.example.newagilityapp.utilities.Priority
 @Composable
 fun ProjectScreen(
     navigationController: NavHostController,
-    projectViewModel: ProjectViewModel,
-    taskViewModel: TaskViewModel,
-    sessionViewModel: SessionViewModel,
     projectId: Int
 ) {
+    val projectViewModel: ProjectViewModel = hiltViewModel()
+    val taskViewModel: TaskViewModel = hiltViewModel()
+    val sessionViewModel: SessionViewModel = hiltViewModel()
+
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val listState = rememberLazyListState()
@@ -76,11 +76,7 @@ fun ProjectScreen(
     var isOpenEditProject by rememberSaveable { mutableStateOf(false) }
     var isOpenDeleteProject by rememberSaveable { mutableStateOf(false) }
     var isOpenDeleteSession by rememberSaveable { mutableStateOf(false) }
-    var isOpenEditTask by rememberSaveable { mutableStateOf(false) }
 
-    var taskName by remember { mutableStateOf("") }
-    var taskDescription by remember { mutableStateOf("") }
-    var taskPriority by remember { mutableStateOf("") }
 
     val project by projectViewModel.getProjectById(projectId).collectAsState(initial = null)
     val totalTasks by taskViewModel.getTotalTasks(projectId).collectAsState(initial = 0)
@@ -90,6 +86,7 @@ fun ProjectScreen(
     val tasks by taskViewModel.getTaskByProjectId(projectId).collectAsState(initial = emptyList())
     val progress = if (totalTasks > 0) completedTasks / totalTasks.toFloat() else 0f
 
+    var sessionToDelete by rememberSaveable { mutableStateOf<Session?>(null) }
 
     DeleteDialog(
         isOpen = isOpenDeleteProject,
@@ -99,7 +96,7 @@ fun ProjectScreen(
         onDismissRequest = { isOpenDeleteProject = false },
         onConfirmButtonsClick = {
             isOpenDeleteProject = false
-            //Borar el proyecto donde esta
+            projectViewModel.deleteProject(projectId)
         }
     )
 
@@ -111,7 +108,7 @@ fun ProjectScreen(
         onDismissRequest = { isOpenDeleteSession = false },
         onConfirmButtonsClick = {
             isOpenDeleteSession = false
-            //Borrar la session donde a hecho click
+            sessionToDelete?.let { sessionViewModel.deleteSession(it) }
         }
     )
 
@@ -125,7 +122,7 @@ fun ProjectScreen(
                     onDeleteClick = {isOpenDeleteProject = true},
                     onEditClick = {
                         isOpenEditProject = true
-                        //hay que hacer que le pasemos los valores editados, la idea es hacer que la propia ventana en la que esta, pase a modo edicion
+                        navigationController.navigate(Screens.NewProjectScreen.route)
                                   },
                     scrollBehavior = scrollBehavior
                 )
@@ -169,13 +166,13 @@ fun ProjectScreen(
             item {
                 Spacer(modifier = Modifier.height(20.dp))
             }
-            ProjectSessionsList(
+            ProjectSessions(
                 sectionTitle = "Sesiones de los proyectos",
                 emptyListText = "No tienes ninguna sesión de Proyectos.\n !Añade una ahora¡",
                 sessions = sessions,
                 onDeleteIconClick = {
-                    //aqui deberia hacer que de alguna manera le pasemos el id de la session para su borrado
                     isOpenDeleteSession = true
+                    sessionToDelete = it
                 }
             )
         }

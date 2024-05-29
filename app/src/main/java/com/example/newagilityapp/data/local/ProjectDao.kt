@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Upsert
+import androidx.room.Update
 import com.example.newagilityapp.model.Project
 import kotlinx.coroutines.flow.Flow
 
@@ -40,7 +40,9 @@ interface ProjectDao {
     fun getAllProjects(): Flow<List<Project>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsertProject(project: Project)
+    suspend fun insertProject(project: Project)
+    @Update
+    suspend fun updateProject(project: Project)
 
     @Query("DELETE FROM project WHERE projectId = :projectId")
     suspend fun deleteProject(projectId: Int)

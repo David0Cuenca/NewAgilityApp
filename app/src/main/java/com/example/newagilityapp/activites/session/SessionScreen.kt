@@ -37,11 +37,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.newagilityapp.activites.components.DeleteDialog
-import com.example.newagilityapp.activites.components.ProjectSessionsList
+import com.example.newagilityapp.activites.components.ProjectSessions
 import com.example.newagilityapp.activites.components.SubjectListBottomSheet
 import com.example.newagilityapp.model.Project
-import com.example.newagilityapp.projects
-import com.example.newagilityapp.sesions
+import com.example.newagilityapp.model.Session
+
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,6 +53,8 @@ fun SessionScreen(navigationController: NavHostController) {
     var selectedProject by remember { mutableStateOf<Project?>(null) }
     var isDeleteDialogOpen by rememberSaveable { mutableStateOf(false) }
 
+    val projects= emptyList<Project>()
+    val sessions= emptyList<Session>()
 
     SubjectListBottomSheet(
         sheetState = sheetState,
@@ -110,10 +112,10 @@ fun SessionScreen(navigationController: NavHostController) {
                     finishButtonClick = {}
                 )
             }
-            ProjectSessionsList(
+            ProjectSessions(
                 sectionTitle = "Historial de sesiones",
                 emptyListText = "No tienes ninguna sesión de Proyectos.\n !Añade una ahora¡",
-                sessions = sesions,
+                sessions = sessions,
                 onDeleteIconClick = { isDeleteDialogOpen = true }
             )
         }

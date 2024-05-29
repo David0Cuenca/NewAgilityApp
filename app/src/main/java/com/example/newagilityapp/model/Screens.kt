@@ -10,5 +10,4 @@ sealed class Screens (val route:String){
     }
     object CalendarScreen:Screens("calendar")
     object NewProjectScreen:Screens("new_project")
-
 }

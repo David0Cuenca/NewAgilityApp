@@ -1,5 +1,6 @@
 package com.example.newagilityapp.data.repository
 
+import android.util.Log
 import com.example.newagilityapp.data.local.ProjectDao
 import com.example.newagilityapp.model.Project
 import kotlinx.coroutines.flow.Flow
@@ -17,6 +18,17 @@ class ProjectRepository @Inject constructor(private val projectDao: ProjectDao) 
     }
     fun getTotalGoalHours(): Flow<Float> = projectDao.getTotalGoalHours()
     fun getAllProjects(): Flow<List<Project>> = projectDao.getAllProjects()
-    suspend fun addOrUpdateProject(project: Project) = projectDao.upsertProject(project)
+    suspend fun insertProject(project: Project) {
+        try {
+            projectDao.insertProject(project)
+            Log.d("ProjectRepository", "Project inserted successfully")
+        } catch (e: Exception) {
+            Log.e("ProjectRepository", "Error inserting project: ${e.message}")
+        }
+    }
+    suspend fun updateProject(project: Project) {
+        projectDao.updateProject(project)
+    }
+
     suspend fun deleteProject(projectId: Int) = projectDao.deleteProject(projectId)
 }

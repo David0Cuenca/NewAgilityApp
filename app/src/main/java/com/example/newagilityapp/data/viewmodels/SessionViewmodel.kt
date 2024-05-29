@@ -15,6 +15,12 @@ class SessionViewModel @Inject constructor(
 ) : ViewModel() {
     val getAllSessions: Flow<List<Session>> = sessionRepository.getAllSessions()
 
+    fun deleteSession(session: Session) {
+        viewModelScope.launch {
+            sessionRepository.deleteSession(session)
+        }
+    }
+
     fun getSessionByProjectId(SessionProjectId: Int): Flow<List<Session>> {
         return sessionRepository.getSessionById(SessionProjectId)
     }

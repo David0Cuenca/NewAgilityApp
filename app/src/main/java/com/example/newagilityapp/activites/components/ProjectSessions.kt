@@ -28,7 +28,7 @@ import com.example.newagilityapp.R
 import com.example.newagilityapp.model.Session
 
 
-fun LazyListScope.ProjectSessionsList(
+fun LazyListScope.ProjectSessions(
     sectionTitle: String,
     sessions: List<Session>,
     emptyListText:String,

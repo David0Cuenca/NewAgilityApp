@@ -1,6 +1,7 @@
 package com.example.newagilityapp.activites.project
 
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
@@ -38,7 +39,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -51,11 +51,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.newagilityapp.activites.components.AddTasks
+import com.example.newagilityapp.activites.components.LoadingAnimationDialog
 import com.example.newagilityapp.activites.components.TaskDatePicker
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
-import com.example.newagilityapp.data.viewmodels.TaskViewModel
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Task
 import com.example.newagilityapp.utilities.Priority
@@ -69,12 +70,13 @@ import java.time.Instant
 @Composable
 fun NewProjectScreen(
     navigationController: NavHostController,
-    projectViewModel: ProjectViewModel,
-    taskViewModel: TaskViewModel,
     projectId:Int? = null
 ) {
+
     val context = LocalContext.current
     val isEditing = projectId != null
+
+    val projectViewModel: ProjectViewModel = hiltViewModel()
 
     val scope = rememberCoroutineScope()
     var isDatePickerOpen by rememberSaveable { mutableStateOf(false) }
@@ -85,7 +87,6 @@ fun NewProjectScreen(
     var expanded by remember { mutableStateOf(false) }
 
     var selectedText by remember { mutableStateOf(Priority.MEDIUM) }
-    var projectName by rememberSaveable { mutableStateOf("") }
     var goalHours by rememberSaveable { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -93,14 +94,18 @@ fun NewProjectScreen(
 
     val tasks = remember { mutableStateListOf<Task>() }
 
+    var isLoading by rememberSaveable { mutableStateOf(false) }
+    var isSuccess by rememberSaveable { mutableStateOf<Boolean?>(null) }
+    var errorMessage by rememberSaveable { mutableStateOf<String?>(null) }
+
     LaunchedEffect(projectId) {
         if(isEditing){
             projectId?.let {
                 val project = projectViewModel.getProjectById(it).firstOrNull()
                 project?.let {
-                    projectName = it.name
+                    title = it.name
                     goalHours = it.goalHours.toString()
-
+                    description = it.description
                 }
             }
         }
@@ -112,6 +117,17 @@ fun NewProjectScreen(
         title.length > 30 -> "Titulo muy largo."
         else -> null
     }
+
+    LoadingAnimationDialog(
+        isLoading = isLoading,
+        isSuccess = isSuccess,
+        errorMessage = errorMessage,
+        onDismiss = {
+            isLoading = false
+            isSuccess = null
+            errorMessage = null
+        }
+    )
 
     TaskDatePicker(
         state = datePickerState,
@@ -230,21 +246,24 @@ fun NewProjectScreen(
             Button(
                 enabled = taskTitleError == null,
                 onClick = {
-                    if (projectName.isNotBlank() && goalHours.isNotBlank()) {
-                        val project = Project(
-                            projectId = projectId ?: 0,
-                            name = projectName,
-                            endDate = datePickerState.selectedDateMillis.changeMillisToDateString(),
-                            goalHours = goalHours.toFloat(),
-                            /*description = description*/
-                        )
+                    if (title.isNotBlank() && goalHours.isNotBlank()) {
+                        Log.d("NewProjectScreen", "ProjectName: $title, GoalHours: $goalHours, Description: $description")
                         scope.launch {
-                           /* val newProjectId = projectViewModel.addOrUpdateProject(project)
-                            tasks.forEach { task ->
-                                taskViewModel.addOrUpdateTask(task.copy(taskProjectId = newProjectId))
-                            }*/
-                            navigationController.popBackStack()
+                            try {
+                                projectViewModel.insertProject(Project(
+                                    name = title,
+                                    endDate = datePickerState.selectedDateMillis.changeMillisToDateString(),
+                                    goalHours = goalHours.toFloatOrNull() ?: 0f,
+                                    description = description
+                                ))
+                                Log.d("NewProjectScreen", "Project insertion initiated")
+                                navigationController.popBackStack()
+                            } catch (e: Exception) {
+                                Log.e("NewProjectScreen", "Error during project insertion: ${e.message}")
+                            }
                         }
+                    } else {
+                        Log.e("NewProjectScreen", "Project name or goal hours are blank")
                     }
                 },
                 modifier = Modifier
@@ -318,4 +337,3 @@ private fun NewProjectScreenTopBar(
 
     )
 }
-

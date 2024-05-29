@@ -25,7 +25,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.newagilityapp.R
 import com.example.newagilityapp.model.Task
-import com.example.newagilityapp.utilities.Priority
 
 fun LazyListScope.taskList(
     sectionTitle: String,

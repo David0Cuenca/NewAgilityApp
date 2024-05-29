@@ -1,5 +1,6 @@
 package com.example.newagilityapp.data.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
@@ -14,6 +15,8 @@ import javax.inject.Inject
 class ProjectViewModel @Inject constructor(
     private val projectRepository: ProjectRepository
 ) : ViewModel() {
+
+
     val totalProjectsCount: Flow<Int> = projectRepository.getTotalProjectsCount()
     val totalGoalHours: Flow<Float> = projectRepository.getTotalGoalHours()
     val getAllProjects: Flow<List<Project>> = projectRepository.getAllProjects()
@@ -27,10 +30,19 @@ class ProjectViewModel @Inject constructor(
         return projectRepository.getProjectById(projectId)
     }
 
-    fun addOrUpdateProject(project: Project) {
+    fun insertProject(project: Project) {
         viewModelScope.launch {
-            projectRepository.addOrUpdateProject(project)
+            try {
+                projectRepository.insertProject(project)
+                Log.d("ProjectViewModel", "Project inserted successfully")
+            } catch (e: Exception) {
+                Log.e("ProjectViewModel", "Error inserting project: ${e.message}")
+            }
         }
+    }
+
+    suspend fun updateProject(project: Project) {
+        projectRepository.updateProject(project)
     }
 
     fun deleteProject(projectId: Int) {

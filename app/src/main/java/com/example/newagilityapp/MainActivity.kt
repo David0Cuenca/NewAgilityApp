@@ -6,13 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.EaseIn
-import androidx.compose.animation.core.EaseOut
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
@@ -45,15 +38,12 @@ import com.example.newagilityapp.data.viewmodels.TaskViewModel
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Screens
 import com.example.newagilityapp.model.Session
-import com.example.newagilityapp.model.Task
 import com.example.newagilityapp.ui.theme.NewAgilityAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val projectViewModel: ProjectViewModel by viewModels()
-    private val sessionViewModel: SessionViewModel by viewModels()
-    private val taskViewModel: TaskViewModel by viewModels()
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,22 +69,25 @@ class MainActivity : ComponentActivity() {
                         navController = navigationController,
                         startDestination = Screens.DashboardScreen.route
                     ) {
-                        composable(Screens.DashboardScreen.route,
-                        ) { DashboardScreen(navigationController,drawerState, projectViewModel, sessionViewModel, taskViewModel) }
-                        composable(Screens.ListScreen.route,
-                        ){ ListScreen(navigationController,drawerState,projectViewModel)}
+                        composable(Screens.DashboardScreen.route) { DashboardScreen(navigationController,drawerState) }
+                        composable(Screens.ListScreen.route){ ListScreen(navigationController,drawerState,)}
                         composable(Screens.TaskScreen.route){ TaskScreen(navigationController)}
-                        composable(Screens.ProjectScreen.route, arguments = listOf(navArgument("projectId") { type = NavType.IntType })) { backStackEntry ->
+
+                        composable(
+                            Screens.ProjectScreen.route,
+                            arguments = listOf(navArgument("projectId") { type = NavType.IntType })
+                        ) { backStackEntry ->
                             val projectId = backStackEntry.arguments?.getInt("projectId")
                             if (projectId != null) {
-                                ProjectScreen(navigationController,projectViewModel,taskViewModel,sessionViewModel,projectId)
+                                ProjectScreen(navigationController,projectId)
                             }else{
                                 error("No hay un Id del projecto")
                             }
                         }
                         composable(Screens.SessionScreen.route){ SessionScreen(navigationController)}
-                        composable(Screens.CalendarScreen.route){ CalendarScreen(navigationController,drawerState, projects)}
-                        composable(Screens.NewProjectScreen.route){ NewProjectScreen(navigationController,projectViewModel,taskViewModel)}
+                        composable(Screens.CalendarScreen.route){ CalendarScreen(navigationController,drawerState)}
+
+                        composable(Screens.NewProjectScreen.route) { NewProjectScreen(navigationController) }
                     }
                 }
             }
@@ -102,29 +95,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-
-val projects = listOf(
-    Project(name = "Aldi", endDate = "21/05/2024",1f, projectId = 0),
-    Project(name = "Consejos", endDate = "12/12/2024",2f, projectId = 0),
-    Project(name = "Clases", endDate = "12/12/2024", 3f, projectId = 0),
-)
-/*
-val tasks = listOf(
-    Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, false, taskId = 0, priority = 0),
-    Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, false, taskId = 0, priority = 1),
-    Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, true, taskId = 0, priority = 2),
-    Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, false, taskId = 0, priority = 3),
-    Task(title = "Hacer cosas", description = "Seguir asi", endate = 0L, taskProjectId = 0, true, taskId = 0, priority = 1),
-)*/
-
-val sesions = listOf(
-    Session(fromProject = "Aldi", date = "21/05/2024", duration = 2, projectSessionId = 0, sessionId = 0),
-    Session(fromProject = "Cien", date = "21/05/2024", duration = 2, projectSessionId = 0, sessionId = 0),
-    Session(fromProject = "Aldi", date = "21/05/2024", duration = 2, projectSessionId = 0, sessionId = 0),
-    Session(fromProject = "Agility", date = "21/05/2024", duration = 2, projectSessionId = 0, sessionId = 0),
-    Session(fromProject = "Aldi", date = "21/05/2024", duration = 2, projectSessionId = 0, sessionId = 0),
-)
 val navBaritems = listOf(
     MenuItem(
         title = "Inicio",

@@ -51,7 +51,6 @@ import com.example.newagilityapp.activites.components.SubjectListBottomSheet
 import com.example.newagilityapp.activites.components.TaskCheckBox
 import com.example.newagilityapp.activites.components.TaskDatePicker
 import com.example.newagilityapp.model.Project
-import com.example.newagilityapp.projects
 import com.example.newagilityapp.ui.theme.Red
 import com.example.newagilityapp.utilities.Priority
 import com.example.newagilityapp.utilities.changeMillisToDateString
@@ -81,6 +80,8 @@ fun TaskScreen(navigationController: NavHostController) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var taskTitleError by rememberSaveable { mutableStateOf<String?>(null) }
+
+    val projects= emptyList<Project>()
 
     taskTitleError = when {
         title.isBlank() -> "Por favor introduzca un titulo."

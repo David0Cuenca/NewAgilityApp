@@ -57,10 +57,16 @@ android {
 dependencies {
     //Dagger Hilt
     implementation("com.google.dagger:hilt-android:2.51.1")
-    implementation("androidx.compose.runtime:runtime-livedata:1.6.7")
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
+    kapt ("androidx.hilt:hilt-compiler:1.2.0")
+    implementation ("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.7")
+    implementation("androidx.test:core-ktx:1.5.0")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    //Lottie Animations
+    implementation("com.github.LottieFiles:dotlottie-android:0.3.0")
     implementation ("com.kizitonwose.calendar:view:2.4.1")
     implementation ("com.kizitonwose.calendar:compose:2.4.1")
     implementation("androidx.core:core-ktx:1.13.1")
@@ -69,6 +75,7 @@ dependencies {
     implementation("androidx.room:room-runtime:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
+    //navigation
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.0")
     implementation("androidx.activity:activity-compose:1.9.0")

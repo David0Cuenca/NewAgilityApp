@@ -39,12 +39,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.newagilityapp.R
 import com.example.newagilityapp.activites.components.CountCard
 import com.example.newagilityapp.activites.components.DeleteDialog
 import com.example.newagilityapp.activites.components.ProjectCard
-import com.example.newagilityapp.activites.components.ProjectSessionsList
+import com.example.newagilityapp.activites.components.ProjectSessions
 import com.example.newagilityapp.activites.components.taskList
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
 import com.example.newagilityapp.data.viewmodels.SessionViewModel
@@ -58,10 +59,11 @@ import kotlinx.coroutines.launch
 fun DashboardScreen(
     navigationController: NavController,
     drawerState: DrawerState,
-    projectViewModel: ProjectViewModel,
-    sessionViewModel: SessionViewModel,
-    taskViewModel: TaskViewModel
 ) {
+    val projectViewModel: ProjectViewModel = hiltViewModel()
+    val sessionViewModel: SessionViewModel = hiltViewModel()
+    val taskViewModel: TaskViewModel = hiltViewModel()
+
     val scope = rememberCoroutineScope()
 
     var isOpenDelete by rememberSaveable { mutableStateOf(false) }
@@ -105,7 +107,7 @@ fun DashboardScreen(
                     projectList = allProjects,
                     onAddIconClicked = { navigationController.navigate(Screens.NewProjectScreen.route)},
                     onProjectCardClick = { projectId ->
-                        navigationController.navigate(Screens.ProjectScreen.route + "/$projectId")
+                        navigationController.navigate(Screens.ProjectScreen.createRoute(projectId))
                     }
                 )
             }
@@ -119,7 +121,7 @@ fun DashboardScreen(
             item {
                 Spacer(modifier = Modifier.size(20.dp))
             }
-            ProjectSessionsList(
+            ProjectSessions(
                 sectionTitle = "Sesiones de los proyectos",
                 emptyListText = "No tienes ninguna sesión de Proyectos.\n !Añade una ahora¡",
                 sessions = allSessions,
@@ -199,7 +201,7 @@ private fun ProjectsCardSection(
     projectList: List<Project>,
     emptyListText: String = "No tienes ningun Proyecto.\n Pulsa el botón + para añadir un nuevo proyecto",
     onAddIconClicked: () -> Unit,
-    onProjectCardClick: (Int?) -> Unit
+    onProjectCardClick: (Int) -> Unit
 ) {
     Column(modifier = Modifier) {
         Row(
@@ -243,7 +245,7 @@ private fun ProjectsCardSection(
             items(projectList) { project ->
                 ProjectCard(
                     projectname = project.name,
-                    onClick = { onProjectCardClick(project.projectId) }
+                    onClick = { project.projectId?.let { onProjectCardClick(it) } }
                 )
             }
         }
