@@ -13,4 +13,7 @@ class TaskRepository @Inject constructor(private val taskDao: TaskDao) {
     fun getCompletedTasks(projectProjectId: Int): Flow<Int> = taskDao.getCompletedTasks(projectProjectId)
     suspend fun addOrUpdateTask(task: Task) = taskDao.upsertTask(task)
     suspend fun deleteTask(taskId: Int) = taskDao.deleteTask(taskId)
+    fun getTaskCountByProjectId(projectId: Int): Flow<Int> {
+        return taskDao.getTaskCountByProjectId(projectId)
+    }
 }

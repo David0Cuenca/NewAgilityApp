@@ -18,6 +18,9 @@ interface TaskDao {
     @Query("SELECT COUNT(*) FROM task WHERE taskProjectId = :taskProjectId")
     fun getTotalTasks(taskProjectId: Int): Flow<Int>
 
+    @Query("SELECT COUNT(*) FROM task WHERE taskprojectId = :projectId")
+    fun getTaskCountByProjectId(projectId: Int): Flow<Int>
+
     @Query("SELECT COUNT(*) FROM task WHERE taskProjectId =:taskProjectId AND isDone = true")
     fun getCompletedTasks(taskProjectId: Int): Flow<Int>
 

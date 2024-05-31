@@ -41,4 +41,7 @@ class TaskViewModel @Inject constructor(
             taskRepository.deleteTask(taskId)
         }
     }
+    fun getTaskCountByProjectId(projectId: Int): Flow<Int> {
+        return taskRepository.getTaskCountByProjectId(projectId)
+    }
 }

@@ -2,6 +2,8 @@ package com.example.newagilityapp.activites.task
 
 
 import android.os.Build
+import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -24,7 +26,10 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,7 +40,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -45,29 +52,35 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.newagilityapp.activites.components.DeleteDialog
 import com.example.newagilityapp.activites.components.SubjectListBottomSheet
 import com.example.newagilityapp.activites.components.TaskCheckBox
 import com.example.newagilityapp.activites.components.TaskDatePicker
+import com.example.newagilityapp.data.viewmodels.ProjectViewModel
+import com.example.newagilityapp.data.viewmodels.TaskViewModel
 import com.example.newagilityapp.model.Project
+import com.example.newagilityapp.model.Task
 import com.example.newagilityapp.ui.theme.Red
 import com.example.newagilityapp.utilities.Priority
 import com.example.newagilityapp.utilities.changeMillisToDateString
+
 import kotlinx.coroutines.launch
 import java.time.Instant
 
-data class TaskScreenNavArgs(
-    val taskId: Int?,
-    val projectId: Int?
-)
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(navigationController: NavHostController) {
+    val projectViewModel: ProjectViewModel = hiltViewModel()
+    val taskViewModel: TaskViewModel = hiltViewModel()
+    val allProjects by projectViewModel.getAllProjects.collectAsState(initial = emptyList())
+
     var isDeleteDialogOpen by rememberSaveable { mutableStateOf(false) }
     var isDatePickerOpen by rememberSaveable { mutableStateOf(false) }
+
     var datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = Instant.now().toEpochMilli()
     )
@@ -76,12 +89,13 @@ fun TaskScreen(navigationController: NavHostController) {
     val sheetState = rememberModalBottomSheetState()
     var isBottomSheetOpen by remember { mutableStateOf(false) }
 
-    var selectedProject by remember { mutableStateOf<Project?>(null) }
+    var selectedProject by remember { mutableIntStateOf(0) }
+    val selectedProjectName by projectViewModel.getProjectById(selectedProject).collectAsState(initial = null)
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var taskTitleError by rememberSaveable { mutableStateOf<String?>(null) }
-
-    val projects= emptyList<Project>()
+    var expanded by remember { mutableStateOf(false) }
+    var selectedText by remember { mutableStateOf(Priority.MEDIUM) }
 
     taskTitleError = when {
         title.isBlank() -> "Por favor introduzca un titulo."
@@ -111,10 +125,10 @@ fun TaskScreen(navigationController: NavHostController) {
     SubjectListBottomSheet(
         sheetState = sheetState,
         isOpen = isBottomSheetOpen,
-        projects = projects,
+        projects = allProjects,
         onDismissRequest = {isBottomSheetOpen = false},
         onSubjectClicked ={project ->
-            selectedProject = project
+            selectedProject = project.projectId!!
             scope.launch { sheetState.hide() }.invokeOnCompletion {
                 if(!sheetState.isVisible) isBottomSheetOpen=false
             }
@@ -183,19 +197,33 @@ fun TaskScreen(navigationController: NavHostController) {
             )
             Spacer(modifier = Modifier.height(10.dp))
             Row (modifier = Modifier.fillMaxWidth()){
-                Priority.entries.forEach{ priority ->
-                    PriorityButton(
-                        modifier = Modifier.weight(1f),
-                        label = priority.title,
-                        backgroundColor = priority.color,
-                        borderColor = if(priority == Priority.MEDIUM){
-                            Color.White
-                        }else Color.Transparent,
-                        labelColor =  if(priority == Priority.MEDIUM){
-                            Color.White
-                        }else Color.White.copy(alpha = 0.7f),
-                        onClick = {}
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded }
+                ) {
+                    OutlinedTextField(
+                        value = selectedText.title,
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .clickable { expanded = true }
                     )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        Priority.entries.forEach { item ->
+                            DropdownMenuItem(
+                                text = { Text(text = item.title) },
+                                onClick = {
+                                    selectedText = item
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(30.dp))
@@ -204,53 +232,52 @@ fun TaskScreen(navigationController: NavHostController) {
                 style = MaterialTheme.typography.bodyMedium
             )
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { isBottomSheetOpen = true },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ){
                     Text(
-                        text = selectedProject?.name ?:"Seleciona un projecto",
+                        text = selectedProjectName?.name ?:"Seleciona un projecto",
                         style = MaterialTheme.typography.bodyLarge
                     )
-                IconButton(onClick = { isBottomSheetOpen = true }) {
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
                         contentDescription = "Selecionar Proyecto"
                     )
-                }
             }
             Button(
                 enabled = taskTitleError == null,
-                onClick = { /*TODO*/ },
+                onClick = {
+                    if (title.isNotBlank() && selectedProject != 0) {
+                        val newTask = Task(
+                            title = title,
+                            description = description,
+                            taskProjectId = selectedProject,
+                            endate = datePickerState.selectedDateMillis.changeMillisToDateString(),
+                            priority = selectedText,
+                            isDone = false
+                        )
+                        scope.launch {
+                            try {
+                                taskViewModel.addOrUpdateTask(newTask)
+                                Log.d("TaskScreen", "Task added successfully")
+                                navigationController.popBackStack()
+                            } catch (e: Exception) {
+                                Log.e("TaskScreen", "Error adding task: ${e.message}")
+                            }
+                        }
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 20.dp)
+                //Hay que impedir que se cree un trabajo si no hay un proyecto
             ) {
                 Text(text = "Guardar")
             }
         }
-    }
-}
-
-@Composable
-private fun PriorityButton(
-    modifier: Modifier = Modifier,
-    label:String,
-    backgroundColor:Color,
-    borderColor: Color,
-    labelColor:Color,
-    onClick:()-> Unit
-){
-    Box(
-        modifier = modifier
-            .background(backgroundColor)
-            .clickable { onClick() }
-            .padding(5.dp)
-            .border(1.dp, borderColor, RoundedCornerShape(5.dp))
-            .padding(5.dp),
-        contentAlignment = Alignment.Center
-    ){
-        Text(text = label, color = labelColor)
     }
 }
 

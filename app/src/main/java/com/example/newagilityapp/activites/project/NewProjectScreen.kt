@@ -1,5 +1,6 @@
 package com.example.newagilityapp.activites.project
 
+import android.app.TimePickerDialog
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -49,7 +51,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -61,6 +62,7 @@ import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Task
 import com.example.newagilityapp.utilities.Priority
 import com.example.newagilityapp.utilities.changeMillisToDateString
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -72,13 +74,12 @@ fun NewProjectScreen(
     navigationController: NavHostController,
     projectId:Int? = null
 ) {
-
     val context = LocalContext.current
-    val isEditing = projectId != null
 
     val projectViewModel: ProjectViewModel = hiltViewModel()
 
     val scope = rememberCoroutineScope()
+    var isTimePickerOpen by rememberSaveable { mutableStateOf(false) }
     var isDatePickerOpen by rememberSaveable { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = Instant.now().toEpochMilli()
@@ -87,35 +88,50 @@ fun NewProjectScreen(
     var expanded by remember { mutableStateOf(false) }
 
     var selectedText by remember { mutableStateOf(Priority.MEDIUM) }
-    var goalHours by rememberSaveable { mutableStateOf("") }
+    var goalHoursAndMinutes by rememberSaveable { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var taskTitleError by rememberSaveable { mutableStateOf<String?>(null) }
 
-    val tasks = remember { mutableStateListOf<Task>() }
 
     var isLoading by rememberSaveable { mutableStateOf(false) }
     var isSuccess by rememberSaveable { mutableStateOf<Boolean?>(null) }
     var errorMessage by rememberSaveable { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(projectId) {
+/*    LaunchedEffect(projectId) {
         if(isEditing){
             projectId?.let {
                 val project = projectViewModel.getProjectById(it).firstOrNull()
                 project?.let {
                     title = it.name
-                    goalHours = it.goalHours.toString()
+                    goalHoursAndMinutes = "${it.goalHours.toInt()}:${((it.goalHours - it.goalHours.toInt()) * 60).toInt()}"
                     description = it.description
                 }
             }
         }
-    }
+    }*/
 
     taskTitleError = when {
         title.isBlank() -> ""
         title.length < 4 -> "Titulo muy corto."
         title.length > 30 -> "Titulo muy largo."
         else -> null
+    }
+
+    if (isTimePickerOpen) {
+        val timePickerDialog = TimePickerDialog(
+            context,
+            //Hay que hacer que se cambie el tema, por el general
+            { _, hour: Int, minute: Int ->
+                goalHoursAndMinutes = String.format("%02d:%02d", hour, minute)
+                isTimePickerOpen = false
+            },
+            0, 0, true
+        )
+        timePickerDialog.setOnDismissListener {
+            isTimePickerOpen = false
+        }
+        timePickerDialog.show()
     }
 
     LoadingAnimationDialog(
@@ -139,7 +155,7 @@ fun NewProjectScreen(
     Scaffold(
         topBar = {
             NewProjectScreenTopBar(
-                title = if(isEditing){ "Editar Proyecto"} else {"Nuevo Proyecto"},
+                title = "Nuevo Proyecto",
                 onBackButtonClick = { navigationController.popBackStack() },
             )
         }
@@ -167,13 +183,20 @@ fun NewProjectScreen(
                 onValueChange = { description = it },
                 label = { Text(text = "Descripción") }
             )
-            //Hay que cambiar el estio de esto
-            OutlinedTextField(
-                value = goalHours,
-                onValueChange = { goalHours = it },
-                label = { Text("Objetivo de Horas") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
+            Spacer(modifier = Modifier.height(20.dp))
+            //Hay que hacer que solo se puedan elegir horas y minutos, para evitar conflictos
+            OutlinedBox(
+                modifier = Modifier
+                    .size(width = 130.dp, height = 50.dp)
+                    .align(Alignment.CenterHorizontally),
+                value = goalHoursAndMinutes,
+                onClick = { isTimePickerOpen = true },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.DateRange,
+                        contentDescription = "Selecciona tiempo objetivo"
+                    )
+                }
             )
             Spacer(modifier = Modifier.height(20.dp))
             Row(
@@ -185,7 +208,7 @@ fun NewProjectScreen(
             ) {
                 Column(Modifier.weight(1f)) {
                     Text(
-                        text = "Fecha final",
+                        text = "Fecha entrega",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(10.dp))
@@ -238,32 +261,31 @@ fun NewProjectScreen(
                     }
                 }
             }
-            if(!isEditing){
-                AddTasks(tasks = tasks, projectId = projectId ?: 0){ newTask ->
-                    tasks.add(newTask)
-                }
-            }
             Button(
                 enabled = taskTitleError == null,
                 onClick = {
-                    if (title.isNotBlank() && goalHours.isNotBlank()) {
-                        Log.d("NewProjectScreen", "ProjectName: $title, GoalHours: $goalHours, Description: $description")
+                    if (title.isNotBlank() && goalHoursAndMinutes.isNotBlank()) {
+                        val hoursMinutesArray = goalHoursAndMinutes.split(":").map { it.toInt() }
+                        val goalHours = hoursMinutesArray[0].toFloat() + (hoursMinutesArray[1].toFloat() / 60)
                         scope.launch {
+                            isLoading = true
                             try {
-                                projectViewModel.insertProject(Project(
+                                val newProject = Project(
                                     name = title,
                                     endDate = datePickerState.selectedDateMillis.changeMillisToDateString(),
-                                    goalHours = goalHours.toFloatOrNull() ?: 0f,
+                                    goalHours = goalHours,
                                     description = description
-                                ))
-                                Log.d("NewProjectScreen", "Project insertion initiated")
+                                )
+                                projectViewModel.insertProject(newProject)
+                                isSuccess = true
                                 navigationController.popBackStack()
                             } catch (e: Exception) {
-                                Log.e("NewProjectScreen", "Error during project insertion: ${e.message}")
+                                isSuccess = false
+                                errorMessage = e.message
+                            } finally {
+                                isLoading = false
                             }
                         }
-                    } else {
-                        Log.e("NewProjectScreen", "Project name or goal hours are blank")
                     }
                 },
                 modifier = Modifier
@@ -334,6 +356,5 @@ private fun NewProjectScreenTopBar(
                 style = MaterialTheme.typography.headlineMedium
             )
         },
-
     )
 }

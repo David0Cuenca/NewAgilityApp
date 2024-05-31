@@ -113,8 +113,9 @@ fun DashboardScreen(
             }
             taskList(
                 sectionTitle = "Trabajos por hacer",
-                emptyListText = "No tienes trabajos por hacer. \n Pulsa el botón + para crear una nueva",
-                tasks = allTask, // Aquí necesitas obtener la lista de tareas pendientes
+                emptyListText = "No tienes trabajos. \n Pulsa para crear una nueva",
+                tasks = allTask,
+                onEmptyClick = {navigationController.navigate(Screens.TaskScreen.route)},
                 onCheckBoxClick = {},
                 onTaskCardClick = { navigationController.navigate(Screens.TaskScreen.route) }
             )

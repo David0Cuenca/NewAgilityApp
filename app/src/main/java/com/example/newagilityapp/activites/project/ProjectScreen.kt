@@ -157,9 +157,21 @@ fun ProjectScreen(
                 Spacer(modifier = Modifier.height(20.dp))
             }
             taskList(
+                sectionTitle = "Trabajos por hacer",
+                emptyListText = "No tienes por hacer",
+                tasks = tasks.filter { !it.isDone },
+                onEmptyClick = {navigationController.navigate(Screens.TaskScreen.route)},
+                onCheckBoxClick = {task -> taskViewModel.addOrUpdateTask(task.copy(isDone = true)) },
+                onTaskCardClick = {navigationController.navigate(Screens.TaskScreen.route)}
+            )
+            item {
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+            taskList(
                 sectionTitle = "Trabajos Completados",
-                emptyListText = "No tienes trabajos completados. \n Pulsa el botón + para crear una nueva",
+                emptyListText = "No tienes trabajos Completados",
                 tasks = tasks.filter { it.isDone },
+                onEmptyClick = {navigationController.navigate(Screens.TaskScreen.route)},
                 onCheckBoxClick = {task -> taskViewModel.addOrUpdateTask(task.copy(isDone = false)) },
                 onTaskCardClick = {navigationController.navigate(Screens.TaskScreen.route)}
             )

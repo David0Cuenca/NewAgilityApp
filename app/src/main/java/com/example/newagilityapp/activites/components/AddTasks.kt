@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.newagilityapp.model.Task
 import com.example.newagilityapp.utilities.Priority
+import com.example.newagilityapp.utilities.changeMillisToDateString
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -68,7 +69,7 @@ fun AddTasks(
                         isDone = false,
                         priority = selectedPriority,
                         taskProjectId = projectId,
-                        endate = selectedDateMillis
+                        endate = selectedDateMillis.changeMillisToDateString()
                     )
                 )
                 isOpenAddTask = false

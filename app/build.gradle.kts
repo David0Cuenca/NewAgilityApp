@@ -66,7 +66,8 @@ dependencies {
     implementation("androidx.test:core-ktx:1.5.0")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     //Lottie Animations
-    implementation("com.github.LottieFiles:dotlottie-android:0.3.0")
+    implementation("com.airbnb.android:lottie-compose:6.4.1")
+    //Calendar
     implementation ("com.kizitonwose.calendar:view:2.4.1")
     implementation ("com.kizitonwose.calendar:compose:2.4.1")
     implementation("androidx.core:core-ktx:1.13.1")
@@ -91,7 +92,4 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
-}
-kapt{
-    correctErrorTypes; true
 }

@@ -30,6 +30,7 @@ fun LazyListScope.taskList(
     sectionTitle: String,
     tasks: List<Task>,
     emptyListText:String,
+    onEmptyClick:()-> Unit,
     onTaskCardClick:(Int?) -> Unit,
     onCheckBoxClick: (Task) -> Unit
 ){
@@ -44,8 +45,9 @@ fun LazyListScope.taskList(
         item {
                 Column (
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .fillMaxWidth()
+                        .clickable { onEmptyClick() },
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ){
                     Icon(
                         modifier = Modifier

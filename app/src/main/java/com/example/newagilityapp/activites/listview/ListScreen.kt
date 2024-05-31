@@ -45,6 +45,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.newagilityapp.R
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
+import com.example.newagilityapp.data.viewmodels.TaskViewModel
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Screens
 import kotlinx.coroutines.launch
@@ -60,7 +61,6 @@ fun ListScreen(
     val projectViewModel: ProjectViewModel = hiltViewModel()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val listState = rememberLazyListState()
-
 
     val projects by projectViewModel.getAllProjects.collectAsState(initial = emptyList())
 
@@ -84,7 +84,7 @@ fun ListScreen(
                     projects = projects,
                     emptyListText = "No hay ningun Projecto creado",
                     onProjectCardClick = { projectId ->
-                        navigationController.navigate("${Screens.ProjectScreen.route}/$projectId")
+                        navigationController.navigate(Screens.ProjectScreen.createRoute(projectId))
                     }
                 )
             }
@@ -98,8 +98,9 @@ fun ListScreen(
 private fun ListProjects(
     projects: List<Project>,
     emptyListText: String,
-    onProjectCardClick: (Int?) -> Unit
+    onProjectCardClick: (Int) -> Unit
 ){
+    val taskViewModel: TaskViewModel = hiltViewModel()
     Column(modifier = Modifier) {
         if(projects.isEmpty()){
             Image(
@@ -118,11 +119,13 @@ private fun ListProjects(
 
         }
         projects.forEach { projectList ->
+            val taskCount by taskViewModel.getTaskCountByProjectId(projectList.projectId!!).collectAsState(initial = 0)
             ProjectListCard(
                 projectname = projectList.name,
+                taskcount = taskCount,
                 endDate=projectList.endDate,
                 progress = 0.1f,
-                onClick = { onProjectCardClick(projectList.projectId) }
+                onClick = { projectList.projectId?.let { onProjectCardClick(it) } }
             )
             Spacer(modifier = Modifier.height(10.dp))
         }
@@ -133,8 +136,10 @@ private fun ListProjects(
 private fun ProjectListCard(
     projectname: String,
     endDate: String,
-    progress:Float,
-    onClick: () -> Unit
+    progress: Float,
+    onClick: () -> Unit,
+    taskcount: Int
+
 ){
     val percentage = remember(progress){
         (progress*100).toInt().coerceIn(0,100)
@@ -175,7 +180,7 @@ private fun ProjectListCard(
                         )
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(
-                            text = "12",
+                            text = "$taskcount",
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }

@@ -22,7 +22,7 @@ import com.example.newagilityapp.utilities.Priority
 data class Task(
     val title: String,
     val description: String,
-    val endate: Long,
+    val endate: String,
     val taskProjectId: Int,
     val isDone: Boolean,
     @PrimaryKey(autoGenerate = true)
