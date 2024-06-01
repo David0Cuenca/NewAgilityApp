@@ -57,8 +57,8 @@ android {
 dependencies {
     //Dagger Hilt
     implementation("com.google.dagger:hilt-android:2.51.1")
+    implementation("com.google.android.material:material:1.12.0")
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
-
     kapt ("androidx.hilt:hilt-compiler:1.2.0")
     implementation ("androidx.hilt:hilt-navigation-compose:1.2.0")
 
@@ -70,6 +70,9 @@ dependencies {
     //Calendar
     implementation ("com.kizitonwose.calendar:view:2.4.1")
     implementation ("com.kizitonwose.calendar:compose:2.4.1")
+    //Wheel selector
+    implementation ("com.github.ozcanalasalvar.picker:wheelview:2.0.7")
+
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.compose.ui:ui-text-google-fonts:1.6.7")
     val roomVersion = "2.6.1"

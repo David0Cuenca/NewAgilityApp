@@ -13,6 +13,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -51,13 +52,19 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.example.newagilityapp.R
 import com.example.newagilityapp.activites.components.AddTasks
 import com.example.newagilityapp.activites.components.LoadingAnimationDialog
 import com.example.newagilityapp.activites.components.TaskDatePicker
+import com.example.newagilityapp.activites.components.TimePickerDialog
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Task
@@ -75,10 +82,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun NewProjectScreen(
     navigationController: NavHostController,
-    projectId:Int? = null
 ) {
-    val context = LocalContext.current
-
     val projectViewModel: ProjectViewModel = hiltViewModel()
 
     val scope = rememberCoroutineScope()
@@ -88,10 +92,7 @@ fun NewProjectScreen(
         initialSelectedDateMillis = Instant.now().toEpochMilli()
     )
 
-    var expanded by remember { mutableStateOf(false) }
-
-    var selectedText by remember { mutableStateOf(Priority.MEDIUM) }
-    var goalHoursAndMinutes by rememberSaveable { mutableStateOf("") }
+    var goalHoursAndMinutes by rememberSaveable { mutableStateOf("1:00") }
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var taskTitleError by rememberSaveable { mutableStateOf<String?>(null) }
@@ -106,19 +107,17 @@ fun NewProjectScreen(
     }
 
     if (isTimePickerOpen) {
-        val timePickerDialog = TimePickerDialog(
-            context,
-            //Hay que hacer que se cambie el tema, por el general
-            { _, hour: Int, minute: Int ->
-                goalHoursAndMinutes = String.format("%02d:%02d", hour, minute)
+        TimePickerDialog(
+            initialHours = goalHoursAndMinutes.split(":")[0].toInt(),
+            initialMinutes = goalHoursAndMinutes.split(":")[1].toInt(),
+            onTimeSelected = { hours, minutes ->
+                goalHoursAndMinutes = String.format("%02d:%02d", hours, minutes)
                 isTimePickerOpen = false
             },
-            0, 0, true
+            onDismiss = {
+                isTimePickerOpen = false
+            }
         )
-        timePickerDialog.setOnDismissListener {
-            isTimePickerOpen = false
-        }
-        timePickerDialog.show()
     }
 
     if (showLoadingDialog) {
@@ -150,7 +149,7 @@ fun NewProjectScreen(
                 .verticalScroll(state = rememberScrollState())
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 12.dp)
+                .padding(horizontal = 10.dp)
         ) {
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
@@ -161,37 +160,25 @@ fun NewProjectScreen(
                 isError = taskTitleError != null && title.isNotBlank(),
                 supportingText = { Text(text = taskTitleError.orEmpty()) }
             )
-            Spacer(modifier = Modifier.height(5.dp))
+
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = description,
                 onValueChange = { description = it },
                 label = { Text(text = "Descripción") }
             )
+
             Spacer(modifier = Modifier.height(20.dp))
-            //Hay que hacer que solo se puedan elegir horas y minutos, para evitar conflictos
-            OutlinedBox(
-                modifier = Modifier
-                    .size(width = 130.dp, height = 50.dp)
-                    .align(Alignment.CenterHorizontally),
-                value = goalHoursAndMinutes,
-                onClick = { isTimePickerOpen = true },
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.DateRange,
-                        contentDescription = "Selecciona tiempo objetivo"
-                    )
-                }
-            )
-            Spacer(modifier = Modifier.height(20.dp))
+
             Row(
                 Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(Modifier.weight(1f)) {
+                Column(Modifier
+                    .weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = "Fecha entrega",
                         style = MaterialTheme.typography.bodyMedium
@@ -208,43 +195,30 @@ fun NewProjectScreen(
                         }
                     )
                 }
-                Spacer(modifier = Modifier.width(16.dp))
-                Column(Modifier.weight(1f)) {
+
+                Spacer(modifier = Modifier.width(10.dp))
+                Column(Modifier
+                    .weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "Prioridad",
+                        text = "Objetivo de horas",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    ExposedDropdownMenuBox(
-                        expanded = expanded,
-                        onExpandedChange = { expanded = !expanded }
-                    ) {
-                        OutlinedTextField(
-                            value = selectedText.title,
-                            onValueChange = {},
-                            readOnly = true,
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                            modifier = Modifier
-                                .menuAnchor()
-                                .clickable { expanded = true }
-                        )
-                        ExposedDropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false }
-                        ) {
-                            Priority.entries.forEach { item ->
-                                DropdownMenuItem(
-                                    text = { Text(text = item.title) },
-                                    onClick = {
-                                        selectedText = item
-                                        expanded = false
-                                       /* Toast.makeText(context, item.title, Toast.LENGTH_SHORT).show()*/
-                                    }
-                                )
-                            }
+                    OutlinedBox(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = goalHoursAndMinutes,
+                        onClick = { isTimePickerOpen = true },
+                        trailingIcon = {
+                            Icon(
+                                modifier = Modifier.size(24.dp),
+                                painter = painterResource(R.drawable.session_icon),
+                                contentDescription = "Selecciona tiempo objetivo"
+                            )
                         }
-                    }
+                    )
                 }
+
             }
             Button(
                 enabled = taskTitleError == null,
