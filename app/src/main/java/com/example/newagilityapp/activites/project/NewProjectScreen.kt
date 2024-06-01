@@ -3,6 +3,7 @@ package com.example.newagilityapp.activites.project
 import android.app.TimePickerDialog
 import android.os.Build
 import android.util.Log
+import android.widget.Button
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
@@ -66,6 +67,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -93,23 +96,7 @@ fun NewProjectScreen(
     var description by remember { mutableStateOf("") }
     var taskTitleError by rememberSaveable { mutableStateOf<String?>(null) }
 
-
-    var isLoading by rememberSaveable { mutableStateOf(false) }
-    var isSuccess by rememberSaveable { mutableStateOf<Boolean?>(null) }
-    var errorMessage by rememberSaveable { mutableStateOf<String?>(null) }
-
-/*    LaunchedEffect(projectId) {
-        if(isEditing){
-            projectId?.let {
-                val project = projectViewModel.getProjectById(it).firstOrNull()
-                project?.let {
-                    title = it.name
-                    goalHoursAndMinutes = "${it.goalHours.toInt()}:${((it.goalHours - it.goalHours.toInt()) * 60).toInt()}"
-                    description = it.description
-                }
-            }
-        }
-    }*/
+    var showLoadingDialog by remember { mutableStateOf(false) }
 
     taskTitleError = when {
         title.isBlank() -> ""
@@ -134,16 +121,14 @@ fun NewProjectScreen(
         timePickerDialog.show()
     }
 
-    LoadingAnimationDialog(
-        isLoading = isLoading,
-        isSuccess = isSuccess,
-        errorMessage = errorMessage,
-        onDismiss = {
-            isLoading = false
-            isSuccess = null
-            errorMessage = null
-        }
-    )
+    if (showLoadingDialog) {
+        LoadingAnimationDialog(
+            onDismiss = {
+                showLoadingDialog = false
+                navigationController.popBackStack()
+            }
+        )
+    }
 
     TaskDatePicker(
         state = datePickerState,
@@ -253,7 +238,7 @@ fun NewProjectScreen(
                                     onClick = {
                                         selectedText = item
                                         expanded = false
-                                        Toast.makeText(context, item.title, Toast.LENGTH_SHORT).show()
+                                       /* Toast.makeText(context, item.title, Toast.LENGTH_SHORT).show()*/
                                     }
                                 )
                             }
@@ -267,23 +252,24 @@ fun NewProjectScreen(
                     if (title.isNotBlank() && goalHoursAndMinutes.isNotBlank()) {
                         val hoursMinutesArray = goalHoursAndMinutes.split(":").map { it.toInt() }
                         val goalHours = hoursMinutesArray[0].toFloat() + (hoursMinutesArray[1].toFloat() / 60)
+                        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                        val formattedDate = Instant.ofEpochMilli(datePickerState.selectedDateMillis!!)
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate()
+                            .format(formatter)
+                        val newProject = Project(
+                            name = title,
+                            endDate = formattedDate,
+                            goalHours = goalHours,
+                            description = description
+                        )
                         scope.launch {
-                            isLoading = true
+                            showLoadingDialog = true
                             try {
-                                val newProject = Project(
-                                    name = title,
-                                    endDate = datePickerState.selectedDateMillis.changeMillisToDateString(),
-                                    goalHours = goalHours,
-                                    description = description
-                                )
+                                delay(1000)  // Espera para asegurar que la animación de carga se muestre
                                 projectViewModel.insertProject(newProject)
-                                isSuccess = true
-                                navigationController.popBackStack()
                             } catch (e: Exception) {
-                                isSuccess = false
-                                errorMessage = e.message
-                            } finally {
-                                isLoading = false
+                                Log.e("NewProjectScreen", "Error during project insertion: ${e.message}")
                             }
                         }
                     }

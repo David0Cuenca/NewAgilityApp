@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
                     drawerState = drawerState,
                     gesturesEnabled = drawerState.isOpen,
                     drawerContent = {
-                        ModalDrawerSheet {
+                        ModalDrawerSheet() {
                             DrawerContent(
                                 items = navBaritems,
                                 modifier = Modifier,
@@ -106,7 +106,7 @@ val navBaritems = listOf(
     MenuItem(
         title = "Lista de proyectos",
         selected = Icons.Filled.List,
-        badge = true,
+        badge = false,
         unselected = Icons.Outlined.List,
         destination = Screens.ListScreen.route
     ),
