@@ -13,7 +13,6 @@ fun DeleteDialog(
     onDismissRequest: () -> Unit,
     onConfirmButtonsClick: () -> Unit
 ){
-
     if (isOpen) {
         AlertDialog(
             onDismissRequest = onDismissRequest,

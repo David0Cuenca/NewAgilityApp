@@ -31,9 +31,9 @@ import com.example.newagilityapp.model.Session
 fun LazyListScope.ProjectSessions(
     sectionTitle: String,
     sessions: List<Session>,
-    emptyListText:String,
+    emptyListText: String,
     onDeleteIconClick: (Session) -> Unit
-){
+) {
     item {
         Text(
             text = sectionTitle,
@@ -41,12 +41,12 @@ fun LazyListScope.ProjectSessions(
             modifier = Modifier.padding(12.dp)
         )
     }
-    if(sessions.isEmpty()){
+    if (sessions.isEmpty()) {
         item {
-            Column (
+            Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
-            ){
+            ) {
                 Icon(
                     modifier = Modifier
                         .size(120.dp),
@@ -67,7 +67,7 @@ fun LazyListScope.ProjectSessions(
         SessionCard(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
             session = session,
-            onDeleteIconClick = {onDeleteIconClick(session)}
+            onDeleteIconClick = { onDeleteIconClick(session) }
         )
     }
 }
@@ -76,16 +76,18 @@ fun LazyListScope.ProjectSessions(
 private fun SessionCard(
     modifier: Modifier,
     session: Session,
-    onDeleteIconClick:() -> Unit
-){
-    Card (
+    onDeleteIconClick: () -> Unit
+) {
+    val formattedDuration = formatDuration(session.duration)
+
+    Card(
         modifier = modifier
-    ){
-        Row (
+    ) {
+        Row(
             modifier = Modifier
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
-        ){
+        ) {
             Spacer(modifier = Modifier.width(10.dp))
             Column {
                 Text(
@@ -103,10 +105,10 @@ private fun SessionCard(
             }
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = "${session.duration} hr",
+                text = formattedDuration,
                 style = MaterialTheme.typography.titleMedium
             )
-            IconButton(onClick =  onDeleteIconClick ) {
+            IconButton(onClick = onDeleteIconClick) {
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Borrar sesión"
@@ -114,4 +116,11 @@ private fun SessionCard(
             }
         }
     }
+}
+
+private fun formatDuration(duration: Long): String {
+    val hours = duration / 3600
+    val minutes = (duration % 3600) / 60
+    val seconds = duration % 60
+    return String.format("%02d:%02d:%02d", hours, minutes, seconds)
 }
