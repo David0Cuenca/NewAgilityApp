@@ -14,7 +14,7 @@ interface ProjectDao {
     fun getProjectById(projectId: Int): Flow<Project?>
 
     @Query("SELECT SUM(duration) FROM session WHERE projectSessionId = :projectId")
-    fun getTotalHoursFromSessions(projectId: Int): Flow<Int>
+    fun getTotalHoursFromSessions(projectId: Int): Flow<Long>
 
     @Query("""
         SELECT COUNT(*) 
@@ -28,7 +28,7 @@ interface ProjectDao {
     fun getCompletedProjectsCount(): Flow<Int>
 
     @Query("SELECT SUM(duration) FROM session")
-    fun getTotalHoursWorked(): Flow<Int>
+    fun getTotalHoursWorked(): Flow<Long>
 
     @Query("SELECT COUNT(*) FROM project")
     fun getTotalProjectCount(): Flow<Int>

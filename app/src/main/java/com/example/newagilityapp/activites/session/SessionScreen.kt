@@ -3,31 +3,25 @@ package com.example.newagilityapp.activites.session
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -45,12 +39,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.example.newagilityapp.activites.components.DeleteDialog
+import com.example.newagilityapp.activites.components.Alert
 import com.example.newagilityapp.activites.components.ProjectSessions
 import com.example.newagilityapp.activites.components.SubjectListBottomSheet
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
@@ -63,6 +56,7 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,6 +76,7 @@ fun SessionScreen(navigationController: NavHostController) {
 
     val projects by projectViewModel.getAllProjects.collectAsState(emptyList())
     val sessions by sessionViewModel.getAllSessions.collectAsState(emptyList())
+    var sessionToDelete by remember { mutableStateOf<Session?>(null) }
 
     LaunchedEffect(isRunning) {
         if (isRunning) {
@@ -105,16 +100,19 @@ fun SessionScreen(navigationController: NavHostController) {
         }
     )
 
-    DeleteDialog(
+    Alert(
         isOpen = isDeleteDialogOpen,
         title = "¿Borrar sesión?",
         text = "¿Estas seguro de que quieres borrar esta sesión? " +
                 "Esta accion no se puede revertir",
         onDismissRequest = { isDeleteDialogOpen = false },
-        onConfirmButtonsClick = { isDeleteDialogOpen = false }
+        onConfirmButtonsClick = {
+            sessionToDelete?.let { sessionViewModel.deleteSession(it) }
+            isDeleteDialogOpen = false
+        }
     )
 
-    DeleteDialog(
+    Alert(
         isOpen = isAlertDialogOpen,
         title = "No has seleccionado ningun Proyecto",
         text = "Debes seleccionar un proyecto para poder añadir su sesión",
@@ -187,9 +185,12 @@ fun SessionScreen(navigationController: NavHostController) {
             }
             ProjectSessions(
                 sectionTitle = "Historial de sesiones",
-                emptyListText = "No tienes ninguna sesión de Proyectos.\n !Añade una ahora¡",
+                emptyListText = "No tienes ninguna sesión de Proyectos",
                 sessions = sessions,
-                onDeleteIconClick = { isDeleteDialogOpen = true }
+                onDeleteIconClick = {
+                    isDeleteDialogOpen = true
+                    sessionToDelete = it
+                }
             )
         }
     }
@@ -203,10 +204,11 @@ fun TimerSection(modifier: Modifier, elapsedTime: Long) {
         } else {
             (elapsedTime % 3600) / 3600f
         },
-        animationSpec = tween(durationMillis = 1000, easing = LinearEasing)
+        animationSpec = tween(durationMillis = 1000, easing = LinearEasing), label = ""
     )
 
     val formattedTime = String.format(
+        Locale.getDefault(),
         "%02d:%02d:%02d",
         elapsedTime / 3600,
         (elapsedTime % 3600) / 60,
@@ -230,7 +232,6 @@ fun TimerSection(modifier: Modifier, elapsedTime: Long) {
         )
     }
 }
-
 
 @Composable
 fun RelatedToProjectSection(
@@ -276,7 +277,7 @@ fun ButtonsSection(
         Button(onClick = cancelButtonClick) {
             Text(
                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-                text = "Cancelar"
+                text = "Reinicar"
             )
         }
         Button(onClick = startButtonClick) {

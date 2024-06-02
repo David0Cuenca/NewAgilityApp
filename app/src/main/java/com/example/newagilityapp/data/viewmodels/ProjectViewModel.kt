@@ -1,6 +1,7 @@
 package com.example.newagilityapp.data.viewmodels
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
@@ -23,11 +24,11 @@ class ProjectViewModel @Inject constructor(
     val totalProjectsCount: Flow<Int> = projectRepository.getTotalProjectsCount()
     val totalGoalHours: Flow<Float> = projectRepository.getTotalGoalHours()
     val getAllProjects: Flow<List<Project>> = projectRepository.getAllProjects()
-    fun getTotalHoursFromSessions(projectId: Int): Flow<Int> = projectRepository.getTotalHoursFromSessions(projectId)
+    fun getTotalHoursFromSessions(projectId: Int): Flow<Long> = projectRepository.getTotalHoursFromSessions(projectId)
 
     val completedProjectsCount = projectRepository.getCompletedProjectsCount().asLiveData()
 
-    val totalHoursWorked = projectRepository.getTotalHoursWorked().asLiveData()
+    val totalHoursWorked:LiveData<Long> = projectRepository.getTotalHoursWorked().asLiveData()
 
     fun getProjectById(projectId: Int): Flow<Project?> {
         return projectRepository.getProjectById(projectId)

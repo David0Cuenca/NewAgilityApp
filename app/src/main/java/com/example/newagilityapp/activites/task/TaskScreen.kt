@@ -3,13 +3,9 @@ package com.example.newagilityapp.activites.task
 
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -54,13 +49,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.example.newagilityapp.activites.components.DeleteDialog
+import com.example.newagilityapp.activites.components.Alert
 import com.example.newagilityapp.activites.components.SubjectListBottomSheet
 import com.example.newagilityapp.activites.components.TaskCheckBox
 import com.example.newagilityapp.activites.components.TaskDatePicker
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
 import com.example.newagilityapp.data.viewmodels.TaskViewModel
-import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Task
 import com.example.newagilityapp.ui.theme.Red
 import com.example.newagilityapp.utilities.Priority
@@ -104,7 +98,7 @@ fun TaskScreen(navigationController: NavHostController) {
         else -> null
     }
 
-    DeleteDialog(
+    Alert(
         isOpen = isDeleteDialogOpen,
         title = "¿Borrar trabajo?",
         text = "¿Estas seguro de que quieres borrar este trabajo? " +

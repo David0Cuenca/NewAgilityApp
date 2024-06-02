@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.newagilityapp.activites.components.CountCard
-import com.example.newagilityapp.activites.components.DeleteDialog
+import com.example.newagilityapp.activites.components.Alert
 import com.example.newagilityapp.activites.components.ProjectSessions
 import com.example.newagilityapp.activites.components.taskList
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
@@ -55,6 +55,9 @@ import com.example.newagilityapp.data.viewmodels.SessionViewModel
 import com.example.newagilityapp.data.viewmodels.TaskViewModel
 import com.example.newagilityapp.model.Screens
 import com.example.newagilityapp.model.Session
+import com.example.newagilityapp.utilities.formatDuration
+import com.example.newagilityapp.utilities.formatGoalHours
+
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -81,14 +84,14 @@ fun ProjectScreen(
     val project by projectViewModel.getProjectById(projectId).collectAsState(initial = null)
     val totalTasks by taskViewModel.getTotalTasks(projectId).collectAsState(initial = 0)
     val completedTasks by taskViewModel.getCompletedTasks(projectId).collectAsState(initial = 0)
-    val hoursDone by projectViewModel.getTotalHoursFromSessions(projectId).collectAsState(initial = null)
+    val hoursDone by projectViewModel.getTotalHoursFromSessions(projectId).collectAsState(initial = 0L)
     val sessions by sessionViewModel.getSessionByProjectId(projectId).collectAsState(initial = emptyList())
     val tasks by taskViewModel.getTaskByProjectId(projectId).collectAsState(initial = emptyList())
     val progress = if (totalTasks > 0) completedTasks / totalTasks.toFloat() else 0f
 
     var sessionToDelete by rememberSaveable { mutableStateOf<Session?>(null) }
 
-    DeleteDialog(
+    Alert(
         isOpen = isOpenDeleteProject,
         title = "¿Borrar el proyecto?",
         text = "Vas a borrar un proyecto \n " +
@@ -100,7 +103,7 @@ fun ProjectScreen(
         }
     )
 
-    DeleteDialog(
+    Alert(
         isOpen = isOpenDeleteSession,
         title = "¿Borrar la sesión?",
         text = "Vas a borrar una sessión de un proyecto \n " +
@@ -148,7 +151,7 @@ fun ProjectScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp),
-                    hoursDone = hoursDone.toString(),
+                    hoursDone = hoursDone,
                     goalHours = project?.goalHours.toString(),
                     progress = progress
                 )
@@ -236,10 +239,14 @@ private fun ProjectScreenTopBar(
 @Composable
 private fun ProjectOverviewSection(
     modifier: Modifier,
-    hoursDone: String,
-    goalHours:String,
+    hoursDone: Long,
+    goalHours: String,
     progress: Float
 ){
+    val parsedGoalHours = goalHours.toFloatOrNull() ?: 0f
+    val formattedGoalHours = formatGoalHours(parsedGoalHours)
+    val formattedHoursDone = formatDuration(hoursDone)
+
     val percentage = remember(progress){
         (progress*100).toInt().coerceIn(0,100)
     }
@@ -252,13 +259,13 @@ private fun ProjectOverviewSection(
         CountCard(
             modifier = Modifier.weight(1f),
             title = "Objetivo de Horas",
-            count = goalHours
+            count = formattedGoalHours
         )
         Spacer(modifier = Modifier.width(10.dp))
         CountCard(
             modifier = Modifier.weight(1f),
-            title = "Horas Hechas",
-            count = hoursDone
+            title = "Tiempo hecho",
+            count = formattedHoursDone
         )
         Spacer(modifier = Modifier.width(10.dp))
         Box (

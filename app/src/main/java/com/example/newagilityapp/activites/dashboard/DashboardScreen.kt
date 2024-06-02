@@ -41,12 +41,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.newagilityapp.R
 import com.example.newagilityapp.activites.components.CountCard
-import com.example.newagilityapp.activites.components.DeleteDialog
+import com.example.newagilityapp.activites.components.Alert
 import com.example.newagilityapp.activites.components.ProjectCard
 import com.example.newagilityapp.activites.components.ProjectSessions
 import com.example.newagilityapp.activites.components.taskList
@@ -55,6 +52,7 @@ import com.example.newagilityapp.data.viewmodels.SessionViewModel
 import com.example.newagilityapp.data.viewmodels.TaskViewModel
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Screens
+import com.example.newagilityapp.utilities.formatDuration
 import kotlinx.coroutines.launch
 
 
@@ -71,7 +69,7 @@ fun DashboardScreen(
 
     var isOpenDelete by rememberSaveable { mutableStateOf(false) }
 
-    DeleteDialog(
+    Alert(
         isOpen = isOpenDelete,
         title = "Borrar sesión",
         text = "Vas a borrar una sessión de un proyecto \n " +
@@ -87,7 +85,7 @@ fun DashboardScreen(
         val allSessions by sessionViewModel.getAllSessions.collectAsState(initial = emptyList())
         val allTask by taskViewModel.getAllTasks.collectAsState(initial = emptyList())
         val completedProjectsCount by projectViewModel.completedProjectsCount.observeAsState(0)
-        val totalHoursWorked by projectViewModel.totalHoursWorked.observeAsState(0)
+        val totalHoursWorked by projectViewModel.totalHoursWorked.observeAsState(0L)
 
         LazyColumn(
             modifier = Modifier
@@ -106,7 +104,6 @@ fun DashboardScreen(
             }
             item {
                 ProjectsCardSection(
-                    modifier = Modifier.fillMaxWidth(),
                     projectList = allProjects,
                     onAddIconClicked = { navigationController.navigate(Screens.NewProjectScreen.route)},
                     onProjectCardClick = { projectId ->
@@ -176,7 +173,7 @@ private fun CountCardSection(
     modifier: Modifier,
     nproyectos: Int,
     fproyectos: Int,
-    hours: Int,
+    hours: Long,
 ) {
     Row {
         CountCard(
@@ -193,21 +190,20 @@ private fun CountCardSection(
         Spacer(modifier = Modifier.width(10.dp))
         CountCard(
             modifier = Modifier.weight(1f),
-            title = "Horas de trabajo",
-            count = "$hours"
+            title = "Tiempo de Trabajo",
+            count = formatDuration(hours)
         )
     }
 }
 
 @Composable
 private fun ProjectsCardSection(
-    modifier: Modifier,
     projectList: List<Project>,
     emptyListText: String = "No tienes ningun Proyecto.\n Pulsa el botón + para añadir un nuevo proyecto",
     onAddIconClicked: () -> Unit,
     onProjectCardClick: (Int) -> Unit
 ) {
-    Column(modifier = Modifier) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,

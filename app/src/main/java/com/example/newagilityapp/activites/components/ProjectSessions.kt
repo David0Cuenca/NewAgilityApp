@@ -21,11 +21,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.newagilityapp.R
 import com.example.newagilityapp.model.Session
+import com.example.newagilityapp.utilities.formatDuration
 
 
 fun LazyListScope.ProjectSessions(
@@ -118,9 +120,4 @@ private fun SessionCard(
     }
 }
 
-private fun formatDuration(duration: Long): String {
-    val hours = duration / 3600
-    val minutes = (duration % 3600) / 60
-    val seconds = duration % 60
-    return String.format("%02d:%02d:%02d", hours, minutes, seconds)
-}
+
