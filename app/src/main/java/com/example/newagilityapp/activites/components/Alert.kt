@@ -51,7 +51,7 @@ fun Alert(
                             .size(100.dp),
                         composition = warning,
                         dynamicProperties = dynamicProperties,
-                        iterations = LottieConstants.IterateForever,
+                        iterations = 1,
                         clipSpec = LottieClipSpec.Progress(0f, 1f),
                         contentScale = ContentScale.Fit,
                         alignment = Alignment.Center

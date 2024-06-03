@@ -61,9 +61,11 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
     kapt ("androidx.hilt:hilt-compiler:1.2.0")
     implementation ("androidx.hilt:hilt-navigation-compose:1.2.0")
-
     implementation("androidx.compose.runtime:runtime-livedata:1.6.7")
-    implementation("androidx.test:core-ktx:1.5.0")
+    //Notifications
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.compose.material:material:1.6.7")
+
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     //Lottie Animations
     implementation("com.airbnb.android:lottie-compose:6.4.1")
@@ -81,7 +83,7 @@ dependencies {
     implementation("androidx.room:room-ktx:$roomVersion")
     //navigation
     implementation("androidx.navigation:navigation-compose:2.7.7")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.1")
     implementation("androidx.activity:activity-compose:1.9.0")
     implementation(platform("androidx.compose:compose-bom:2024.05.00"))
     implementation("androidx.compose.ui:ui")

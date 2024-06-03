@@ -1,5 +1,6 @@
 package com.example.newagilityapp.activites.project
 
+import android.annotation.SuppressLint
 import android.app.TimePickerDialog
 import android.os.Build
 import android.util.Log
@@ -76,6 +77,7 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -111,7 +113,7 @@ fun NewProjectScreen(
             initialHours = goalHoursAndMinutes.split(":")[0].toInt(),
             initialMinutes = goalHoursAndMinutes.split(":")[1].toInt(),
             onTimeSelected = { hours, minutes ->
-                goalHoursAndMinutes = String.format("%02d:%02d", hours, minutes)
+                goalHoursAndMinutes = String.format(Locale.getDefault(),"%02d:%02d", hours, minutes)
                 isTimePickerOpen = false
             },
             onDismiss = {
