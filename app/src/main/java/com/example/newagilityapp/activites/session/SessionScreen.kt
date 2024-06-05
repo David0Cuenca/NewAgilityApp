@@ -3,22 +3,21 @@ package com.example.newagilityapp.activites.session
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -42,7 +41,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -50,16 +48,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.airbnb.lottie.LottieComposition
-import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieClipSpec
 import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.LottieDynamicProperty
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.airbnb.lottie.compose.rememberLottieDynamicProperties
-import com.airbnb.lottie.compose.rememberLottieDynamicProperty
 import com.example.newagilityapp.activites.components.Alert
 import com.example.newagilityapp.activites.components.ProjectSessions
 import com.example.newagilityapp.activites.components.SubjectListBottomSheet
@@ -67,6 +59,7 @@ import com.example.newagilityapp.data.viewmodels.ProjectViewModel
 import com.example.newagilityapp.data.viewmodels.SessionViewModel
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Session
+import com.example.newagilityapp.notifications.cancelNotification
 import com.example.newagilityapp.notifications.createNotificationChannel
 import com.example.newagilityapp.notifications.showNotification
 import kotlinx.coroutines.delay
@@ -108,6 +101,7 @@ fun SessionScreen(navigationController: NavHostController) {
                 showNotification(context,elapsedTime,selectedProject?.name?:"",false)
             }
         }
+        cancelNotification(context)
     }
 
     SubjectListBottomSheet(
@@ -295,9 +289,11 @@ fun ButtonsSection(
     isRunning: Boolean,
     resetButtonClick: () -> Unit
 ) {
-    val pauseResume by rememberLottieComposition(LottieCompositionSpec.Asset("Pause_Resume.json"))
-    val save by rememberLottieComposition(LottieCompositionSpec.Asset("save.json"))
-    val restart by rememberLottieComposition(LottieCompositionSpec.Asset("restart.json"))
+    val darkTheme  = isSystemInDarkTheme()
+
+    val pauseResume by rememberLottieComposition(LottieCompositionSpec.Asset(if(!darkTheme)"Black_pause.json" else "White_pause.json"))
+    val save by rememberLottieComposition(LottieCompositionSpec.Asset(if(!darkTheme)"Black_save.json" else "White_save.json"))
+    val restart by rememberLottieComposition(LottieCompositionSpec.Asset(if(!darkTheme)"Black_Reload.json" else "White_reload.json"))
 
     Row(
         modifier = modifier,
@@ -328,13 +324,7 @@ fun AnimatedLottieButton(
     onClick: () -> Unit
 ) {
     var isPlaying by remember { mutableStateOf(false) }
-/*    val dynamicProperties = rememberLottieDynamicProperties(
-        rememberLottieDynamicProperty(
-            property = LottieProperty.COLOR,
-            value = MaterialTheme.colorScheme.primary.toArgb(),
-            keyPath = arrayOf("**")
-        )
-    )*/
+
     val progress by animateLottieCompositionAsState(
         composition = composition,
         iterations = 1,
@@ -357,7 +347,6 @@ fun AnimatedLottieButton(
             LottieAnimation(
                 modifier = Modifier.size(50.dp),
                 composition = composition,
-/*                dynamicProperties = dynamicProperties,*/
                 progress = {progress},
                 contentScale = ContentScale.Fit,
                 alignment = Alignment.Center
@@ -380,7 +369,7 @@ private fun SessionScreenTopBar(
     TopAppBar(
         navigationIcon = {
             IconButton(onClick = {navigationController.popBackStack()}) {
-                Icon(imageVector = Icons.Default.ArrowBack,
+                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Ir atrás"
                 )
             }

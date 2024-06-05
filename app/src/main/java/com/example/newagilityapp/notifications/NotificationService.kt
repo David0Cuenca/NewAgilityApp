@@ -22,7 +22,6 @@ fun createNotificationChannel(context: Context) {
     }
 }
 
-
 fun showNotification(context: Context, elapsedTime: Long, projectName: String, initial: Boolean) {
     val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     val builder = NotificationCompat.Builder(context, "CHANNEL_ID")
@@ -35,16 +34,16 @@ fun showNotification(context: Context, elapsedTime: Long, projectName: String, i
     notificationManager.notify(1, builder.build())
 }
 
-    fun formatElapsedTime(elapsedTime: Long): String {
-        val hours = elapsedTime / 3600
-        val minutes = (elapsedTime % 3600) / 60
-        val seconds = elapsedTime % 60
-        return if (hours > 0) {
-            String.format(Locale.getDefault(), "%02d:%02d", hours, minutes)
-        } else {
-            String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
-        }
+fun formatElapsedTime(elapsedTime: Long): String {
+    val hours = elapsedTime / 3600
+    val minutes = (elapsedTime % 3600) / 60
+    val seconds = elapsedTime % 60
+    return if (hours > 0) {
+        String.format(Locale.getDefault(), "%02d:%02d", hours, minutes)
+    } else {
+        String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
     }
+}
 fun cancelNotification(context: Context) {
     val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     notificationManager.cancel(1)

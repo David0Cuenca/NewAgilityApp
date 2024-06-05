@@ -23,8 +23,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.newagilityapp.R
 import com.example.newagilityapp.model.Screens
 import kotlinx.coroutines.launch
 
@@ -49,7 +51,7 @@ fun DrawerContent(
     {
         Icon(
             modifier = Modifier.size(200.dp),
-            imageVector = Icons.Default.AccountBox,
+            painter = painterResource(id = R.drawable.na_text_logo),
             contentDescription = "Logo"
         )
 

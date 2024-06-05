@@ -71,6 +71,7 @@ import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Screens
 import com.example.newagilityapp.model.Session
 import com.example.newagilityapp.utilities.changeMillisToDateString
+import com.example.newagilityapp.utilities.daysLeft
 import com.example.newagilityapp.utilities.formatDuration
 import com.example.newagilityapp.utilities.formatGoalHours
 import kotlinx.coroutines.launch
@@ -245,12 +246,15 @@ fun ProjectScreen(
                             .padding(12.dp),
                         hoursDone = hoursDone,
                         goalHours = project?.goalHours.toString(),
-                        progress = progress
+                        progress = progress,
+                        endDate = project?.endDate
                     )
+                    Column (Modifier.padding(12.dp)){
+                        Text(text = "Descripcion", style = MaterialTheme.typography.titleMedium)
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(description, style = MaterialTheme.typography.bodyMedium)
+                    }
                 }
-            }
-            item {
-                Spacer(modifier = Modifier.height(20.dp))
             }
             taskList(
                 sectionTitle = "Trabajos por hacer",
@@ -353,54 +357,77 @@ private fun ProjectOverviewSection(
     modifier: Modifier,
     hoursDone: Long,
     goalHours: String,
-    progress: Float
-){
+    progress: Float,
+    endDate: String?,
+) {
     val parsedGoalHours = goalHours.toFloatOrNull() ?: 0f
     val formattedGoalHours = formatGoalHours(parsedGoalHours)
     val formattedHoursDone = formatDuration(hoursDone)
 
-    val percentage = remember(progress){
-        (progress*100).toInt().coerceIn(0,100)
+    val percentage = remember(progress) {
+        (progress * 100).toInt().coerceIn(0, 100)
     }
-
-    Row (
-        modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceAround,
-        verticalAlignment = Alignment.CenterVertically
-    ){
-        CountCard(
-            modifier = Modifier.weight(1f),
-            title = "Objetivo de Horas",
-            count = formattedGoalHours
-        )
-        Spacer(modifier = Modifier.width(10.dp))
-        CountCard(
-            modifier = Modifier.weight(1f),
-            title = "Tiempo hecho",
-            count = formattedHoursDone
-        )
-        Spacer(modifier = Modifier.width(10.dp))
-        Box (
-            modifier = Modifier.size(75.dp),
-            contentAlignment = Alignment.Center
-        ){
-            CircularProgressIndicator(
-                progress = { 1f },
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                strokeWidth = 4.dp,
-                strokeCap = StrokeCap.Round,
+    val (_, formattedRemainingTime) = daysLeft(endDate)
+    Column(
+        Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CountCard(
+                modifier = Modifier.weight(1f),
+                title = "Objetivo de Horas",
+                count = formattedGoalHours
             )
-            CircularProgressIndicator(
-                progress = { progress },
-                modifier = Modifier.fillMaxSize(),
-                strokeWidth = 4.dp,
-                strokeCap = StrokeCap.Round,
+            Spacer(modifier = Modifier.width(10.dp))
+            CountCard(
+                modifier = Modifier.weight(1f),
+                title = "Tiempo hecho",
+                count = formattedHoursDone
             )
-            Text(text = "$percentage%")
+            Spacer(modifier = Modifier.width(10.dp))
+            Box(
+                modifier = Modifier.weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(80.dp),
+                    progress = { 1f },
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    strokeWidth = 4.dp,
+                    strokeCap = StrokeCap.Round,
+                )
+                CircularProgressIndicator(
+                    modifier = Modifier.size(80.dp),
+                    progress = { progress },
+                    strokeWidth = 4.dp,
+                    strokeCap = StrokeCap.Round,
+                )
+                Text(text = "$percentage%")
+            }
+        }
+        Row(
+            modifier = modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CountCard(
+                modifier = Modifier.weight(1f),
+                title = "Fecha final",
+                count = "$endDate"
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            CountCard(
+                modifier = Modifier.weight(1f),
+                title = "Tiempo restante",
+                count = formattedRemainingTime
+            )
         }
     }
 }
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -508,12 +535,4 @@ fun EditableProjectDetailsSection(
             )
         }
     }
-}
-
-fun Long.changeMillisToDateString(): String {
-    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-    return Instant.ofEpochMilli(this)
-        .atZone(ZoneId.systemDefault())
-        .toLocalDate()
-        .format(formatter)
 }
