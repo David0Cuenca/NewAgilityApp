@@ -220,7 +220,6 @@ fun NewProjectScreen(
                         }
                     )
                 }
-
             }
             Button(
                 enabled = taskTitleError == null,

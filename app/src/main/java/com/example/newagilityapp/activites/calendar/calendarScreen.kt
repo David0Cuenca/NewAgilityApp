@@ -19,11 +19,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerState
@@ -57,9 +57,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.example.newagilityapp.activites.components.FilterBar
+import com.example.newagilityapp.activites.components.FilterType
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
+import com.example.newagilityapp.data.viewmodels.TaskViewModel
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Screens
+import com.example.newagilityapp.model.Task
 import com.example.newagilityapp.utilities.displayText
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
@@ -80,6 +84,8 @@ fun CalendarScreen(
     drawerState: DrawerState,
 ) {
     val projectViewModel: ProjectViewModel = hiltViewModel()
+    val taskViewModel:TaskViewModel = hiltViewModel()
+
     val daysOfWeek = remember { daysOfWeek() }
     val currentMonth = remember { YearMonth.now() }
     var actualMonth by rememberSaveable { mutableStateOf(currentMonth) }
@@ -96,13 +102,14 @@ fun CalendarScreen(
     )
 
     val projects by projectViewModel.getAllProjects.collectAsState(initial = emptyList())
+    val tasks by taskViewModel.getAllTasks.collectAsState(initial = emptyList())
 
     val projectEndDates by remember(projects) {
         derivedStateOf {
             projects.map { LocalDate.parse(it.endDate, DateTimeFormatter.ofPattern("dd/MM/yyyy")) }
         }
     }
-
+    var selectedFilter by rememberSaveable { mutableStateOf(FilterType.Tasks) }
     var selectedDate by rememberSaveable { mutableStateOf<LocalDate?>(null) }
     val visibleState = remember { MutableTransitionState(false) }
 
@@ -125,6 +132,10 @@ fun CalendarScreen(
             modifier = Modifier.padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            FilterBar(
+                selectedFilter = selectedFilter,
+                onFilterSelected = {selectedFilter = it}
+            )
             CalendarTitle(
                 actualMonth,
                 daysOfWeek,
@@ -157,7 +168,16 @@ fun CalendarScreen(
                 exit = shrinkVertically(animationSpec = tween(durationMillis = 300)) + fadeOut(animationSpec = tween(durationMillis = 300))
             ) {
                 selectedDate?.let { date ->
-                    ProjectSummary(date, projects, navigationController)
+                    when (selectedFilter) {
+                        FilterType.Tasks -> TaskSummary(date, tasks, navigationController)
+                        FilterType.Projects -> ProjectSummary(date, projects, navigationController)
+                        FilterType.Both -> {
+                            Column {
+                                TaskSummary(date, tasks, navigationController)
+                                ProjectSummary(date, projects, navigationController)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -176,7 +196,7 @@ fun CalendarTitle(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         CalendarNavigationIcon(
-            Icons.Default.ArrowBack,
+            Icons.AutoMirrored.Filled.ArrowBack,
             contentDescription = "Mes anterior",
             onClick = goBack
         )
@@ -273,7 +293,50 @@ private fun CalendarScreenTopBar(
         },
     )
 }
+@Composable
+fun TaskSummary(
+    selectedDate: LocalDate,
+    tasks: List<Task>,
+    navigationController: NavHostController
+) {
+    val tasksForDate = tasks.filter { LocalDate.parse(it.endate, DateTimeFormatter.ofPattern("dd/MM/yyyy")) == selectedDate }
 
+    if (tasksForDate.isNotEmpty()) {
+        Column(Modifier.padding(10.dp)) {
+            Text(
+                text = "Resumen de Tareas",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+
+            tasksForDate.forEach { task ->
+                OutlinedCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                navigationController.navigate(Screens.ProjectScreen.createRoute(task.taskProjectId))
+                            }
+                            .padding(10.dp)
+                    ) {
+                        Text(
+                            text = task.title,
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                        Spacer(modifier = Modifier.height(5.dp))
+                        Text(
+                            text = "Fecha de entrega: ${task.endate}",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
 @Composable
 fun ProjectSummary(
     selectedDate: LocalDate,
@@ -290,35 +353,36 @@ fun ProjectSummary(
             )
             Spacer(modifier = Modifier.height(10.dp))
 
-            OutlinedCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
+
                 projectsForDate.forEach { project ->
-                    Column(
-                        Modifier
+                    OutlinedCard(
+                        modifier = Modifier
                             .fillMaxWidth()
-                            .clickable {
-                                navigationController.navigate(
-                                    Screens.ProjectScreen.createRoute(
-                                        project.projectId!!
-                                    )
-                                )
-                            }
-                            .padding(10.dp)
                     ) {
-                        Text(
-                            text = project.name,
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                        Spacer(modifier = Modifier.height(5.dp))
-                        Text(
-                            text = "Fecha de entrega: ${project.endDate}",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                        Column(
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    navigationController.navigate(
+                                        Screens.ProjectScreen.createRoute(
+                                            project.projectId!!
+                                        )
+                                    )
+                                }
+                                .padding(10.dp)
+                        ) {
+                            Text(
+                                text = project.name,
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                            Spacer(modifier = Modifier.height(5.dp))
+                            Text(
+                                text = "Fecha de entrega: ${project.endDate}",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
                     }
                 }
-            }
         }
 
     }

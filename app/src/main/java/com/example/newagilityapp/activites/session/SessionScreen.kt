@@ -1,23 +1,34 @@
 package com.example.newagilityapp.activites.session
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -40,9 +51,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -52,6 +68,7 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.example.newagilityapp.R
 import com.example.newagilityapp.activites.components.Alert
 import com.example.newagilityapp.activites.components.ProjectSessions
 import com.example.newagilityapp.activites.components.SubjectListBottomSheet
@@ -148,58 +165,67 @@ fun SessionScreen(navigationController: NavHostController) {
                 .padding(paddingValues)
         ) {
             item {
-                TimerSection(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1f),
-                    elapsedTime = elapsedTime
-                )
-            }
-            item {
-                RelatedToProjectSection(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp),
-                    relatedTo = selectedProject,
-                    selectProjectButtonClick = { isBottomSheetOpen = true }
-                )
-            }
-            item {
-                ButtonsSection(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    isRunning = isRunning,
-                    startPauseButtonClick = {
-                        if (selectedProject == null) {
-                            isAlertDialogOpen = true
-                        } else {
-                            isRunning = !isRunning
-                        }
-                    },
-                    resetButtonClick = { elapsedTime = 0; isRunning = false },
-                    finishButtonClick = {
-                        isRunning = false
-                        if (selectedProject != null) {
-                            val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                            val formattedDate = Instant.now()
-                                .atZone(ZoneId.systemDefault())
-                                .toLocalDate()
-                                .format(formatter)
-                            val newSession = selectedProject!!.projectId?.let {
-                                Session(
-                                    projectSessionId = it,
-                                    duration = elapsedTime,
-                                    date = formattedDate,
-                                    fromProject = selectedProject!!.name
-                                )
+
+                    Column {
+                        TimerSection(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(1f),
+                            elapsedTime = elapsedTime
+                        )
+                        RelatedToProjectSection(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp),
+                            relatedTo = selectedProject,
+                            selectProjectButtonClick = { isBottomSheetOpen = true }
+                        )
+                        ButtonsSection(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(5.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(
+                                    brush = Brush.horizontalGradient(
+                                        listOf(
+                                            MaterialTheme.colorScheme.background,
+                                            MaterialTheme.colorScheme.primaryContainer
+                                        )
+                                    )
+                                ),
+                            selectProject = selectedProject != null,
+                            startPauseButtonClick = {
+                                if (selectedProject == null) {
+                                    isAlertDialogOpen = true
+                                } else {
+                                    isRunning = !isRunning
+                                }
+                            },
+                            resetButtonClick = { elapsedTime = 0; isRunning = false },
+                            finishButtonClick = {
+                                isRunning = false
+                                if (selectedProject != null) {
+                                    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                                    val formattedDate = Instant.now()
+                                        .atZone(ZoneId.systemDefault())
+                                        .toLocalDate()
+                                        .format(formatter)
+                                    val newSession = selectedProject!!.projectId?.let {
+                                        Session(
+                                            projectSessionId = it,
+                                            duration = elapsedTime,
+                                            date = formattedDate,
+                                            fromProject = selectedProject!!.name
+                                        )
+                                    }
+                                    if (newSession != null) {
+                                        sessionViewModel.addOrUpdateSession(newSession)
+                                    }
+                                }
                             }
-                            if (newSession != null) {
-                                sessionViewModel.addOrUpdateSession(newSession)
-                            }
-                        }
+                        )
                     }
-                )
+
             }
             ProjectSessions(
                 sectionTitle = "Historial de sesiones",
@@ -232,7 +258,6 @@ fun TimerSection(modifier: Modifier, elapsedTime: Long) {
         (elapsedTime % 3600) / 60,
         elapsedTime % 60
     )
-
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center
@@ -257,13 +282,18 @@ fun RelatedToProjectSection(
     selectProjectButtonClick: () -> Unit,
     relatedTo: Project?
 ) {
-    Column(modifier = modifier) {
+    Column(modifier = modifier
+   ) {
         Text(
             text = "Relacionado con el proyecto",
             style = MaterialTheme.typography.bodyMedium
         )
+        Spacer(modifier = Modifier.height(5.dp))
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(10.dp))
+                .clickable { selectProjectButtonClick() },
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -286,32 +316,53 @@ fun ButtonsSection(
     modifier: Modifier,
     startPauseButtonClick: () -> Unit,
     finishButtonClick: () -> Unit,
-    isRunning: Boolean,
+    selectProject: Boolean,
     resetButtonClick: () -> Unit
 ) {
     val darkTheme  = isSystemInDarkTheme()
 
-    val pauseResume by rememberLottieComposition(LottieCompositionSpec.Asset(if(!darkTheme)"Black_pause.json" else "White_pause.json"))
     val save by rememberLottieComposition(LottieCompositionSpec.Asset(if(!darkTheme)"Black_save.json" else "White_save.json"))
     val restart by rememberLottieComposition(LottieCompositionSpec.Asset(if(!darkTheme)"Black_Reload.json" else "White_reload.json"))
-
+    var isPlaying by remember { mutableStateOf(false) }
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         AnimatedLottieButton(
             composition = restart,
-            isRunning = false,
             onClick = resetButtonClick
         )
-        AnimatedLottieButton(
-            composition = pauseResume,
-            isRunning = isRunning,
-            onClick = startPauseButtonClick
-        )
+        Button(
+            onClick = {
+                if(selectProject){
+                    isPlaying = !isPlaying
+                }
+                startPauseButtonClick()
+            },
+        ) {
+            AnimatedContent(
+                modifier = Modifier.padding(10.dp),
+                targetState = isPlaying,
+                label = "Resume_Pause") { playing ->
+                if (playing) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.pause),
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        contentDescription = "Pause",
+                        modifier = Modifier.size(30.dp)
+                    )
+                } else {
+                    Icon(
+                        painter = painterResource(id = R.drawable.play),
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        contentDescription = "Play",
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+            }
+        }
         AnimatedLottieButton(
             composition = save,
-            isRunning = false,
             onClick = finishButtonClick
         )
     }
@@ -320,7 +371,6 @@ fun ButtonsSection(
 @Composable
 fun AnimatedLottieButton(
     composition: LottieComposition?,
-    isRunning: Boolean,
     onClick: () -> Unit
 ) {
     var isPlaying by remember { mutableStateOf(false) }
@@ -333,7 +383,7 @@ fun AnimatedLottieButton(
     )
     val scope = rememberCoroutineScope()
 
-    OutlinedButton(
+    Button(
         onClick = {
             scope.launch {
                 isPlaying = true

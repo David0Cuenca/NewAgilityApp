@@ -46,8 +46,7 @@ fun ProjectCard(
         Card(
             modifier = Modifier
                 .fillMaxSize()
-                .blur(16.dp, BlurredEdgeTreatment(RoundedCornerShape(16.dp)))
-            ,
+                .blur(16.dp, BlurredEdgeTreatment(RoundedCornerShape(16.dp))),
             shape = RoundedCornerShape(16.dp),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.background.copy(alpha = 1f)),
         ) {
@@ -66,8 +65,6 @@ fun ProjectCard(
                     )
             )
         }
-
-        // Clear content on top of the glass effect
         Column(
             modifier = Modifier
                 .fillMaxSize(),
@@ -82,7 +79,7 @@ fun ProjectCard(
             Text(
                 text = projectname,
                 color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineSmall,
             )
         }
     }

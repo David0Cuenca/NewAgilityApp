@@ -7,12 +7,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.List
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
                     drawerState = drawerState,
                     gesturesEnabled = drawerState.isOpen,
                     drawerContent = {
-                        ModalDrawerSheet() {
+                        ModalDrawerSheet {
                             DrawerContent(
                                 items = navBaritems,
                                 modifier = Modifier,
@@ -105,9 +105,9 @@ val navBaritems = listOf(
     ),
     MenuItem(
         title = "Lista de proyectos",
-        selected = Icons.Filled.List,
+        selected = Icons.AutoMirrored.Filled.List,
         badge = false,
-        unselected = Icons.Outlined.List,
+        unselected = Icons.AutoMirrored.Outlined.List,
         destination = Screens.ListScreen.route
     ),
     MenuItem(

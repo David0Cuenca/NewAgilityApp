@@ -1,21 +1,31 @@
 package com.example.newagilityapp.activites.listview
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ElevatedCard
@@ -29,25 +39,42 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.airbnb.lottie.LottieProperty
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieClipSpec
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
+import com.airbnb.lottie.compose.rememberLottieDynamicProperties
+import com.airbnb.lottie.compose.rememberLottieDynamicProperty
 import com.example.newagilityapp.R
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
 import com.example.newagilityapp.data.viewmodels.TaskViewModel
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Screens
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 //Todo Lista de todos los proyectos, y bottones de filtrado
@@ -77,7 +104,8 @@ fun ListScreen(
             state = listState,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValue)
+                .padding(paddingValue),
+            verticalArrangement = Arrangement.Center
         ){
             item {
                 ListProjects(
@@ -101,30 +129,57 @@ private fun ListProjects(
     onProjectCardClick: (Int) -> Unit
 ){
     val taskViewModel: TaskViewModel = hiltViewModel()
-    Column(modifier = Modifier) {
+    Column(
+        modifier = Modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         if(projects.isEmpty()){
-            Image(
-                modifier = Modifier
-                    .size(120.dp)
-                    .align(Alignment.CenterHorizontally),
-                painter = painterResource(R.drawable.project_icon),
-                contentDescription = emptyListText
+            var offset by remember { mutableFloatStateOf(0f) }
+            val animatedOffset by animateFloatAsState(
+                targetValue = if (offset == 0f) 15f else 0f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 2000, easing = LinearEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
             )
+            LaunchedEffect(Unit) {
+                while (true) {
+                    offset = if (offset == 0f) 15f else 0f
+                    delay(2000)
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .size(200.dp)
+                    .offset(y = animatedOffset.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.empty),
+                    contentDescription = "Empty",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(180.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(10.dp))
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = emptyListText,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.displaySmall,
                 textAlign = TextAlign.Center
             )
-
         }
+
         projects.forEach { projectList ->
+            val completedTasks by taskViewModel.getCompletedTasks(projectList.projectId!!).collectAsState(initial = 0)
+            val totalTasks by taskViewModel.getTotalTasks(projectList.projectId!!).collectAsState(initial = 0)
+            val progress = if (totalTasks > 0) completedTasks / totalTasks.toFloat() else 0f
             val taskCount by taskViewModel.getTaskCountByProjectId(projectList.projectId!!).collectAsState(initial = 0)
             ProjectListCard(
                 projectname = projectList.name,
                 taskcount = taskCount,
                 endDate=projectList.endDate,
-                progress = 0.1f,
+                progress = progress,
                 onClick = { projectList.projectId?.let { onProjectCardClick(it) } }
             )
             Spacer(modifier = Modifier.height(10.dp))
@@ -188,17 +243,17 @@ private fun ProjectListCard(
                         contentAlignment = Alignment.Center
                     ){
                         CircularProgressIndicator(
+                            progress = { 1f },
                             modifier = Modifier.fillMaxSize(),
-                            progress = 1f,
+                            color = MaterialTheme.colorScheme.surfaceVariant,
                             strokeWidth = 4.dp,
                             strokeCap = StrokeCap.Round,
-                            color = MaterialTheme.colorScheme.surfaceVariant
                         )
                         CircularProgressIndicator(
+                            progress = { progress },
                             modifier = Modifier.fillMaxSize(),
-                            progress = progress,
                             strokeWidth = 4.dp,
-                            strokeCap = StrokeCap.Round
+                            strokeCap = StrokeCap.Round,
                         )
                         Text(text = "$percentage%")
                     }

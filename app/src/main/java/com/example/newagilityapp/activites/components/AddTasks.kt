@@ -120,7 +120,7 @@ fun AddTasks(
                 )
             }
         } else {
-            tasks.forEach() { task ->
+            tasks.forEach { task ->
                 TaskCard(task = task)
             }
         }

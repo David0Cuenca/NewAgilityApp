@@ -13,13 +13,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,23 +45,22 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.newagilityapp.activites.components.Alert
 import com.example.newagilityapp.activites.components.SubjectListBottomSheet
-import com.example.newagilityapp.activites.components.TaskCheckBox
 import com.example.newagilityapp.activites.components.TaskDatePicker
+import com.example.newagilityapp.activites.components.TimePickerDialog
+import com.example.newagilityapp.activites.project.OutlinedBox
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
 import com.example.newagilityapp.data.viewmodels.TaskViewModel
 import com.example.newagilityapp.model.Task
-import com.example.newagilityapp.ui.theme.Red
 import com.example.newagilityapp.utilities.Priority
 import com.example.newagilityapp.utilities.changeMillisToDateString
-
 import kotlinx.coroutines.launch
 import java.time.Instant
+import java.util.Locale
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -81,15 +80,19 @@ fun TaskScreen(navigationController: NavHostController) {
 
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState()
+
     var isBottomSheetOpen by remember { mutableStateOf(false) }
+
+    var expanded by remember { mutableStateOf(false) }
 
     var selectedProject by remember { mutableIntStateOf(0) }
     val selectedProjectName by projectViewModel.getProjectById(selectedProject).collectAsState(initial = null)
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var taskTitleError by rememberSaveable { mutableStateOf<String?>(null) }
-    var expanded by remember { mutableStateOf(false) }
+
     var selectedText by remember { mutableStateOf(Priority.MEDIUM) }
+
 
     taskTitleError = when {
         title.isBlank() -> "Por favor introduzca un titulo."
@@ -116,6 +119,7 @@ fun TaskScreen(navigationController: NavHostController) {
             isDatePickerOpen = false
         }
     )
+
     SubjectListBottomSheet(
         sheetState = sheetState,
         isOpen = isBottomSheetOpen,
@@ -131,12 +135,7 @@ fun TaskScreen(navigationController: NavHostController) {
     Scaffold(
         topBar = {
             TaskScreenTopBar(
-                isTaskExist = true,
-                isDone = false,
-                checkboxBorderColor = Red,
                 onBackButtonClick = {navigationController.popBackStack()},
-                onDeleteButtonClick = { isDeleteDialogOpen = true },
-                onCheckBoxClick = {}
             )
         }
     ) { paddingValues ->
@@ -164,58 +163,65 @@ fun TaskScreen(navigationController: NavHostController) {
                 label = { Text(text = "Descripción")}
             )
             Spacer(modifier = Modifier.height(20.dp))
-            Text(
-                text = "Fecha final",
-                style = MaterialTheme.typography.bodyMedium
-            )
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                Modifier
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
-            ){
-                Text(
-                    text = datePickerState.selectedDateMillis.changeMillisToDateString(),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                IconButton(onClick = { isDatePickerOpen = true }) {
-                    Icon(
-                        imageVector = Icons.Default.DateRange,
-                        contentDescription = "Seleciona fecha final"
+            ) {
+                Column(Modifier
+                    .weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "Fecha de entrega",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    OutlinedBox(
+                        value = datePickerState.selectedDateMillis.changeMillisToDateString(),
+                        onClick = { isDatePickerOpen = true },
+                        trailingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.DateRange,
+                                contentDescription = "Selecciona fecha final"
+                            )
+                        }
                     )
                 }
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            Text(
-                text = "Prioridad",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            Row (modifier = Modifier.fillMaxWidth()){
-                ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = { expanded = !expanded }
-                ) {
-                    OutlinedTextField(
-                        value = selectedText.title,
-                        onValueChange = {},
-                        readOnly = true,
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                        modifier = Modifier
-                            .menuAnchor()
-                            .clickable { expanded = true }
+
+                Spacer(modifier = Modifier.width(10.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        text = "Prioridad",
+                        style = MaterialTheme.typography.bodyMedium
                     )
-                    ExposedDropdownMenu(
+                    Spacer(modifier = Modifier.height(10.dp))
+                    ExposedDropdownMenuBox(
                         expanded = expanded,
-                        onDismissRequest = { expanded = false }
+                        onExpandedChange = { expanded = !expanded }
                     ) {
-                        Priority.entries.forEach { item ->
-                            DropdownMenuItem(
-                                text = { Text(text = item.title) },
-                                onClick = {
-                                    selectedText = item
-                                    expanded = false
-                                }
-                            )
+                        OutlinedTextField(
+                            value = selectedText.title,
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                            modifier = Modifier
+                                .menuAnchor()
+                                .clickable { expanded = true }
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            Priority.entries.forEach { item ->
+                                DropdownMenuItem(
+                                    text = { Text(text = item.title) },
+                                    onClick = {
+                                        expanded = false
+                                        selectedText = item
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -242,7 +248,7 @@ fun TaskScreen(navigationController: NavHostController) {
                     )
             }
             Button(
-                enabled = taskTitleError == null,
+                enabled = taskTitleError == null && selectedProject != 0,
                 onClick = {
                     if (title.isNotBlank() && selectedProject != 0) {
                         val newTask = Task(
@@ -267,7 +273,6 @@ fun TaskScreen(navigationController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 20.dp)
-                //Hay que impedir que se cree un trabajo si no hay un proyecto
             ) {
                 Text(text = "Guardar")
             }
@@ -278,18 +283,13 @@ fun TaskScreen(navigationController: NavHostController) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TaskScreenTopBar(
-    isTaskExist: Boolean,
-    isDone:Boolean,
-    checkboxBorderColor: Color,
     onBackButtonClick:() -> Unit,
-    onDeleteButtonClick:() -> Unit,
-    onCheckBoxClick:() -> Unit
     ){
     TopAppBar(
         navigationIcon = {
             IconButton(onClick = onBackButtonClick) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription ="Ir atras"
                 )
             }
@@ -298,20 +298,5 @@ private fun TaskScreenTopBar(
             text = "Trabajo",
             style = MaterialTheme.typography.headlineMedium
         )},
-        actions = {
-            if (isTaskExist){
-                TaskCheckBox(
-                    isDone = isDone,
-                    borderColor = checkboxBorderColor,
-                    onCheckBoxClick = onCheckBoxClick
-                )
-                IconButton(onClick = onDeleteButtonClick) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Borrar trabajo"
-                    )
-                }
-            }
-        }
     )
 }

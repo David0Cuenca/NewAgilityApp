@@ -2,6 +2,13 @@ package com.example.newagilityapp.activites.project
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,8 +23,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
@@ -51,6 +58,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -76,7 +84,6 @@ import com.example.newagilityapp.utilities.formatDuration
 import com.example.newagilityapp.utilities.formatGoalHours
 import kotlinx.coroutines.launch
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -117,6 +124,8 @@ fun ProjectScreen(
     val datePickerState = rememberDatePickerState(initialSelectedDateMillis = Instant.now().toEpochMilli())
     var isDatePickerOpen by rememberSaveable { mutableStateOf(false) }
     var isTimePickerOpen by rememberSaveable { mutableStateOf(false) }
+
+    val density = LocalDensity.current
 
     LaunchedEffect(project) {
         project?.let {
@@ -218,7 +227,17 @@ fun ProjectScreen(
                 .padding(paddingValue)
         ){
             item {
-                if (isEditing) {
+                AnimatedVisibility(
+                    visible = isEditing,
+                    enter = slideInVertically {
+                        with(density) { -40.dp.roundToPx() }
+                    } + expandVertically(
+                        expandFrom = Alignment.Top
+                    ) + fadeIn(
+                        initialAlpha = 0.3f
+                    ),
+                    exit = slideOutVertically() + shrinkVertically() + fadeOut()
+                ) {
                     EditableProjectDetailsSection(
                         title = title,
                         onTitleChange = { title = it },
@@ -233,26 +252,39 @@ fun ProjectScreen(
                         onDatePickerConfirm = { isDatePickerOpen = false },
                         isTimePickerOpen = isTimePickerOpen,
                         onTimePickerDismiss = { isTimePickerOpen = false },
-                        onTimePickerOpen = {isTimePickerOpen = true},
+                        onTimePickerOpen = { isTimePickerOpen = true },
                         onTimeSelected = { hours, minutes ->
                             goalHoursAndMinutes = String.format(Locale.getDefault(), "%02d:%02d", hours, minutes)
                             isTimePickerOpen = false
                         }
                     )
-                } else {
-                    ProjectOverviewSection(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
-                        hoursDone = hoursDone,
-                        goalHours = project?.goalHours.toString(),
-                        progress = progress,
-                        endDate = project?.endDate
-                    )
-                    Column (Modifier.padding(12.dp)){
-                        Text(text = "Descripcion", style = MaterialTheme.typography.titleMedium)
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Text(description, style = MaterialTheme.typography.bodyMedium)
+                }
+                AnimatedVisibility(
+                    visible = !isEditing,
+                    enter = slideInVertically {
+                        with(density) { -40.dp.roundToPx() }
+                    } + expandVertically(
+                        expandFrom = Alignment.Top
+                    ) + fadeIn(
+                        initialAlpha = 0.3f
+                    ),
+                    exit = slideOutVertically() + shrinkVertically() + fadeOut()
+                ) {
+                    Column {
+                        ProjectOverviewSection(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            hoursDone = hoursDone,
+                            goalHours = project?.goalHours.toString(),
+                            progress = progress,
+                            endDate = project?.endDate
+                        )
+                        Column(Modifier.padding(12.dp)) {
+                            Text(text = "Descripción", style = MaterialTheme.typography.titleMedium)
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Text(description, style = MaterialTheme.typography.bodyMedium)
+                        }
                     }
                 }
             }
@@ -308,7 +340,7 @@ private fun ProjectScreenTopBar(
         navigationIcon = {
             IconButton(onClick = { navigationController.popBackStack() }) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Ir atras"
                 )
             }
