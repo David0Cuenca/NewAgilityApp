@@ -7,7 +7,7 @@ import java.time.temporal.ChronoUnit
 fun daysLeft(endDate: String?): Pair<Int, String> {
     if (endDate.isNullOrBlank()) return Pair(0, "No hay fecha final")
 
-    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+    val formatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
     val today = LocalDate.now()
     val end = LocalDate.parse(endDate, formatter)
 

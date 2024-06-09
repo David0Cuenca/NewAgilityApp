@@ -5,15 +5,12 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,10 +19,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ElevatedCard
@@ -43,73 +38,63 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.airbnb.lottie.LottieProperty
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieClipSpec
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.rememberLottieComposition
-import com.airbnb.lottie.compose.rememberLottieDynamicProperties
-import com.airbnb.lottie.compose.rememberLottieDynamicProperty
 import com.example.newagilityapp.R
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
 import com.example.newagilityapp.data.viewmodels.TaskViewModel
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Screens
+import com.example.newagilityapp.utilities.daysLeft
+import com.example.newagilityapp.utilities.formatDuration
+import com.example.newagilityapp.utilities.formatGoalHours
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-//Todo Lista de todos los proyectos, y bottones de filtrado
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(
     navigationController: NavHostController,
     drawerState: DrawerState,
-
-) {
+    ) {
     val projectViewModel: ProjectViewModel = hiltViewModel()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val listState = rememberLazyListState()
-
+    
     val projects by projectViewModel.getAllProjects.collectAsState(initial = emptyList())
-
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = { ListScreenTopBar(
-            title = "Lista de proyectos",
-            drawerState,
-            scrollBehavior = scrollBehavior
-        ) },
+        topBar = {
+            ListScreenTopBar(
+                title = "Lista de proyectos",
+                drawerState,
+                scrollBehavior = scrollBehavior
+            )
+        },
 
-    ) { paddingValue ->
+        ) { paddingValue ->
         LazyColumn(
             state = listState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValue),
             verticalArrangement = Arrangement.Center
-        ){
+        ) {
             item {
                 ListProjects(
                     projects = projects,
+                    projectViewModel = projectViewModel,
                     emptyListText = "No hay ningun Projecto creado",
                     onProjectCardClick = { projectId ->
                         navigationController.navigate(Screens.ProjectScreen.createRoute(projectId))
@@ -122,18 +107,20 @@ fun ListScreen(
         }
     }
 }
+
 @Composable
 private fun ListProjects(
     projects: List<Project>,
     emptyListText: String,
+    projectViewModel: ProjectViewModel,
     onProjectCardClick: (Int) -> Unit
-){
+) {
     val taskViewModel: TaskViewModel = hiltViewModel()
     Column(
         modifier = Modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if(projects.isEmpty()){
+        if (projects.isEmpty()) {
             var offset by remember { mutableFloatStateOf(0f) }
             val animatedOffset by animateFloatAsState(
                 targetValue = if (offset == 0f) 15f else 0f,
@@ -141,6 +128,7 @@ private fun ListProjects(
                     animation = tween(durationMillis = 2000, easing = LinearEasing),
                     repeatMode = RepeatMode.Reverse
                 ),
+                label = "",
             )
             LaunchedEffect(Unit) {
                 while (true) {
@@ -169,18 +157,21 @@ private fun ListProjects(
                 textAlign = TextAlign.Center
             )
         }
-
-        projects.forEach { projectList ->
-            val completedTasks by taskViewModel.getCompletedTasks(projectList.projectId!!).collectAsState(initial = 0)
-            val totalTasks by taskViewModel.getTotalTasks(projectList.projectId!!).collectAsState(initial = 0)
+        projects.forEach { project ->
+            val formattedGoalHours = formatGoalHours(project.goalHours)
+            val hoursDone by projectViewModel.getTotalHoursFromSessions(project.projectId!!).collectAsState(initial = 0L)
+            val completedTasks by taskViewModel.getCompletedTasks(project.projectId!!)
+                .collectAsState(initial = 0)
+            val totalTasks by taskViewModel.getTotalTasks(project.projectId!!)
+                .collectAsState(initial = 0)
             val progress = if (totalTasks > 0) completedTasks / totalTasks.toFloat() else 0f
-            val taskCount by taskViewModel.getTaskCountByProjectId(projectList.projectId!!).collectAsState(initial = 0)
-            ProjectListCard(
-                projectname = projectList.name,
-                taskcount = taskCount,
-                endDate=projectList.endDate,
+            projectCard(
+                projectname = project.name,
+                goalHours = formattedGoalHours,
+                hoursDone = hoursDone,
+                endDate = project.endDate,
                 progress = progress,
-                onClick = { projectList.projectId?.let { onProjectCardClick(it) } }
+                onClick = { onProjectCardClick(project.projectId!!) }
             )
             Spacer(modifier = Modifier.height(10.dp))
         }
@@ -188,75 +179,117 @@ private fun ListProjects(
 }
 
 @Composable
-private fun ProjectListCard(
+private fun projectCard(
     projectname: String,
     endDate: String,
     progress: Float,
     onClick: () -> Unit,
-    taskcount: Int
-
-){
-    val percentage = remember(progress){
-        (progress*100).toInt().coerceIn(0,100)
+    goalHours: String,
+    hoursDone: Long
+) {
+    val parsedGoalHours = goalHours.toFloatOrNull() ?: 0f
+    val formattedGoalHours = formatGoalHours(parsedGoalHours)
+    val formattedHoursDone = formatDuration(hoursDone)
+    val percentage = remember(progress) {
+        (progress * 100).toInt().coerceIn(0, 100)
     }
     ElevatedCard(
         modifier = Modifier
-            .clickable{onClick()}
+            .clickable { onClick() }
     ) {
-        Row (
+        Row(
             Modifier
                 .padding(10.dp)
                 .fillMaxWidth(),
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally){
-                Text(
-                    text = projectname,
-                    style = MaterialTheme.typography.headlineLarge)
-                Row (
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Text(
+                        text = projectname,
+                        style = MaterialTheme.typography.headlineLarge
+                    )
+                    Icon(
+                        painter = painterResource(R.drawable.project_icon),
+                        contentDescription = "Icon"
+                    )
+                }
+                Spacer(modifier = Modifier.size(10.dp))
+                Row(
                     Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = Arrangement.SpaceAround,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
+                    Column(
+                        horizontalAlignment = Alignment.Start,
+                        verticalArrangement = Arrangement.Center
+                    ) {
                         Text(
                             text = "Fecha fin:",
                             style = MaterialTheme.typography.bodyLarge
                         )
-                        Spacer(modifier =Modifier.height(10.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
                         Text(
                             text = endDate,
                             style = MaterialTheme.typography.bodyMedium
                         )
-                    }
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Spacer(modifier = Modifier.size(10.dp))
                         Text(
-                            text = "Trabajos:",
+                            text = "Horas hechas"
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = formattedHoursDone,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    Column(
+                        horizontalAlignment = Alignment.Start,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "Horas objetivos",
                             style = MaterialTheme.typography.bodyLarge
                         )
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(
-                            text = "$taskcount",
+                            text = endDate,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Spacer(modifier = Modifier.size(10.dp))
+                        Text(
+                            text = "Horas objetivos:",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = formattedGoalHours,
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
-                    Box (modifier = Modifier.size(75.dp),
-                        contentAlignment = Alignment.Center
-                    ){
-                        CircularProgressIndicator(
-                            progress = { 1f },
-                            modifier = Modifier.fillMaxSize(),
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            strokeWidth = 4.dp,
-                            strokeCap = StrokeCap.Round,
-                        )
-                        CircularProgressIndicator(
-                            progress = { progress },
-                            modifier = Modifier.fillMaxSize(),
-                            strokeWidth = 4.dp,
-                            strokeCap = StrokeCap.Round,
-                        )
-                        Text(text = "$percentage%")
-                    }
+                }
+                
+                Box(
+                    modifier = Modifier.size(75.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        progress = { 1f },
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        strokeWidth = 4.dp,
+                        strokeCap = StrokeCap.Round,
+                    )
+                    CircularProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.fillMaxSize(),
+                        strokeWidth = 4.dp,
+                        strokeCap = StrokeCap.Round,
+                    )
+                    Text(text = "$percentage%")
                 }
             }
         }
@@ -269,12 +302,12 @@ private fun ListScreenTopBar(
     title: String,
     drawerState: DrawerState,
     scrollBehavior: TopAppBarScrollBehavior
-){
+) {
     val scope = rememberCoroutineScope()
     TopAppBar(
         scrollBehavior = scrollBehavior,
         navigationIcon = {
-            IconButton(onClick = {scope.launch{drawerState.open()}}
+            IconButton(onClick = { scope.launch { drawerState.open() } }
             ) {
                 Icon(
                     imageVector = Icons.Default.Menu,
@@ -282,11 +315,13 @@ private fun ListScreenTopBar(
                 )
             }
         },
-        title = { Text(
-            text = title,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.headlineLarge)
+        title = {
+            Text(
+                text = title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.headlineLarge
+            )
         },
     )
 }

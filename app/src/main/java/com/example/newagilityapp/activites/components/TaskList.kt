@@ -91,7 +91,7 @@ private fun TaskCard(
                 .fillMaxWidth()
                 .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
-        ){
+        ) {
             TaskCheckBox(
                 isDone = task.isDone,
                 borderColor = task.priority.color,
@@ -110,7 +110,7 @@ private fun TaskCard(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "${task.endate}",
+                    text = task.endate,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

@@ -1,11 +1,7 @@
 package com.example.newagilityapp.activites.project
 
-import android.annotation.SuppressLint
-import android.app.TimePickerDialog
 import android.os.Build
 import android.util.Log
-import android.widget.Button
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -14,7 +10,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,17 +19,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,9 +34,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -53,30 +42,20 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.VectorPainter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.newagilityapp.R
-import com.example.newagilityapp.activites.components.AddTasks
 import com.example.newagilityapp.activites.components.LoadingAnimationDialog
 import com.example.newagilityapp.activites.components.TaskDatePicker
 import com.example.newagilityapp.activites.components.TimePickerDialog
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
 import com.example.newagilityapp.model.Project
-import com.example.newagilityapp.model.Task
-import com.example.newagilityapp.utilities.Priority
 import com.example.newagilityapp.utilities.changeMillisToDateString
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -227,21 +206,17 @@ fun NewProjectScreen(
                     if (title.isNotBlank() && goalHoursAndMinutes.isNotBlank()) {
                         val hoursMinutesArray = goalHoursAndMinutes.split(":").map { it.toInt() }
                         val goalHours = hoursMinutesArray[0].toFloat() + (hoursMinutesArray[1].toFloat() / 60)
-                        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                        val formattedDate = Instant.ofEpochMilli(datePickerState.selectedDateMillis!!)
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate()
-                            .format(formatter)
+
                         val newProject = Project(
                             name = title,
-                            endDate = formattedDate,
+                            endDate = datePickerState.selectedDateMillis.changeMillisToDateString(),
                             goalHours = goalHours,
                             description = description
                         )
                         scope.launch {
                             showLoadingDialog = true
                             try {
-                                delay(1000)  // Espera para asegurar que la animación de carga se muestre
+                                delay(1000)
                                 projectViewModel.insertProject(newProject)
                             } catch (e: Exception) {
                                 Log.e("NewProjectScreen", "Error during project insertion: ${e.message}")

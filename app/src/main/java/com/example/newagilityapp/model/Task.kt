@@ -24,7 +24,7 @@ data class Task(
     val description: String,
     val endate: String,
     val taskProjectId: Int,
-    val isDone: Boolean,
+    var isDone: Boolean,
     @PrimaryKey(autoGenerate = true)
     val taskId: Int? = null,
     val priority: Priority

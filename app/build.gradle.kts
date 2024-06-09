@@ -65,14 +65,14 @@ dependencies {
     //Notifications
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.compose.material:material:1.6.7")
-    //Haze
-    implementation("dev.chrisbanes.haze:haze:0.7.1")
+    //Glassmorphism
+    implementation ("com.github.jakhongirmadaminov:glassmorphic-composables:0.0.7")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     //Lottie Animations
     implementation("com.airbnb.android:lottie-compose:6.4.1")
     //Calendar
-    implementation ("com.kizitonwose.calendar:view:2.4.1")
-    implementation ("com.kizitonwose.calendar:compose:2.4.1")
+    implementation ("com.kizitonwose.calendar:view:2.5.1")
+    implementation ("com.kizitonwose.calendar:compose:2.5.1")
     //Wheel selector
     implementation ("com.github.ozcanalasalvar.picker:wheelview:2.0.7")
 

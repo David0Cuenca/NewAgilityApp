@@ -150,6 +150,7 @@ fun ProjectScreen(
             }
         )
     }
+
     Alert(
         isOpen = isOpenDeleteProject,
         title = "¿Borrar el proyecto?",
@@ -162,6 +163,7 @@ fun ProjectScreen(
             showLoadingDialog = true
         }
     )
+
     Alert(
         isOpen = isOpenDeleteSession,
         title = "¿Borrar la sesión?",
@@ -173,6 +175,7 @@ fun ProjectScreen(
             sessionToDelete?.let { sessionViewModel.deleteSession(it) }
         }
     )
+
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -187,20 +190,13 @@ fun ProjectScreen(
                         isEditing = false
                         val hoursMinutesArray = goalHoursAndMinutes.split(":").map { it.toInt() }
                         val goalHours = hoursMinutesArray[0].toFloat() + (hoursMinutesArray[1].toFloat() / 60)
-                        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                        val formattedDate = Instant.ofEpochMilli(datePickerState.selectedDateMillis!!)
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate()
-                            .format(formatter)
-
                         val updatedProject = Project(
                             projectId = projectId,
                             name = title,
-                            endDate = formattedDate,
+                            endDate = datePickerState.selectedDateMillis.changeMillisToDateString(),
                             goalHours = goalHours,
                             description = description
                         )
-
                         scope.launch {
                             showLoadingDialog = true
                             projectViewModel.updateProject(updatedProject)
@@ -334,7 +330,7 @@ private fun ProjectScreenTopBar(
     onSaveClick: () -> Unit,
     onCancelClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
-){
+) {
     LargeTopAppBar(
         scrollBehavior = scrollBehavior,
         navigationIcon = {

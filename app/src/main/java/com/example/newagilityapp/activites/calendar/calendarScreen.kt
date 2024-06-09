@@ -7,6 +7,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,21 +18,20 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -49,14 +49,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.example.newagilityapp.R
 import com.example.newagilityapp.activites.components.FilterBar
 import com.example.newagilityapp.activites.components.FilterType
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
@@ -106,7 +109,12 @@ fun CalendarScreen(
 
     val projectEndDates by remember(projects) {
         derivedStateOf {
-            projects.map { LocalDate.parse(it.endDate, DateTimeFormatter.ofPattern("dd/MM/yyyy")) }
+            projects.map { LocalDate.parse(it.endDate, DateTimeFormatter.ofPattern("dd MMM yyyy")) }
+        }
+    }
+    val taskEndDates by remember(tasks) {
+        derivedStateOf {
+            tasks.map { LocalDate.parse(it.endate, DateTimeFormatter.ofPattern("dd MMM yyyy")) }
         }
     }
     var selectedFilter by rememberSaveable { mutableStateOf(FilterType.Tasks) }
@@ -155,10 +163,16 @@ fun CalendarScreen(
             HorizontalCalendar(
                 state = state,
                 dayContent = { day ->
-                    Day(day, projectEndDates) {
-                        selectedDate = day.date
-                        visibleState.targetState = true
-                    }
+                    Day(
+                        day = day,
+                        projectEndDates = projectEndDates,
+                        taskEndDates = taskEndDates,
+                        selectedFilter = selectedFilter,
+                        onClick = {
+                            selectedDate = day.date
+                            visibleState.targetState = true
+                        }
+                    )
                 },
                 userScrollEnabled = false
             )
@@ -215,8 +229,21 @@ fun CalendarTitle(
 }
 
 @Composable
-fun Day(day: CalendarDay, projectEndDates: List<LocalDate>, onClick: (CalendarDay) -> Unit) {
+fun Day(
+    day: CalendarDay,
+    projectEndDates: List<LocalDate>,
+    taskEndDates: List<LocalDate>,
+    selectedFilter: FilterType,
+    onClick: (CalendarDay) -> Unit
+) {
     val isProjectEndDate = projectEndDates.contains(day.date)
+    val isTaskEndDate = taskEndDates.contains(day.date)
+    val showIcon = when (selectedFilter) {
+        FilterType.Tasks -> isTaskEndDate
+        FilterType.Projects -> isProjectEndDate
+        FilterType.Both -> isProjectEndDate || isTaskEndDate
+    }
+
     Box(
         modifier = Modifier
             .aspectRatio(1f)
@@ -226,13 +253,12 @@ fun Day(day: CalendarDay, projectEndDates: List<LocalDate>, onClick: (CalendarDa
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = day.date.dayOfMonth.toString())
-            if (isProjectEndDate) {
+            if (showIcon) {
                 Icon(imageVector = Icons.Default.Info, contentDescription = "Evento")
             }
         }
     }
 }
-
 @Composable
 fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>) {
     Row(modifier = Modifier.fillMaxWidth()) {
@@ -299,8 +325,7 @@ fun TaskSummary(
     tasks: List<Task>,
     navigationController: NavHostController
 ) {
-    val tasksForDate = tasks.filter { LocalDate.parse(it.endate, DateTimeFormatter.ofPattern("dd/MM/yyyy")) == selectedDate }
-
+    val tasksForDate = tasks.filter { LocalDate.parse(it.endate, DateTimeFormatter.ofPattern("dd MMM yyyy")) == selectedDate }
     if (tasksForDate.isNotEmpty()) {
         Column(Modifier.padding(10.dp)) {
             Text(
@@ -310,17 +335,52 @@ fun TaskSummary(
             Spacer(modifier = Modifier.height(10.dp))
 
             tasksForDate.forEach { task ->
-                OutlinedCard(
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .clickable {
+                            navigationController.navigate(Screens.ProjectScreen.createRoute(task.taskProjectId))
+                        },
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Box(modifier = Modifier
+                        .clip(
+                            RoundedCornerShape(
+                                bottomEndPercent = 0,
+                                bottomStartPercent = 10,
+                                topEndPercent = 0,
+                                topStartPercent = 10
+                            )
+                        )
+                        .background(color = MaterialTheme.colorScheme.onPrimary)
+                        .size(50.dp),
+                        Alignment.Center
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(40.dp),
+                            painter = painterResource(R.drawable.project_icon),
+                            contentDescription = "Icono"
+                        )
+                    }
                     Column(
                         Modifier
                             .fillMaxWidth()
-                            .clickable {
-                                navigationController.navigate(Screens.ProjectScreen.createRoute(task.taskProjectId))
-                            }
-                            .padding(10.dp)
+                            .clip(
+                                RoundedCornerShape(
+                                    bottomEndPercent = 10,
+                                    bottomStartPercent = 0,
+                                    topEndPercent = 10,
+                                    topStartPercent = 0
+                                )
+                            )
+                            .background(
+                                brush = Brush.horizontalGradient(
+                                    listOf(
+                                        MaterialTheme.colorScheme.onPrimary,
+                                        MaterialTheme.colorScheme.background
+                                    )
+                                )
+                            )
                     ) {
                         Text(
                             text = task.title,
@@ -333,6 +393,7 @@ fun TaskSummary(
                         )
                     }
                 }
+                Spacer(modifier = Modifier.height(10.dp))
             }
         }
     }
@@ -343,7 +404,7 @@ fun ProjectSummary(
     projects: List<Project>,
     navigationController: NavHostController
 ) {
-    val projectsForDate = projects.filter { LocalDate.parse(it.endDate, DateTimeFormatter.ofPattern("dd/MM/yyyy")) == selectedDate }
+    val projectsForDate = projects.filter { LocalDate.parse(it.endDate, DateTimeFormatter.ofPattern("dd MMM yyyy")) == selectedDate }
 
     if (projectsForDate.isNotEmpty()) {
         Column(Modifier.padding(10.dp)) {
@@ -352,24 +413,53 @@ fun ProjectSummary(
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(10.dp))
-
-
                 projectsForDate.forEach { project ->
-                    OutlinedCard(
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .clickable {
+                                navigationController.navigate(Screens.ProjectScreen.createRoute(project.projectId!!))
+                            },
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
+                        Box(modifier = Modifier
+                            .clip(
+                                RoundedCornerShape(
+                                    bottomEndPercent = 0,
+                                    bottomStartPercent = 20,
+                                    topEndPercent = 0,
+                                    topStartPercent = 20
+                                )
+                            )
+                            .background(color = MaterialTheme.colorScheme.onSecondary)
+                            .size(50.dp),
+                            Alignment.Center
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(40.dp),
+                                painter = painterResource(R.drawable.project_icon),
+                                contentDescription = "Icono"
+                            )
+                        }
                         Column(
                             Modifier
                                 .fillMaxWidth()
-                                .clickable {
-                                    navigationController.navigate(
-                                        Screens.ProjectScreen.createRoute(
-                                            project.projectId!!
+                                .clip(
+                                    RoundedCornerShape(
+                                        bottomEndPercent = 20,
+                                        bottomStartPercent = 0,
+                                        topEndPercent = 20,
+                                        topStartPercent = 0
+                                    )
+                                )
+                                .background(
+                                    brush = Brush.horizontalGradient(
+                                        listOf(
+                                            MaterialTheme.colorScheme.onSecondary,
+                                            MaterialTheme.colorScheme.background
                                         )
                                     )
-                                }
-                                .padding(10.dp)
+                                )
                         ) {
                             Text(
                                 text = project.name,
@@ -382,8 +472,8 @@ fun ProjectSummary(
                             )
                         }
                     }
+                    Spacer(modifier = Modifier.height(10.dp))
                 }
         }
-
     }
 }

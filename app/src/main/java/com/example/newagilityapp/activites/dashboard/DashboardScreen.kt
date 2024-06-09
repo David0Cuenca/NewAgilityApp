@@ -1,28 +1,18 @@
 package com.example.newagilityapp.activites.dashboard
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
@@ -34,7 +24,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,8 +43,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.newagilityapp.R
-import com.example.newagilityapp.activites.components.CountCard
 import com.example.newagilityapp.activites.components.Alert
+import com.example.newagilityapp.activites.components.CountCard
 import com.example.newagilityapp.activites.components.ProjectCard
 import com.example.newagilityapp.activites.components.ProjectSessions
 import com.example.newagilityapp.activites.components.taskList
@@ -66,7 +55,6 @@ import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Screens
 import com.example.newagilityapp.utilities.formatDuration
 import kotlinx.coroutines.launch
-
 
 @Composable
 fun DashboardScreen(
@@ -136,13 +124,12 @@ fun DashboardScreen(
                         onViewAllClicked = { navigationController.navigate(Screens.ListScreen.route) }
                     )
                 }
-
                 taskList(
                     sectionTitle = "Trabajos por hacer",
                     emptyListText = "No tienes trabajos. \n Pulsa para crear una nueva",
-                    tasks = allTasks,
+                    tasks = allTasks.filter { !it.isDone },
                     onEmptyClick = { navigationController.navigate(Screens.TaskScreen.route) },
-                    onCheckBoxClick = {},
+                    onCheckBoxClick = { it.isDone = true },
                     onTaskCardClick = { navigationController.navigate(Screens.TaskScreen.route) }
                 )
                 item {
@@ -226,7 +213,7 @@ private fun ProjectsCardSection(
     emptyListText: String = "No tienes ningún Proyecto. \n Pulsa el botón + para añadir un nuevo proyecto",
     onAddIconClicked: () -> Unit,
     onProjectCardClick: (Int) -> Unit,
-    onViewAllClicked: () -> Unit // Añadido para el botón de ver todos
+    onViewAllClicked: () -> Unit
 ) {
     Spacer(modifier = Modifier.height(10.dp))
     Column(modifier = Modifier.fillMaxWidth()) {
