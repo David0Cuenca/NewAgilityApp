@@ -1,4 +1,4 @@
-package com.example.newagilityapp.activites.components
+package com.example.newagilityapp.activites.components.uielements
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.newagilityapp.activites.components.dialogs.NewTaskDialog
 import com.example.newagilityapp.model.Task
 import com.example.newagilityapp.utilities.Priority
 import com.example.newagilityapp.utilities.changeMillisToDateString

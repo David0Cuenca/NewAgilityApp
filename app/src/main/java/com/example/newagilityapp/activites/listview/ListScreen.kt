@@ -56,7 +56,6 @@ import com.example.newagilityapp.data.viewmodels.ProjectViewModel
 import com.example.newagilityapp.data.viewmodels.TaskViewModel
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Screens
-import com.example.newagilityapp.utilities.daysLeft
 import com.example.newagilityapp.utilities.formatDuration
 import com.example.newagilityapp.utilities.formatGoalHours
 import kotlinx.coroutines.delay

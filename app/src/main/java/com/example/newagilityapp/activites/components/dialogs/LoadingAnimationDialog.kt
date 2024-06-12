@@ -1,10 +1,9 @@
-package com.example.newagilityapp.activites.components
+package com.example.newagilityapp.activites.components.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -20,13 +19,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import kotlinx.coroutines.delay
 
@@ -36,7 +33,7 @@ fun LoadingAnimationDialog(onDismiss: () -> Unit) {
     val compositionLoading by rememberLottieComposition(LottieCompositionSpec.Asset("loading.json"))
     val compositionSuccess by rememberLottieComposition(LottieCompositionSpec.Asset("sucess.json"))
     LaunchedEffect(Unit) {
-        delay(1000)  // Espera para mostrar la animación de carga
+        delay(1000)
         showSuccessAnimation = true
     }
 

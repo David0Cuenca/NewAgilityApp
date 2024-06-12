@@ -1,4 +1,4 @@
-package com.example.newagilityapp.activites.components
+package com.example.newagilityapp.activites.components.uielements
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -30,7 +29,7 @@ import com.example.newagilityapp.model.Session
 import com.example.newagilityapp.utilities.formatDuration
 
 
-fun LazyListScope.ProjectSessions(
+fun LazyListScope.projectSessions(
     sectionTitle: String,
     sessions: List<Session>,
     emptyListText: String,
@@ -39,7 +38,7 @@ fun LazyListScope.ProjectSessions(
     item {
         Text(
             text = sectionTitle,
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(12.dp)
         )
     }

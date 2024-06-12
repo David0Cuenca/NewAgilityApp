@@ -47,9 +47,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.newagilityapp.R
-import com.example.newagilityapp.activites.components.LoadingAnimationDialog
-import com.example.newagilityapp.activites.components.TaskDatePicker
-import com.example.newagilityapp.activites.components.TimePickerDialog
+import com.example.newagilityapp.activites.components.dialogs.LoadingAnimationDialog
+import com.example.newagilityapp.activites.components.dialogs.TaskDatePicker
+import com.example.newagilityapp.activites.components.dialogs.TimePickerDialog
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.utilities.changeMillisToDateString

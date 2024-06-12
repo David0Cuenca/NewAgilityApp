@@ -65,13 +65,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.newagilityapp.R
-import com.example.newagilityapp.activites.components.CountCard
-import com.example.newagilityapp.activites.components.Alert
-import com.example.newagilityapp.activites.components.LoadingAnimationDialog
-import com.example.newagilityapp.activites.components.ProjectSessions
-import com.example.newagilityapp.activites.components.TaskDatePicker
-import com.example.newagilityapp.activites.components.TimePickerDialog
-import com.example.newagilityapp.activites.components.taskList
+import com.example.newagilityapp.activites.components.dialogs.Alert
+import com.example.newagilityapp.activites.components.dialogs.LoadingAnimationDialog
+import com.example.newagilityapp.activites.components.dialogs.TaskDatePicker
+import com.example.newagilityapp.activites.components.dialogs.TimePickerDialog
+import com.example.newagilityapp.activites.components.uielements.CountCard
+import com.example.newagilityapp.activites.components.uielements.projectSessions
+import com.example.newagilityapp.activites.components.uielements.taskList
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
 import com.example.newagilityapp.data.viewmodels.SessionViewModel
 import com.example.newagilityapp.data.viewmodels.TaskViewModel
@@ -84,8 +84,6 @@ import com.example.newagilityapp.utilities.formatDuration
 import com.example.newagilityapp.utilities.formatGoalHours
 import kotlinx.coroutines.launch
 import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -306,7 +304,7 @@ fun ProjectScreen(
             item {
                 Spacer(modifier = Modifier.height(20.dp))
             }
-            ProjectSessions(
+            projectSessions(
                 sectionTitle = "Sesiones de los proyectos",
                 emptyListText = "No tienes ninguna sesión de Proyectos.\n !Añade una ahora¡",
                 sessions = sessions,

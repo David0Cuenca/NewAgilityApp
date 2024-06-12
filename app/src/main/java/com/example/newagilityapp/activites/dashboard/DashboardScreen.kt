@@ -1,5 +1,7 @@
 package com.example.newagilityapp.activites.dashboard
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,11 +45,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.newagilityapp.R
-import com.example.newagilityapp.activites.components.Alert
-import com.example.newagilityapp.activites.components.CountCard
-import com.example.newagilityapp.activites.components.ProjectCard
-import com.example.newagilityapp.activites.components.ProjectSessions
-import com.example.newagilityapp.activites.components.taskList
+import com.example.newagilityapp.activites.components.dialogs.Alert
+import com.example.newagilityapp.activites.components.uielements.CountCard
+import com.example.newagilityapp.activites.components.uielements.DailyReport
+import com.example.newagilityapp.activites.components.uielements.ProjectCard
+import com.example.newagilityapp.activites.components.uielements.projectSessions
+import com.example.newagilityapp.activites.components.uielements.taskList
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
 import com.example.newagilityapp.data.viewmodels.SessionViewModel
 import com.example.newagilityapp.data.viewmodels.TaskViewModel
@@ -56,6 +59,7 @@ import com.example.newagilityapp.model.Screens
 import com.example.newagilityapp.utilities.formatDuration
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DashboardScreen(
     navigationController: NavController,
@@ -94,7 +98,7 @@ fun DashboardScreen(
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize()) {
             Image(
-            painter = painterResource(id = R.drawable.curve_ripple_line_1x_4_0s_1879px_939px),
+            painter = painterResource(id = R.drawable.background),
             contentDescription = "",
             modifier = Modifier
                 .fillMaxSize(),
@@ -124,10 +128,13 @@ fun DashboardScreen(
                         onViewAllClicked = { navigationController.navigate(Screens.ListScreen.route) }
                     )
                 }
+                item {
+                 DailyReport(navigationController)
+                }
                 taskList(
                     sectionTitle = "Trabajos por hacer",
                     emptyListText = "No tienes trabajos. \n Pulsa para crear una nueva",
-                    tasks = allTasks.filter { !it.isDone },
+                    tasks = allTasks.filter { !it.isDone }.sortedWith(compareBy({it.priority},{it.endate})).take(6),
                     onEmptyClick = { navigationController.navigate(Screens.TaskScreen.route) },
                     onCheckBoxClick = { it.isDone = true },
                     onTaskCardClick = { navigationController.navigate(Screens.TaskScreen.route) }
@@ -135,10 +142,10 @@ fun DashboardScreen(
                 item {
                     Spacer(modifier = Modifier.size(20.dp))
                 }
-                ProjectSessions(
-                    sectionTitle = "Sesiones de los proyectos",
+                projectSessions(
+                    sectionTitle = "Historial de sesiones",
                     emptyListText = "No tienes ninguna sesión de Proyectos.",
-                    sessions = allSessions,
+                    sessions = allSessions.sortedBy { it.date }.take(6),
                     onDeleteIconClick = { isOpenDelete = true }
                 )
                 item {
@@ -224,7 +231,7 @@ private fun ProjectsCardSection(
         ) {
             Text(
                 text = "Proyectos",
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(12.dp)
             )
             IconButton(onClick = onAddIconClicked) {

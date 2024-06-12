@@ -1,4 +1,4 @@
-package com.example.newagilityapp.activites.components
+package com.example.newagilityapp.activites.components.uielements
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -37,7 +37,7 @@ fun LazyListScope.taskList(
     item {
         Text(
             text = sectionTitle,
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(12.dp)
         )
     }

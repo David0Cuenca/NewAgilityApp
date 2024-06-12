@@ -1,6 +1,5 @@
 package com.example.newagilityapp.data.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
@@ -8,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.newagilityapp.data.repository.ProjectRepository
 import com.example.newagilityapp.data.repository.TaskRepository
 import com.example.newagilityapp.model.Project
-import com.example.newagilityapp.model.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch

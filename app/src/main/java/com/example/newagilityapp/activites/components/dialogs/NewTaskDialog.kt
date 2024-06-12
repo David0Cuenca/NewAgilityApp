@@ -1,4 +1,4 @@
-package com.example.newagilityapp.activites.components
+package com.example.newagilityapp.activites.components.dialogs
 
 
 import android.os.Build

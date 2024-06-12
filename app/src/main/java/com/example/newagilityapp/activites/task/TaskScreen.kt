@@ -48,10 +48,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.example.newagilityapp.activites.components.Alert
-import com.example.newagilityapp.activites.components.SubjectListBottomSheet
-import com.example.newagilityapp.activites.components.TaskDatePicker
-import com.example.newagilityapp.activites.components.TimePickerDialog
+import com.example.newagilityapp.activites.components.dialogs.Alert
+import com.example.newagilityapp.activites.components.dialogs.TaskDatePicker
+import com.example.newagilityapp.activites.components.uielements.SubjectListBottomSheet
 import com.example.newagilityapp.activites.project.OutlinedBox
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
 import com.example.newagilityapp.data.viewmodels.TaskViewModel
@@ -60,7 +59,6 @@ import com.example.newagilityapp.utilities.Priority
 import com.example.newagilityapp.utilities.changeMillisToDateString
 import kotlinx.coroutines.launch
 import java.time.Instant
-import java.util.Locale
 
 
 @RequiresApi(Build.VERSION_CODES.O)

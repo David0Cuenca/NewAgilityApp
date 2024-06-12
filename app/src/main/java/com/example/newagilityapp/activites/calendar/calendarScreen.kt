@@ -60,8 +60,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.newagilityapp.R
-import com.example.newagilityapp.activites.components.FilterBar
-import com.example.newagilityapp.activites.components.FilterType
+import com.example.newagilityapp.activites.components.uielements.FilterBar
+import com.example.newagilityapp.activites.components.uielements.FilterType
 import com.example.newagilityapp.data.viewmodels.ProjectViewModel
 import com.example.newagilityapp.data.viewmodels.TaskViewModel
 import com.example.newagilityapp.model.Project

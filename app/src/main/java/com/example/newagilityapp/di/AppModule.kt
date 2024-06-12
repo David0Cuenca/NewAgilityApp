@@ -19,14 +19,14 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-    //Hay que cambiar el inMemoryDataBase por buid data base al final del proyecto
     @Provides
     @Singleton
     fun provideAppDatabase(@ApplicationContext appContext: Context): AppDatabase {
-        return Room.inMemoryDatabaseBuilder(
+        return Room.databaseBuilder(
             appContext,
             AppDatabase::class.java,
-        ).fallbackToDestructiveMigration().build()
+            name = "New Agility Database"
+        ).build()
 
     }
 

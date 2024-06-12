@@ -1,4 +1,4 @@
-package com.example.newagilityapp.activites.components
+package com.example.newagilityapp.activites.components.uielements
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.border

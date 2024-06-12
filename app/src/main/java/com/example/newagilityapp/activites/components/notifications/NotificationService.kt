@@ -1,4 +1,4 @@
-package com.example.newagilityapp.notifications
+package com.example.newagilityapp.activites.components.notifications
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -6,7 +6,9 @@ import android.content.Context
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.example.newagilityapp.R
-import java.util.Locale
+import com.example.newagilityapp.model.Project
+import com.example.newagilityapp.model.Task
+import com.example.newagilityapp.utilities.formatElapsedTime
 
 fun createNotificationChannel(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -22,6 +24,34 @@ fun createNotificationChannel(context: Context) {
     }
 }
 
+fun showDailyReportNotification(context: Context, tasks: List<Task>, projects: List<Project>) {
+    val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    val contentText = buildNotificationContent(tasks, projects)
+    val builder = NotificationCompat.Builder(context, "CHANNEL_ID")
+        .setSmallIcon(R.drawable.task_icon)
+        .setContentTitle("Reporte diario")
+        .setContentText(contentText)
+        .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
+        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+        .setOnlyAlertOnce(true)
+    notificationManager.notify(2, builder.build())
+}
+
+fun buildNotificationContent(tasks: List<Task>, projects: List<Project>): String {
+    val taskSummary = if (tasks.isNotEmpty()) {
+        "Tareas para hoy:\n" + tasks.joinToString("\n") { it.title }
+    } else {
+        "No hay tareas para hoy."
+    }
+    val projectSummary = if (projects.isNotEmpty()) {
+        "Proyectos que acaban hoy:\n" + projects.joinToString("\n") { it.name }
+    } else {
+        "No hay proyectos para hoy."
+    }
+
+    return "$taskSummary\n$projectSummary"
+}
+
 fun showNotification(context: Context, elapsedTime: Long, projectName: String, initial: Boolean) {
     val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     val builder = NotificationCompat.Builder(context, "CHANNEL_ID")
@@ -34,16 +64,7 @@ fun showNotification(context: Context, elapsedTime: Long, projectName: String, i
     notificationManager.notify(1, builder.build())
 }
 
-fun formatElapsedTime(elapsedTime: Long): String {
-    val hours = elapsedTime / 3600
-    val minutes = (elapsedTime % 3600) / 60
-    val seconds = elapsedTime % 60
-    return if (hours > 0) {
-        String.format(Locale.getDefault(), "%02d:%02d", hours, minutes)
-    } else {
-        String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
-    }
-}
+
 fun cancelNotification(context: Context) {
     val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     notificationManager.cancel(1)

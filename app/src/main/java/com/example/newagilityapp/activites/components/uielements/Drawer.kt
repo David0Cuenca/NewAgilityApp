@@ -1,13 +1,11 @@
-package com.example.newagilityapp.activites.components
+package com.example.newagilityapp.activites.components.uielements
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Icon
@@ -27,7 +25,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.newagilityapp.R
-import com.example.newagilityapp.model.Screens
 import kotlinx.coroutines.launch
 
 data class MenuItem(
@@ -47,7 +44,9 @@ fun DrawerContent(
 ){
     val scope= rememberCoroutineScope()
     var selectedItem by rememberSaveable { mutableIntStateOf(0)}
-    Column (horizontalAlignment = Alignment.CenterHorizontally)
+    Column (
+        horizontalAlignment = Alignment.CenterHorizontally,
+    )
     {
         Icon(
             modifier = Modifier.size(200.dp),

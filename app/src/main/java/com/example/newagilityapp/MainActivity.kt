@@ -4,7 +4,6 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -24,20 +23,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.newagilityapp.activites.calendar.CalendarScreen
-import com.example.newagilityapp.activites.components.DrawerContent
-import com.example.newagilityapp.activites.components.MenuItem
+import com.example.newagilityapp.activites.components.uielements.DrawerContent
+import com.example.newagilityapp.activites.components.uielements.MenuItem
 import com.example.newagilityapp.activites.dashboard.DashboardScreen
 import com.example.newagilityapp.activites.listview.ListScreen
 import com.example.newagilityapp.activites.project.NewProjectScreen
 import com.example.newagilityapp.activites.project.ProjectScreen
 import com.example.newagilityapp.activites.session.SessionScreen
 import com.example.newagilityapp.activites.task.TaskScreen
-import com.example.newagilityapp.data.viewmodels.ProjectViewModel
-import com.example.newagilityapp.data.viewmodels.SessionViewModel
-import com.example.newagilityapp.data.viewmodels.TaskViewModel
-import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Screens
-import com.example.newagilityapp.model.Session
 import com.example.newagilityapp.ui.theme.NewAgilityAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -94,13 +88,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 val navBaritems = listOf(
     MenuItem(
         title = "Inicio",
         selected = Icons.Filled.Home,
         badge = false,
-        unselected= Icons.Outlined.Home,
+        unselected = Icons.Outlined.Home,
         destination = Screens.DashboardScreen.route
     ),
     MenuItem(
@@ -114,7 +107,7 @@ val navBaritems = listOf(
         title = "Calendario",
         selected = Icons.Filled.DateRange,
         badge = false,
-        unselected= Icons.Outlined.DateRange,
+        unselected = Icons.Outlined.DateRange,
         destination = Screens.CalendarScreen.route
-),
+    ),
 )
