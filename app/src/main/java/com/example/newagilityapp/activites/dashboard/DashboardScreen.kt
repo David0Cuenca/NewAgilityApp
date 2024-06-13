@@ -33,6 +33,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -56,6 +57,7 @@ import com.example.newagilityapp.data.viewmodels.SessionViewModel
 import com.example.newagilityapp.data.viewmodels.TaskViewModel
 import com.example.newagilityapp.model.Project
 import com.example.newagilityapp.model.Screens
+import com.example.newagilityapp.model.Session
 import com.example.newagilityapp.utilities.formatDuration
 import kotlinx.coroutines.launch
 
@@ -73,21 +75,25 @@ fun DashboardScreen(
 
     var isOpenDelete by rememberSaveable { mutableStateOf(false) }
 
+    var sessionToDelete by remember { mutableStateOf<Session?>(null) }
+
     val allProjects by projectViewModel.getAllProjects.collectAsState(initial = emptyList())
     val allSessions by sessionViewModel.getAllSessions.collectAsState(initial = emptyList())
     val allTasks by taskViewModel.getAllTasks.collectAsState(initial = emptyList())
     val completedProjectsCount by projectViewModel.completedProjectsCount.observeAsState(0)
     val totalHoursWorked by projectViewModel.totalHoursWorked.observeAsState(0L)
 
-    Alert(
-        isOpen = isOpenDelete,
-        title = "Borrar sesión",
-        text = "Vas a borrar una sessión de un proyecto \n " +
-                "¿Estas seguro de hacerlo? Recuerda que esto no se puede revertir una vez hecho",
-        onDismissRequest = { isOpenDelete = false },
-        onConfirmButtonsClick = { isOpenDelete = false },
-    )
-
+        Alert(
+            isOpen = isOpenDelete,
+            title = "Borrar sesión",
+            text = "Vas a borrar una sessión de un proyecto \n " +
+                    "¿Estas seguro de hacerlo? Recuerda que esto no se puede revertir una vez hecho",
+            onDismissRequest = { isOpenDelete = false },
+            onConfirmButtonsClick = {
+                isOpenDelete = false
+                sessionToDelete?.let { sessionViewModel.deleteSession(it) }
+            },
+        )
     Scaffold(
         Modifier.fillMaxSize(),
         topBar = {
@@ -146,7 +152,10 @@ fun DashboardScreen(
                     sectionTitle = "Historial de sesiones",
                     emptyListText = "No tienes ninguna sesión de Proyectos.",
                     sessions = allSessions.sortedBy { it.date }.take(6),
-                    onDeleteIconClick = { isOpenDelete = true }
+                    onDeleteIconClick = {
+                        isOpenDelete = true
+                        sessionToDelete=it
+                    }
                 )
                 item {
                     Button(
